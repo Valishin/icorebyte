@@ -1,0 +1,17 @@
+input,
+textarea,
+select,
+button {
+  font-family: inherit; // hereda la fuente del body o contenedor
+  font-size: inherit; // hereda tamaño
+  font-weight: inherit; // hereda peso
+  line-height: inherit; // hereda altura de línea
+  letter-spacing: normal; // resetea cualquier espaciado
+  color: inherit; // hereda color
+  background: none; // opcional: quita background por defecto
+  border: none; // opcional: quita borde por defecto
+  padding: 0; // opcional: quita padding por defecto
+  margin: 0; // opcional: quita margin por defecto
+  outline: none; // opcional: quita outline por defecto
+  box-sizing: border-box; // más consistente
+}

@@ -1,0 +1,121 @@
+$font-primary: 'Inter', sans-serif;
+
+$display-1: (
+  xs: (
+    'font-size': 54px,
+    'line-height': 65px,
+    'letter-spacing': 0px,
+    'font-family': $font-primary,
+    'font-weight': 400
+  ),
+  sm: (
+    'font-size': 54px,
+    'line-height': 65px,
+    'letter-spacing': 0px,
+    'font-family': $font-primary,
+    'font-weight': 400
+  ),
+  md: (
+    'font-size': 90px,
+    'line-height': 100px,
+    'letter-spacing': 0px,
+    'font-family': $font-primary,
+    'font-weight': 400
+  )
+);
+
+$display-2: (
+  xs: (
+    'font-size': 44px,
+    'line-height': 52px,
+    'letter-spacing': 0px,
+    'font-family': $font-primary,
+    'font-weight': 400
+  ),
+  sm: (
+    'font-size': 44px,
+    'line-height': 52px,
+    'letter-spacing': 0px,
+    'font-family': $font-primary,
+    'font-weight': 400
+  ),
+  md: (
+    'font-size': 48px,
+    'line-height': 56px,
+    'letter-spacing': 0px,
+    'font-family': $font-primary,
+    'font-weight': 400
+  )
+);
+
+$display-3: (
+  xs: (
+    'font-size': 28px,
+    'line-height': 38px,
+    'letter-spacing': 0px,
+    'font-family': $font-primary,
+    'font-weight': 400
+  ),
+  sm: (
+    'font-size': 28px,
+    'line-height': 38px,
+    'letter-spacing': 0px,
+    'font-family': $font-primary,
+    'font-weight': 400
+  ),
+  md: (
+    'font-size': 32px,
+    'line-height': 42px,
+    'letter-spacing': 0px,
+    'font-family': $font-primary,
+    'font-weight': 400
+  )
+);
+
+$display-body: (
+  xs: (
+    'font-size': 14px,
+    'line-height': 20px,
+    'letter-spacing': 0px,
+    'font-family': $font-primary,
+    'font-weight': 400
+  ),
+  sm: (
+    'font-size': 15px,
+    'line-height': 22px,
+    'letter-spacing': 0px,
+    'font-family': $font-primary,
+    'font-weight': 400
+  ),
+  md: (
+    'font-size': 16px,
+    'line-height': 24px,
+    'letter-spacing': 0px,
+    'font-family': $font-primary,
+    'font-weight': 400
+  )
+);
+
+$display-caption: (
+  xs: (
+    'font-size': 8px,
+    'line-height': 10px,
+    'letter-spacing': 0px,
+    'font-family': $font-primary,
+    'font-weight': 400
+  ),
+  sm: (
+    'font-size': 8px,
+    'line-height': 10px,
+    'letter-spacing': 0px,
+    'font-family': $font-primary,
+    'font-weight': 400
+  ),
+  md: (
+    'font-size': 12px,
+    'line-height': 16px,
+    'letter-spacing': 0px,
+    'font-family': $font-primary,
+    'font-weight': 400
+  )
+);

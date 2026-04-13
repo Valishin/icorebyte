@@ -1,0 +1,16 @@
+:root {
+  /* Espaciados base */
+  --space-xxs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-xxl: 48px;
+
+  /* Container */
+  --container-width: 1400px;
+  --container-padding: var(--space-md);
+  // --container-width-sm: 960px;
+  // --container-width-xs: 640px;
+}

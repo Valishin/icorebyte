@@ -1,0 +1,52 @@
+@use '../mixins/mixins' as mixins;
+@use '../tokens/grid' as grid;
+
+.o-col {
+  padding-left: calc(var(--grid-gutter) / 2);
+  padding-right: calc(var(--grid-gutter) / 2);
+
+  // columnas md
+  @for $i from 1 through grid.$total-columns-md {
+    &-#{$i}\@md {
+      @include mixins.only-md {
+        @include mixins.av_col($i, grid.$total-columns-md);
+      }
+    }
+
+    &-push-#{$i}\@md {
+      @include mixins.only-md {
+        @include mixins.av_col_push($i);
+      }
+    }
+  }
+
+  // columnas sm
+  @for $i from 1 through grid.$total-columns-sm {
+    &-#{$i}\@sm {
+      @include mixins.only-sm {
+        @include mixins.av_col($i, grid.$total-columns-sm);
+      }
+    }
+
+    &-push-#{$i}\@sm {
+      @include mixins.only-sm {
+        @include mixins.av_col_push($i);
+      }
+    }
+  }
+
+  // columnas xs
+  @for $i from 1 through grid.$total-columns-xs {
+    &-#{$i}\@xs {
+      @include mixins.only-xs {
+        @include mixins.av_col($i, grid.$total-columns-xs);
+      }
+    }
+
+    &-push-#{$i}\@xs {
+      @include mixins.only-xs {
+        @include mixins.av_col_push($i);
+      }
+    }
+  }
+}

@@ -1,0 +1,24 @@
+@use "../mixins/mixins" as mixins;
+@use "../tokens/tipography" as tipo;
+
+.o-font-display {
+    &-1 {
+        @include mixins.font-style(tipo.$display-1);
+    }
+
+    &-2 {
+        @include mixins.font-style(tipo.$display-2);
+    }
+
+    &-3 {
+        @include mixins.font-style(tipo.$display-3);
+    }
+
+    &-body {
+        @include mixins.font-style(tipo.$display-body);
+    }
+
+    &-caption {
+        @include mixins.font-style(tipo.$display-caption);
+    }
+}

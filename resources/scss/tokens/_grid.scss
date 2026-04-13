@@ -1,0 +1,15 @@
+@use 'sass:map';
+@use '../mixins/mixins' as mixins;
+
+$grid-columns: 12;
+$grid-gutter: 24px;
+
+// Columnas por breakpoint
+$total-columns-md: 12;
+$total-columns-sm: 8;
+$total-columns-xs: 4;
+
+[class^='o-col'] {
+  padding-left: calc($grid-gutter / 2);
+  padding-right: calc($grid-gutter / 2);
+}

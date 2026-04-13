@@ -1,0 +1,186 @@
+@use 'sass:map';
+@use '../tokens/breakpoints' as bp;
+
+@mixin respond($breakpoint) {
+  @media (min-width: map.get(bp.$breakpoints, $breakpoint)) {
+    @content;
+  }
+}
+
+@mixin av_col_push($cols: 1) {
+  margin-left: calc((#{$cols} / 12) * (100% - 0px));
+}
+
+@mixin av_col($size, $columns) {
+  width: calc(100% / #{$columns} * #{$size});
+}
+
+// * de $mq hacia arriba, $mq incluído
+@mixin media-to-up($mq) {
+  @media (min-width: $mq) {
+    @content;
+  }
+}
+
+// * de $mq hacia abajo, $mq incluído
+@mixin media-to-down($mq) {
+  @media (max-width: $mq) {
+    @content;
+  }
+}
+
+// * de $mq-min a $mq-max, ambos incluídos
+@mixin media-between($mq-min, $mq-max) {
+  @media (min-width: $mq-min) and (max-width: $mq-max) {
+    @content;
+  }
+}
+
+// ! XS -------------------------------------------
+// * de 0px a infinito (estilos por defecto)
+// XS
+@mixin only-xs() {
+  @include media-to-down(bp.$break-tablet) {
+    @content;
+  }
+}
+
+// SM
+@mixin only-sm() {
+  @include media-between(bp.$break-tablet + 1, bp.$break-desktop) {
+    @content;
+  }
+}
+
+// MD
+@mixin only-md() {
+  @include media-to-up(bp.$break-desktop + 1) {
+    @content;
+  }
+}
+
+@mixin font-style($map) {
+  @each $breakpoint, $styles in $map {
+    @if $breakpoint == xs {
+      // estilos base, sin media query
+      @each $prop, $value in $styles {
+        #{$prop}: #{$value};
+      }
+    }
+
+    @if $breakpoint == sm {
+      @include only-sm() {
+        @each $prop, $value in $styles {
+          #{$prop}: #{$value};
+        }
+      }
+    }
+
+    @if $breakpoint == md {
+      @include only-md() {
+        @each $prop, $value in $styles {
+          #{$prop}: #{$value};
+        }
+      }
+    }
+  }
+}
+
+@mixin button-style-1 {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  text-decoration: none;
+  color: #ffffff;
+  background: linear-gradient(135deg, #4f46e5, #6366f1); // degradado moderno
+  border: none;
+  border-radius: 12px;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: #a1a1aa;
+  }
+}
+
+@mixin button-style-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  text-decoration: none;
+  color: #ffffff;
+  background: linear-gradient(135deg, #ef4444, #dc2626); // rojo degradado
+  border: none;
+  border-radius: 12px;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+    background: linear-gradient(135deg, #dc2626, #ef4444); // swap de colores
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: #f87171;
+  }
+}
+
+@mixin button-style-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  text-decoration: none;
+  color: #ffffff;
+  background: linear-gradient(135deg, #10b981, #059669); // verde degradado
+  border: none;
+  border-radius: 12px;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+    background: linear-gradient(135deg, #059669, #10b981); // swap colores
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: #6ee7b7;
+  }
+}

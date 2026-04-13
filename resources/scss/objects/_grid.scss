@@ -1,0 +1,42 @@
+@use '../tokens/grid' as tokens;
+@use '../mixins/col' as col;
+
+@for $i from 1 through tokens.$grid-columns {
+  // clases normales
+  .o-col-#{$i} {
+    @include col.av_col($i, tokens.$grid-columns);
+  }
+
+  // clases push
+  .o-col-push-#{$i} {
+    @include col.col_push($i, tokens.$grid-columns);
+  }
+
+  // responsive con breakpoint
+  @include col.respond(xs) {
+    .o-col-#{$i}\@xs {
+      @include col.av_col($i, tokens.$total-columns-xs);
+    }
+    .o-col-push-#{$i}\@xs {
+      @include col.col_push($i, tokens.$total-columns-xs);
+    }
+  }
+
+  @include col.respond(sm) {
+    .o-col-#{$i}\@sm {
+      @include col.av_col($i, tokens.$total-columns-sm);
+    }
+    .o-col-push-#{$i}\@sm {
+      @include col.col_push($i, tokens.$total-columns-sm);
+    }
+  }
+
+  @include col.respond(md) {
+    .o-col-#{$i}\@md {
+      @include col.av_col($i, tokens.$total-columns-md);
+    }
+    .o-col-push-#{$i}\@md {
+      @include col.col_push($i, tokens.$total-columns-md);
+    }
+  }
+}

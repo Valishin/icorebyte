@@ -1,0 +1,28 @@
+input,
+select,
+textarea {
+    padding: 8px;
+    border: 1px solid var(--color-gray);
+    border-radius: 3px;
+    resize: none;
+}
+
+#app {
+    margin-top: 80px;
+}
+
+body {
+    background-color: var(--color-background);
+    margin: 0px;
+}
+
+.components {
+    margin-left: var(--header-width);
+}
+
+.grid-bg {
+    background-image:
+        linear-gradient(rgba(38, 107, 224, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(38, 107, 224, 0.06) 1px, transparent 1px);
+    background-size: 60px 60px;
+}

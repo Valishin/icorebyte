@@ -1,0 +1,37 @@
+@use '../mixins/mixins' as respond;
+@use '../tokens/breakpoints' as bp;
+
+// :root {
+//   --container-width: 640px;
+// }
+
+// @include respond.respond(sm) {
+//   :root {
+//     --container-width: 960px;
+//   }
+// }
+
+// @include respond.respond(md) {
+//   :root {
+//     --container-width: 1200px;
+//   }
+// }
+
+.o-container {
+  width: 100%;
+  max-width: calc(var(--container-width) + (var(--container-padding) * 2));
+  padding-inline: var(--container-padding);
+  margin-inline: auto;
+}
+
+// @include respond.respond(sm) {
+//   .o-container {
+//     max-width: calc(var(--container-width) + (var(--container-padding) * 2));
+//   }
+// }
+
+// @include respond.respond(md) {
+//   .o-container {
+//     max-width: calc(var(--container-width) + (var(--container-padding) * 2));
+//   }
+// }
