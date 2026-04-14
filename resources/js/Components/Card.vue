@@ -24,10 +24,21 @@ const props = defineProps<{
 <style lang="scss" scoped>
 .c-card {
     &__inner {
+        border: 1px solid var(--color-gray-dark);
         border-radius: 8px;
         background-color: var(--color-white);
         overflow: hidden;
+        transition: border-color 0.3s ease;
     }
+
+    &__inner:hover {
+        border-color: var(--color-secondary);
+    }
+
+    &__inner:hover &__image {
+        transform: scale(1.09);
+    }
+
     &__title {
         font-size: 1.5rem;
         margin-bottom: 10px;
@@ -52,11 +63,7 @@ const props = defineProps<{
         height: 100%;
         object-fit: cover;
         transform: scale(1.01);
-        transition: all 0.3s ease;
-
-        &:hover {
-            transform: scale(1.08);
-        }
+        transition: all 0.5s ease;
     }
     &__wrapper-content {
         padding: 20px;
