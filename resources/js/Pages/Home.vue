@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import Hero from "@/Components/Hero.vue";
+import CHero from "@/Components/CHero.vue";
+import CServiceList from "@/Components/CServiceList.vue";
 </script>
 
 <template>
-    <Hero />
+    <CHero />
+    <CServiceList />
 </template>
