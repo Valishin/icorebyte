@@ -12,35 +12,51 @@
             overline="Servicios de reparación"
             title="Laboratorio de Reparación"
             description="Reparamos cualquier dispositivo con herramientas de última generación."
-            :color="'gradient'"
+            :color="'primary'"
           />
         </div>
         <div class="c-service-list__list">
           <CCard
             :image="images.imagenRepara"
-            title="Reparación de equipos"
-            content="Reparamos todo tipo de dispositivos electrónicos con eficiencia."
+            :iconInImage="'IconMaintenance'"
+            title="PC de sobremesa"
+            content="Diagnóstico, reparación y montaje de equipos de sobremesa."
           />
 
           <CCard
             :image="images.imagenTienda"
-            title="Venta de productos"
-            content="Ofrecemos una amplia gama de productos de alta calidad."
+            title="Portátiles"
+            content="Reparación, mantenimiento y venta de portátiles de todas las marcas."
           />
           <CCard
             :image="images.imagenDesarrollo"
-            title="Desarrollo de software"
-            content="Desarrollamos soluciones tecnológicas innovadoras para tu negocio."
+            title="Móviles"
+            content="Reparamos y optimizamos dispositivos móviles de todas las marcas."
           />
           <CCard
             :image="images.imagenSoporte"
-            title="Soporte técnico"
-            content="Brindamos soporte técnico especializado para tus dispositivos."
+            title="Tablets"
+            content="Reparamos y optimizamos tablets de todas las marcas."
           />
           <CCard
             :image="images.imagenSoporte"
-            title="Soporte técnico"
-            content="Brindamos soporte técnico especializado para tus dispositivos."
+            title="Electrónica en placa"
+            content="Reparación a nivel de componente en placas base. Microsoldadura y diagnóstico avanzado con osciloscopio."
+          />
+          <CCard
+            :image="images.imagenSoporte"
+            title="Impresoras"
+            content="Reparación, mantenimiento y configuración de impresoras láser, inyección de tinta y multifunción."
+          />
+          <CCard
+            :image="images.imagenSoporte"
+            title="Mantenimiento IT"
+            content="Servicios de mantenimiento informático preventivo y correctivo para particulares y empresas."
+          />
+          <CCard
+            :image="images.imagenSoporte"
+            title="Soporte Empresarial"
+            content="Planes de mantenimiento a medida para empresas. Soporte técnico remoto y presencial con SLA garantizado."
           />
         </div>
       </div>
@@ -50,28 +66,15 @@
 <style lang="scss" scoped>
   .c-service-list {
     padding-top: 40px;
-
     &__title {
       margin-bottom: 2rem;
       text-align: center;
     }
-
     &__list {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      grid-template-columns: repeat(4, 1fr);
       gap: 1rem;
-    }
-
-    &__item {
-      background-color: #f0f0f0;
-      padding: 1rem 2rem;
-      border-radius: 8px;
-      font-size: 1.25rem;
-      transition: background-color 0.3s ease;
-
-      &:hover {
-        background-color: #e0e0e0;
-      }
+      text-align: center;
     }
   }
 </style>

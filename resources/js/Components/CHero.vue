@@ -64,7 +64,7 @@
     &__inner {
       height: 100vh;
       text-align: center;
-      padding-top: 50px;
+      // padding-top: 50px;
     }
     &__overline {
       padding-bottom: 40px;
@@ -85,7 +85,9 @@
       color: var(--color-white);
       margin-bottom: 1rem;
     }
-
+    &__subtitle {
+      padding-bottom: 24px;
+    }
     &__subtitle-text {
       color: var(--color-gray-dark);
     }
@@ -123,7 +125,8 @@
       animation: c-hero-logo-enter 0.9s ease-out both;
     }
     &__wrapper-cards {
-      display: flex;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
       gap: 20px;
       justify-content: center;
       margin-top: 40px;

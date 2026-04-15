@@ -44,8 +44,24 @@
         -webkit-text-fill-color: transparent;
       }
     }
+    &__wrapper-overline {
+      padding-bottom: 24px;
+    }
     &__overline {
       margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      position: relative;
+
+      &::after {
+        content: '';
+        position: relative;
+        display: block;
+        width: 40px;
+        bottom: -8px;
+        height: 2px;
+        background: currentColor;
+        margin: 0 auto;
+      }
     }
     &__title {
       margin-bottom: 1rem;

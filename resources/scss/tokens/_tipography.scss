@@ -124,21 +124,21 @@ $display-section: (
   xs: (
     'font-size': 18px,
     'line-height': 24px,
-    'letter-spacing': 1px,
+    'letter-spacing': 4px,
     'font-family': $font-primary,
     'font-weight': 400
   ),
   sm: (
     'font-size': 18px,
     'line-height': 24px,
-    'letter-spacing': 1px,
+    'letter-spacing': 4px,
     'font-family': $font-primary,
     'font-weight': 400
   ),
   md: (
     'font-size': 24px,
     'line-height': 32px,
-    'letter-spacing': 1px,
+    'letter-spacing': 5px,
     'font-family': $font-primary,
     'font-weight': 400
   )
