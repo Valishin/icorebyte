@@ -17,44 +17,51 @@
         </div>
         <div class="c-service-list__list">
           <CCard
-            :image="images.imagenRepara"
-            :iconInImage="'IconMaintenance'"
+            :image="images.imagePcRepair"
+            :iconInImage="'IconDesktop'"
             title="PC de sobremesa"
             content="Diagnóstico, reparación y montaje de equipos de sobremesa."
           />
 
           <CCard
-            :image="images.imagenTienda"
+            :image="images.imageLaptopRepair"
+            :iconInImage="'IconLaptop'"
             title="Portátiles"
             content="Reparación, mantenimiento y venta de portátiles de todas las marcas."
           />
           <CCard
-            :image="images.imagenDesarrollo"
+            :image="images.imagePhoneRepair"
+            :iconInImage="'IconMobile'"
             title="Móviles"
             content="Reparamos y optimizamos dispositivos móviles de todas las marcas."
           />
           <CCard
-            :image="images.imagenSoporte"
+            :image="images.imageIpad"
+            :iconInImage="'IconTablet'"
             title="Tablets"
             content="Reparamos y optimizamos tablets de todas las marcas."
           />
           <CCard
-            :image="images.imagenSoporte"
+            :image="images.imagenRepara"
+            :iconInImage="'IconElectronic'"
             title="Electrónica en placa"
             content="Reparación a nivel de componente en placas base. Microsoldadura y diagnóstico avanzado con osciloscopio."
           />
           <CCard
-            :image="images.imagenSoporte"
+            :image="images.imagePrinterRepair"
+            :iconInImage="'IconPrinter'"
             title="Impresoras"
             content="Reparación, mantenimiento y configuración de impresoras láser, inyección de tinta y multifunción."
           />
           <CCard
-            :image="images.imagenSoporte"
+            :image="images.imageItMaintance"
+            :iconInImage="'IconMaintenance'"
             title="Mantenimiento IT"
             content="Servicios de mantenimiento informático preventivo y correctivo para particulares y empresas."
           />
           <CCard
-            :image="images.imagenSoporte"
+            :image="images.imageSupportIt"
+            :iconInImage="'IconSupport'"
             title="Soporte Empresarial"
             content="Planes de mantenimiento a medida para empresas. Soporte técnico remoto y presencial con SLA garantizado."
           />
@@ -72,7 +79,7 @@
     }
     &__list {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       gap: 1rem;
       text-align: center;
     }
