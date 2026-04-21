@@ -1,0 +1,13 @@
+export type ColorType =
+  | 'primary'
+  | 'secondary'
+  | 'black'
+  | 'text'
+  | 'bg'
+  | 'gray'
+  | 'gray-dark'
+  | 'shadow-color'
+  | 'background'
+  | 'white'
+  | 'primary-dark'
+  | 'gradient'
