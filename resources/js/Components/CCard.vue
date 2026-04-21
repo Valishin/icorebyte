@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import { icons } from '@assets/icons'
+  import CIcon from './CIcon.vue'
 
   const props = defineProps<{
     logo?: string
@@ -15,9 +16,7 @@
     <div class="c-card__inner">
       <div class="c-card__wrapper-image">
         <img :src="props.image" alt="" class="c-card__image" />
-        <div v-if="props.iconInImage" class="c-card__wrapper-icon">
-          <component :is="icons[props.iconInImage]" class="c-card__icon" aria-hidden="true" />
-        </div>
+        <CIcon v-if="props.iconInImage" :icon="props.iconInImage" />
       </div>
       <div class="c-card__wrapper-content">
         <h2 class="c-card__title">{{ props.title }}</h2>
@@ -83,10 +82,16 @@
       padding: 10px;
       border: 1px solid var(--color-gray-dark);
       border-radius: 8px;
+      background-color: var(--color-primary);
+      opacity: 0.9;
     }
     &__icon {
       width: 24px;
       height: 24px;
+
+      rect {
+        fill: white;
+      }
     }
   }
 </style>
