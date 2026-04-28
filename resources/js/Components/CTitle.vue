@@ -59,8 +59,16 @@
         width: 40px;
         bottom: -8px;
         height: 2px;
-        background: currentColor;
         margin: 0 auto;
+
+        .color-gradient & {
+          background: var(--color-gradient);
+        }
+      }
+      .color-gradient & {
+        background: var(--color-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
       }
     }
     &__title {

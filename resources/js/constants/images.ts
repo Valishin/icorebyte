@@ -1,3 +1,6 @@
+import imageAppMobile from '@assets/images/imageAppMobile.jpg'
+import imageDevelopment from '@assets/images/imageDevelopment.jpg'
+import imageEcommerce from '@assets/images/imageEcommerce.jpg'
 import imageIpad from '@assets/images/imageIpad.jpg'
 import imageItMaintance from '@assets/images/imageItMaintance.jpg'
 import imageLaptopRepair from '@assets/images/imageLaptopRepair.jpg'
@@ -21,5 +24,8 @@ export const images = {
   imagePrinterRepair,
   imageItMaintance,
   imageSupportIt,
-  imageShop
+  imageShop,
+  imageEcommerce,
+  imageAppMobile,
+  imageDevelopment
 }
