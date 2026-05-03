@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      swiper:
+        specifier: ^12.1.4
+        version: 12.1.4
       vite-svg-loader:
         specifier: ^5.1.1
         version: 5.1.1(vue@3.5.32)
@@ -57,6 +60,9 @@ importers:
       vue:
         specifier: ^3.4.0
         version: 3.5.32
+      ziggy-js:
+        specifier: ^2.6.2
+        version: 2.6.2
 
 packages:
 
@@ -1054,6 +1060,10 @@ packages:
     resolution: {integrity: sha512-cJ+oHTW1VAEa8cJslgmUZrc+sjRKgAKl3Zyse6+PV38hZe/V6Z14TbCuXcan9F9ghlz4QrFr2c92TNF82UkYHA==}
     engines: {node: '>=10'}
 
+  qs-esm@7.0.3:
+    resolution: {integrity: sha512-8jbjCR0PPbqoQcv83C2K/zvVeytRPwPpt3WPDbq51qyLAxcWGtXVRjSe6GHtLCoVbg9+NEFkv7GyUxqjcDIJzw==}
+    engines: {node: '>=18'}
+
   qs@6.15.1:
     resolution: {integrity: sha512-6YHEFRL9mfgcAvql/XhwTvf5jKcOiiupt2FiJxHkiX1z4j7WL8J/jRHYLluORvc1XxB5rV20KoeK00gVJamspg==}
     engines: {node: '>=0.6'}
@@ -1158,6 +1168,10 @@ packages:
     resolution: {integrity: sha512-+wn7I4p7YgJhHs38k2TNjy1vCfPIfLIJWR5MnCStsN8WuuTcBnRKcMHQLMM2ijxGZmDoZwNv8ipl5aTTen62ng==}
     engines: {node: '>=14.0.0'}
     hasBin: true
+
+  swiper@12.1.4:
+    resolution: {integrity: sha512-bihiwoKMOQwW8FfdUbo1DgkVH25E+4ZELIq0oopL1KTKBteLuaTMi/wwFjMxtlhTkk45k3XQ89D1Fvv0spSqBA==}
+    engines: {node: '>= 4.7.0'}
 
   tailwindcss@3.4.19:
     resolution: {integrity: sha512-3ofp+LL8E+pK/JuPLPggVAIaEuhvIz4qNcf3nA1Xn2o/7fb7s/TYpHhwGDv1ZU3PkBluUVaF8PyCHcm48cKLWQ==}
@@ -1279,6 +1293,9 @@ packages:
   yargs@17.7.2:
     resolution: {integrity: sha512-7dSzzRQ++CKnNI/krKnYRV7JKKPUXMEh61soaHKg9mrWEhzFWhFnxPxGl+69cD1Ou63C13NUPCnmIcrvqCuM6w==}
     engines: {node: '>=12'}
+
+  ziggy-js@2.6.2:
+    resolution: {integrity: sha512-41xc9wRvv5Olh8pZjKSaL5vDAjw4BfTDMFoeLwRpDGc2B+uqcdwIKd81EHs6uwpqahdRrU7uMab0xWj0hBSDjg==}
 
 snapshots:
 
@@ -2128,6 +2145,8 @@ snapshots:
 
   proxy-from-env@2.1.0: {}
 
+  qs-esm@7.0.3: {}
+
   qs@6.15.1:
     dependencies:
       side-channel: 1.1.0
@@ -2266,6 +2285,8 @@ snapshots:
       picocolors: 1.1.1
       sax: 1.6.0
 
+  swiper@12.1.4: {}
+
   tailwindcss@3.4.19:
     dependencies:
       '@alloc/quick-lru': 5.2.0
@@ -2381,3 +2402,7 @@ snapshots:
       string-width: 4.2.3
       y18n: 5.0.8
       yargs-parser: 21.1.1
+
+  ziggy-js@2.6.2:
+    dependencies:
+      qs-esm: 7.0.3

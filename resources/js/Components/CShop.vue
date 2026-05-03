@@ -4,10 +4,16 @@
   import CCategoryGrid from './CCategoryGrid.vue'
   import CIcon from './CIcon.vue'
   import CPlaceCard from './CPlaceCard.vue'
+  import CTitle from './CTitle.vue'
 </script>
 <template>
   <div class="c-shop">
     <div class="c-shop__inner">
+      <CTitle
+        :title="'Nuestra tienda de informática'"
+        :description="'Ofrecemos una amplia gama de productos de informática y tecnología.'"
+        :color="'secondary'"
+      />
       <div class="c-shop__container o-container">
         <div class="c-shop__col o-col-12@md o-col-8@sm o-col-4@xs">
           <div class="c-shop__wrapper">

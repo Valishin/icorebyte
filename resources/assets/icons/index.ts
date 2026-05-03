@@ -2,6 +2,7 @@ import IconCable from './cable.svg'
 import IconCartridge from './cartridge.svg'
 import IconDesktop from './desktop.svg'
 import IconElectronic from './electronic.svg'
+import IconEmail from './email.svg'
 import IconHarddisk from './harddisk.svg'
 import IconLaptop from './laptop.svg'
 import IconLink from './link.svg'
@@ -33,5 +34,6 @@ export const icons = {
   IconLink,
   IconCartridge,
   IconHarddisk,
-  IconSoftware
+  IconSoftware,
+  IconEmail
 } as const

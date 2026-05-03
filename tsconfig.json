@@ -9,7 +9,7 @@
     "isolatedModules": true,
     "esModuleInterop": true,
     "lib": ["ESNext", "DOM"],
-    "types": ["vite/client"],
+    "types": ["vite/client", "ziggy-js"],
 
     "baseUrl": ".",
     "paths": {
@@ -19,5 +19,10 @@
     }
   },
 
-  "include": ["resources/**/*.ts", "resources/**/*.d.ts", "resources/**/*.vue"]
+  "include": [
+    "resources/**/*.ts",
+    "resources/**/*.d.ts",
+    "resources/**/*.vue",
+    "resources/js/ziggy.d.ts" // <- añadir esto
+  ]
 }

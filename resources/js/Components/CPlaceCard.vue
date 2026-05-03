@@ -6,29 +6,36 @@
   const props = defineProps<{
     icon: keyof typeof icons
     title: string
-    description: string
+    description?: string
     iconColor?: ColorType
     iconSize?: string
+    isWrapper?: boolean
   }>()
 </script>
 <template>
-  <div class="c-icon">
-    <div class="c-icon__inner">
+  <div class="c-place-card">
+    <div class="c-place-card__inner" :class="props.isWrapper ? 'c-place-card__is-wrapper' : ''">
       <CIcon :icon="props.icon" :color="iconColor" :size="iconSize" :is-wrapper="true" />
-      <div class="c-icon__wrapper-content">
-        <h3 class="c-icon__title">{{ props.title }}</h3>
-        <p class="c-icon__description">{{ props.description }}</p>
+      <div class="c-place-card__wrapper-content">
+        <h3 class="c-place-card__title">{{ props.title }}</h3>
+        <p class="c-place-card__description">{{ props.description }}</p>
       </div>
     </div>
   </div>
 </template>
 <style lang="scss" scoped>
-  .c-icon {
+  .c-place-card {
     &__inner {
       display: flex;
       align-items: center;
       gap: 1rem;
       padding-bottom: 10px;
+      &.c-place-card__is-wrapper {
+        border: 1px solid var(--color-gray-dark);
+        padding: 15px;
+        border-radius: 8px;
+        background-color: var(--color-primary-dark);
+      }
     }
     &__wrapper-icon {
       padding: 8px;
