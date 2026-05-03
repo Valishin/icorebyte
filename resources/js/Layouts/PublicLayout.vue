@@ -20,7 +20,8 @@
     min-height: 100vh;
 
     &__main {
-      flex: 1; // empuja el footer siempre al fondo
+      flex: 1;
+      padding-top: 64px; // altura del header
     }
   }
 </style>
