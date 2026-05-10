@@ -12,7 +12,7 @@ class ContactController extends Controller
     {
         $data = $request->validated();
 
-        Mail::to(env('MAIL_CONTACT_ADDRESS'))
+        Mail::to(config('mail.contact_address'))
             ->send(new ContactMail(
                 name: $data['name'],
                 email: $data['email'],
