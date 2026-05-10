@@ -83,11 +83,6 @@
 
         <div class="c-contact__col o-col-8@md o-col-6@sm o-col-4@xs">
           <div class="c-contact__form-wrapper">
-            <!-- Flash success -->
-            <div v-if="page.props.flash.success" class="c-contact__flash">
-              {{ page.props.flash.success }}
-            </div>
-
             <form @submit.prevent="sendContact" novalidate class="c-contact__form">
               <!-- Fila 1: Nombre + Email -->
               <div class="c-contact__row">

@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import CFooter from '@/Components/CFooter.vue'
   import CHeader from '@/Components/CHeader.vue'
+  import CToast from '@/Components/CToast.vue'
 </script>
 
 <template>
@@ -10,6 +11,7 @@
       <slot />
     </main>
     <CFooter />
+    <CToast />
   </div>
 </template>
 
