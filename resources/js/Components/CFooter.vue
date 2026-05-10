@@ -1,6 +1,13 @@
 <script setup lang="ts">
+  import { useToast } from '@/composables/useToast'
   import Logo from '@assets/logos/logo.svg'
+
+  const { show } = useToast()
   const currentYear = new Date().getFullYear()
+
+  const onLegalClick = () => {
+    show('info', 'Esta página estará disponible próximamente.')
+  }
 
   const services = [
     'Reparación de Ordenadores',
@@ -77,9 +84,9 @@
       <div class="c-footer__bottom-inner o-container">
         <p class="c-footer__copy">© {{ currentYear }} iCoreByte. Todos los derechos reservados.</p>
         <div class="c-footer__legal">
-          <a href="#" class="c-footer__legal-link">Política de Privacidad</a>
-          <a href="#" class="c-footer__legal-link">Aviso Legal</a>
-          <a href="#" class="c-footer__legal-link">Cookies</a>
+          <a href="#" class="c-footer__legal-link" @click.prevent="onLegalClick">Política de Privacidad</a>
+          <a href="#" class="c-footer__legal-link" @click.prevent="onLegalClick">Aviso Legal</a>
+          <a href="#" class="c-footer__legal-link" @click.prevent="onLegalClick">Cookies</a>
         </div>
       </div>
     </div>
@@ -89,7 +96,7 @@
 <style lang="scss" scoped>
   .c-footer {
     background: var(--color-black);
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid var(--color-border-subtle);
     margin-top: 4rem;
 
     &__inner {
@@ -132,7 +139,7 @@
 
     &__description {
       font-size: 0.9rem;
-      color: rgba(255, 255, 255, 0.5);
+      color: var(--color-text-muted);
       line-height: 1.6;
       max-width: 280px;
     }
@@ -161,7 +168,7 @@
 
     &__link {
       font-size: 0.9rem;
-      color: rgba(255, 255, 255, 0.5);
+      color: var(--color-text-muted);
       text-decoration: none;
       transition: color 0.2s;
 
@@ -171,7 +178,7 @@
     }
 
     &__bottom {
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      border-top: 1px solid var(--color-border-subtle);
     }
 
     &__bottom-inner {
@@ -193,7 +200,7 @@
 
     &__copy {
       font-size: 0.875rem;
-      color: rgba(255, 255, 255, 0.4);
+      color: var(--color-text-subtle);
       margin: 0;
       font-family: monospace;
     }
@@ -205,8 +212,9 @@
 
     &__legal-link {
       font-size: 0.875rem;
-      color: rgba(255, 255, 255, 0.4);
+      color: var(--color-text-subtle);
       text-decoration: none;
+      cursor: pointer;
       transition: color 0.2s;
 
       &:hover {

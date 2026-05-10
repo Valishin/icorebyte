@@ -1,19 +1,28 @@
 <script setup lang="ts">
+  import { useToast } from '@/composables/useToast'
   import { images } from '@/constants/images'
   import CButton from './CButton.vue'
   import CCategoryGrid from './CCategoryGrid.vue'
   import CIcon from './CIcon.vue'
   import CPlaceCard from './CPlaceCard.vue'
   import CTitle from './CTitle.vue'
+
+  const { show } = useToast()
+
+  const onShopClick = () => {
+    show('info', 'La tienda online estará disponible próximamente.')
+  }
 </script>
 <template>
   <div class="c-shop">
     <div class="c-shop__inner">
-      <CTitle
-        :title="'Nuestra tienda de informática'"
-        :description="'Ofrecemos una amplia gama de productos de informática y tecnología.'"
-        :color="'secondary'"
-      />
+      <div class="c-shop__container o-container">
+        <CTitle
+          :title="'Nuestra tienda de informática'"
+          :description="'Ofrecemos una amplia gama de productos de informática y tecnología.'"
+          :color="'secondary'"
+        />
+      </div>
       <div class="c-shop__container o-container">
         <div class="c-shop__col o-col-12@md o-col-8@sm o-col-4@xs">
           <div class="c-shop__wrapper">
@@ -76,7 +85,12 @@
                 ]"
               />
               <div class="c-shop__wrapper-button">
-                <CButton title="Ir a la tienda" :icon="'IconShop'" :color="'gradient'" />
+                <CButton
+                  title="Ir a la tienda"
+                  :icon="'IconShop'"
+                  :color="'gradient'"
+                  @click="onShopClick"
+                />
               </div>
             </div>
           </div>
@@ -92,6 +106,7 @@
     }
     &__wrapper {
       border: 1px solid var(--color-gray-dark);
+      box-shadow: var(--box-shadow);
       border-radius: 8px;
       display: flex;
       flex-direction: column;

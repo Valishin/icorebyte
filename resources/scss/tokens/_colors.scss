@@ -1,17 +1,43 @@
+// Modo oscuro — valores por defecto
 :root {
-  --color-primary: #006bdf;
-  --color-secondary: #9333ea;
-  --color-gradient: linear-gradient(90deg, #1e55d8 0%, #3b2bd6 50%, #4900a6 100%);
-  --color-primary-dark: #0a1123;
+  --color-primary:        #006bdf;
+  --color-secondary:      #9333ea;
+  --color-gradient:       linear-gradient(90deg, #1e55d8 0%, #3b2bd6 50%, #4900a6 100%);
+  --color-shadow:         #2663eb;
+  --color-success:        #22c55e;
+  --color-error:          #ef4444;
+  --color-info:           #6366f1;
 
-  --color-black: #08080a;
-  --color-text: #111;
-  --color-bg: #fff;
-  --color-gray: #e2e8f0;
-  --color-gray-dark: #64748b;
-  --shadow-color: #2663eb;
+  --color-black:          #08080a;
+  --color-primary-dark:   #0a1123;
+  --color-success-dark:   #0f1a0f;
+  --color-error-dark:     #1a0f0f;
+  --color-info-dark:      #0f0f1a;
+  --color-white:          #ffffff;
+  --color-gray:           #e2e8f0;
+  --color-gray-dark:      #64748b;
+  --color-text:           #ffffff;
+  --color-text-muted:     rgba(255, 255, 255, 0.5);
+  --color-text-subtle:    rgba(255, 255, 255, 0.4);
+  --color-border-subtle:  rgba(255, 255, 255, 0.08);
+  --color-bg:             #08080a;
+  --color-background:     #08080a;
+}
 
-  --color-background: #f8fafc;
-
-  --color-white: #fff;
+// Modo claro — sobreescribe solo lo que cambia
+[data-theme="light"] {
+  --color-black:          #ffffff;
+  --color-primary-dark:   #f1f5f9;
+  --color-success-dark:   #f0fdf4;
+  --color-error-dark:     #fef2f2;
+  --color-info-dark:      #eef2ff;
+  --color-white:          #0f172a;
+  --color-gray:           #1e293b;
+  --color-gray-dark:      #475569;
+  --color-text:           #0f172a;
+  --color-text-muted:     rgba(0, 0, 0, 0.5);
+  --color-text-subtle:    rgba(0, 0, 0, 0.4);
+  --color-border-subtle:  rgba(0, 0, 0, 0.08);
+  --color-bg:             #ffffff;
+  --color-background:     #f8fafc;
 }

@@ -1,9 +1,11 @@
 <script setup lang="ts">
   import { useDevice } from '@/composables/useDevice'
+  import { useTheme } from '@/composables/useTheme'
   import Logo from '@assets/logos/logo.svg'
   import { onMounted, onUnmounted, ref, watch } from 'vue'
 
   const { isMobile } = useDevice()
+  const { theme, toggle } = useTheme()
 
   const menuOpen = ref(false)
   const scrolled = ref(false)
@@ -59,6 +61,16 @@
         </a>
       </nav>
 
+      <!-- Theme toggle -->
+      <button
+        class="c-header__theme-toggle"
+        @click="toggle"
+        :aria-label="theme === 'dark' ? 'Activar modo claro' : 'Activar modo oscuro'"
+      >
+        <span v-if="theme === 'dark'">☀️</span>
+        <span v-else>🌙</span>
+      </button>
+
       <!-- Burger móvil -->
       <button
         v-if="isMobile"
@@ -72,37 +84,34 @@
       </button>
       <!-- Menú móvil -->
       <Transition name="menu-slide">
-      <div
-        v-if="isMobile && menuOpen"
-        class="c-header__mobile-menu"
-      >
-        <a
-          v-for="item in navItems"
-          :key="item.label"
-          :href="item.anchor"
-          class="c-header__mobile-link"
-          @click.prevent="
-            () => {
-              scrollTo(item.anchor)
-              menuOpen = false
-            }
-          "
-        >
-          {{ item.label }}
-        </a>
-        <a
-          href="#contacto"
-          class="c-header__cta c-header__cta--mobile"
-          @click.prevent="
-            () => {
-              scrollTo('#contacto')
-              menuOpen = false
-            }
-          "
-        >
-          Solicitar Presupuesto
-        </a>
-      </div>
+        <div v-if="isMobile && menuOpen" class="c-header__mobile-menu">
+          <a
+            v-for="item in navItems"
+            :key="item.label"
+            :href="item.anchor"
+            class="c-header__mobile-link"
+            @click.prevent="
+              () => {
+                scrollTo(item.anchor)
+                menuOpen = false
+              }
+            "
+          >
+            {{ item.label }}
+          </a>
+          <a
+            href="#contacto"
+            class="c-header__cta c-header__cta--mobile"
+            @click.prevent="
+              () => {
+                scrollTo('#contacto')
+                menuOpen = false
+              }
+            "
+          >
+            Solicitar Presupuesto
+          </a>
+        </div>
       </Transition>
     </div>
   </header>
@@ -123,7 +132,7 @@
 
     &--scrolled {
       background: var(--color-black);
-      border-bottom-color: rgba(255, 255, 255, 0.08);
+      border-bottom-color: var(--color-border-subtle);
     }
 
     &__inner {
@@ -160,7 +169,7 @@
 
     &__nav-link {
       font-size: 0.9375rem;
-      color: rgba(255, 255, 255, 0.75);
+      color: var(--color-gray);
       text-decoration: none;
       transition: color 0.2s;
       cursor: pointer;
@@ -193,6 +202,25 @@
       }
     }
 
+    &__theme-toggle {
+      background: none;
+      border: 1px solid var(--color-border-subtle);
+      border-radius: 8px;
+      cursor: pointer;
+      padding: 6px 10px;
+      font-size: 1rem;
+      line-height: 1;
+      transition:
+        border-color 0.2s,
+        background 0.2s;
+      flex-shrink: 0;
+
+      &:hover {
+        border-color: var(--color-gray-dark);
+        background: var(--color-primary-dark);
+      }
+    }
+
     &__burger {
       display: flex;
       flex-direction: column;
@@ -222,7 +250,7 @@
       flex-direction: column;
       padding: 1rem 1.5rem 1.5rem;
       background: var(--color-black);
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      border-top: 1px solid var(--color-border-subtle);
       gap: 1rem;
       transform-origin: top;
     }
@@ -250,7 +278,7 @@
   .c-header {
     &__mobile-link {
       font-size: 1rem;
-      color: rgba(255, 255, 255, 0.75);
+      color: var(--color-text-muted);
       text-decoration: none;
       transition: color 0.2s;
 

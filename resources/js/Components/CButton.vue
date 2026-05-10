@@ -60,7 +60,7 @@
     }
 
     &--gradient {
-      background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+      background: var(--color-primary);
       position: relative;
 
       &::before {

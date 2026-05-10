@@ -28,10 +28,14 @@
   .c-category-grid {
     ul {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      grid-template-columns: 1fr;
       gap: 1rem;
       list-style: none;
       padding: 0;
+
+      @include from-sm {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      }
     }
     li {
       display: flex;

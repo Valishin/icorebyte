@@ -1,42 +1,24 @@
 <script setup lang="ts">
+  import { useToast } from '@/composables/useToast'
   import { usePage } from '@inertiajs/vue3'
-  import { computed, ref, watch } from 'vue'
+  import { computed, watch } from 'vue'
+
+  const { visible, type, message, barKey, show, close } = useToast()
 
   const page = usePage<{ flash: { success?: string; error?: string } }>()
-
-  const visible = ref(false)
-  const type    = ref<'success' | 'error'>('success')
-  const message = ref('')
-  const barKey  = ref(0)
-  let timer: ReturnType<typeof setTimeout>
-
   const flash = computed(() => page.props.flash)
 
   watch(flash, (val) => {
     if (val?.success) show('success', val.success)
     else if (val?.error) show('error', val.error)
   }, { deep: true })
-
-  const show = (t: 'success' | 'error', msg: string) => {
-    clearTimeout(timer)
-    type.value    = t
-    message.value = msg
-    visible.value = true
-    barKey.value++
-    timer = setTimeout(() => { visible.value = false }, 3000)
-  }
-
-  const close = () => {
-    clearTimeout(timer)
-    visible.value = false
-  }
 </script>
 
 <template>
   <Transition name="toast">
     <div v-if="visible" class="c-toast" :class="`c-toast--${type}`">
       <div class="c-toast__body">
-        <span class="c-toast__icon">{{ type === 'success' ? '✓' : '✕' }}</span>
+        <span class="c-toast__icon">{{ type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ' }}</span>
         <p class="c-toast__message">{{ message }}</p>
         <button class="c-toast__close" @click="close" aria-label="Cerrar">✕</button>
       </div>
@@ -59,19 +41,24 @@
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 
     &--success {
-      background: #0f1a0f;
-      border: 1px solid #22c55e;
-
-      .c-toast__icon { color: #22c55e; }
-      .c-toast__bar  { background: #22c55e; }
+      background: var(--color-success-dark);
+      border: 1px solid var(--color-success);
+      .c-toast__icon { color: var(--color-success); }
+      .c-toast__bar  { background: var(--color-success); }
     }
 
     &--error {
-      background: #1a0f0f;
-      border: 1px solid #ef4444;
+      background: var(--color-error-dark);
+      border: 1px solid var(--color-error);
+      .c-toast__icon { color: var(--color-error); }
+      .c-toast__bar  { background: var(--color-error); }
+    }
 
-      .c-toast__icon { color: #ef4444; }
-      .c-toast__bar  { background: #ef4444; }
+    &--info {
+      background: var(--color-info-dark);
+      border: 1px solid var(--color-info);
+      .c-toast__icon { color: var(--color-info); }
+      .c-toast__bar  { background: var(--color-info); }
     }
 
     &__body {
@@ -89,7 +76,7 @@
 
     &__message {
       flex: 1;
-      color: var(--color-white);
+      color: var(--color-text);
       font-size: 0.9375rem;
       margin: 0;
       line-height: 1.4;
@@ -98,14 +85,13 @@
     &__close {
       background: none;
       border: none;
-      color: rgba(255, 255, 255, 0.4);
+      color: var(--color-gray-dark);
       cursor: pointer;
       font-size: 0.875rem;
       padding: 0;
       flex-shrink: 0;
       transition: color 0.2s;
-
-      &:hover { color: var(--color-white); }
+      &:hover { color: var(--color-text); }
     }
 
     &__bar {

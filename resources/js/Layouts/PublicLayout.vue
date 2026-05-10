@@ -2,6 +2,11 @@
   import CFooter from '@/Components/CFooter.vue'
   import CHeader from '@/Components/CHeader.vue'
   import CToast from '@/Components/CToast.vue'
+  import { useTheme } from '@/composables/useTheme'
+  import { onMounted } from 'vue'
+
+  const { init } = useTheme()
+  onMounted(() => init())
 </script>
 
 <template>

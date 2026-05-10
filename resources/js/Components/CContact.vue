@@ -39,12 +39,15 @@
 <template>
   <div class="c-contact">
     <div class="c-contact__inner">
-      <CTitle
-        :overline="'Contacto'"
-        :title="'¿Hablamos de tu proyecto?'"
-        :description="'Cuéntanos qué necesitas y te enviaremos un presupuesto sin compromiso en menos de 24 horas.'"
-        :color="'secondary'"
-      />
+      <div class="c-contact__container o-container">
+        <div class="o-col-12@md o-col-8@sm o-col-4@xs">
+          <CTitle
+            :title="'¿Hablamos de tu proyecto?'"
+            :description="'Cuéntanos qué necesitas y te enviaremos un presupuesto sin compromiso en menos de 24 horas.'"
+            :color="'secondary'"
+          />
+        </div>
+      </div>
       <div class="c-contact__container o-container">
         <div class="c-contact__col c-contact__col--cards o-col-4@md o-col-6@sm o-col-4@xs">
           <CPlaceCard
@@ -265,7 +268,7 @@
     &__label {
       font-size: 0.75rem;
       font-weight: 600;
-      color: rgba(255, 255, 255, 0.6);
+      color: var(--color-gray);
       text-transform: uppercase;
       letter-spacing: 0.1em;
     }
@@ -273,7 +276,7 @@
     &__input {
       width: 100%;
       background: var(--color-black);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--color-gray-dark);
       border-radius: 0.75rem;
       padding: 0.75rem 1rem;
       color: var(--color-white);
@@ -281,7 +284,7 @@
       transition: border-color 0.2s;
 
       &::placeholder {
-        color: rgba(255, 255, 255, 0.3);
+        color: var(--color-gray-dark);
       }
 
       &:focus {
@@ -299,7 +302,7 @@
       }
 
       &--placeholder {
-        color: rgba(255, 255, 255, 0.3);
+        color: var(--color-gray-dark);
       }
 
       option {
@@ -319,7 +322,7 @@
       transform: translateY(-50%);
       width: 1rem;
       height: 1rem;
-      color: rgba(255, 255, 255, 0.4);
+      color: var(--color-gray-dark);
       pointer-events: none;
     }
 
@@ -341,7 +344,7 @@
       align-items: center;
       justify-content: center;
       gap: 0.5rem;
-      background: var(--color-gradient);
+      background: var(--color-primary);
       transition: opacity 0.2s;
       margin-top: 0.5rem;
 

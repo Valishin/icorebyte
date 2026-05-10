@@ -83,15 +83,13 @@
   <div class="c-service-list">
     <div class="c-service-list__inner">
       <div class="c-service-list__container o-container">
-        <div class="c-service-list__header">
-          <div class="o-col-12@md o-col-8@sm o-col-4@xs">
-            <CTitle
-              overline="Servicios de reparación"
-              title="Laboratorio de Reparación"
-              description="Reparamos cualquier dispositivo con herramientas de última generación."
-              :color="'primary'"
-            />
-          </div>
+        <div class="o-col-12@md o-col-8@sm o-col-4@xs">
+          <CTitle
+            overline="Servicios de reparación"
+            title="Laboratorio de Reparación"
+            description="Reparamos cualquier dispositivo con herramientas de última generación."
+            :color="'primary'"
+          />
         </div>
         <Swiper
           class="c-service-list__slider"

@@ -3,7 +3,7 @@
 :root {
   /* Espaciados base */
   --space-xxs: 4px;
-  --space-xs: 8px;
+  --space-xs: 18px;
   --space-sm: 12px;
   --space-md: 16px;
   --space-lg: 24px;
@@ -12,12 +12,12 @@
 
   /* Container — mobile base */
   --container-width: 1400px;
-  --container-padding: var(--space-md);
+  --container-padding: var(--space-xs);
 }
 
 @media (min-width: #{bp.$break-mobile}) {
   :root {
-    --container-padding: var(--space-xl);
+    --container-padding: var(--space-xs);
   }
 }
 

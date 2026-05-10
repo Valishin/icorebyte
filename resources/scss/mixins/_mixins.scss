@@ -70,7 +70,7 @@
 }
 
 @mixin only-md() {
-  @include media-between(bp.$break-tablet, bp.$break-desktop - 1px) {
+  @include media-to-up(bp.$break-tablet) {
     @content;
   }
 }

@@ -14,7 +14,7 @@
           :overline="'Desarrollo webs & apps'"
           :title="'Estudio de Desarrollo'"
           :description="'En iCorebyte, ofrecemos servicios de desarrollo de software a medida para satisfacer las necesidades específicas de tu negocio. Nuestro equipo de expertos en desarrollo trabaja estrechamente contigo para crear soluciones personalizadas que impulsen tu éxito.'"
-          :color="'gradient'"
+          :color="'primary'"
         />
       </div>
       <div class="c-development__col o-col-12@md o-col-6@sm o-col-push-1@sm o-col-4@xs">
