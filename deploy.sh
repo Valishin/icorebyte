@@ -2,7 +2,7 @@
 
 # ============================================
 # 🚀 DEPLOY SCRIPT — icorebyte.com
-# Uso: npm run deploy  o  ./deploy.sh
+# Uso: pnpm run deploy  o  ./deploy.sh
 # ============================================
 
 # — Configuración —
