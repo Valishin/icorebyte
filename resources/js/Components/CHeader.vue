@@ -1,9 +1,16 @@
 <script setup lang="ts">
+  import { useDevice } from '@/composables/useDevice'
   import Logo from '@assets/logos/logo.svg'
-  import { onMounted, onUnmounted, ref } from 'vue'
+  import { onMounted, onUnmounted, ref, watch } from 'vue'
+
+  const { isMobile } = useDevice()
 
   const menuOpen = ref(false)
   const scrolled = ref(false)
+
+  watch(isMobile, (val) => {
+    if (!val) menuOpen.value = false
+  })
 
   const onScroll = () => {
     scrolled.value = window.scrollY > 20
@@ -30,12 +37,17 @@
   <header class="c-header" :class="{ 'c-header--scrolled': scrolled }">
     <div class="c-header__inner o-container">
       <!-- Logo -->
-      <a class="c-header__logo" @click.prevent="scrollTo('#inicio')" href="#inicio">
+      <a
+        v-if="!isMobile"
+        class="c-header__logo"
+        @click.prevent="scrollTo('#inicio')"
+        href="#inicio"
+      >
         <component class="c-header__svg" :is="Logo" />
       </a>
 
       <!-- Nav -->
-      <nav class="c-header__nav">
+      <nav v-if="!isMobile" class="c-header__nav">
         <a
           v-for="item in navItems"
           :key="item.label"
@@ -48,41 +60,50 @@
       </nav>
 
       <!-- Burger móvil -->
-      <button class="c-header__burger" @click="menuOpen = !menuOpen" aria-label="Menú">
+      <button
+        v-if="isMobile"
+        class="c-header__burger"
+        @click="menuOpen = !menuOpen"
+        aria-label="Menú"
+      >
         <span></span>
         <span></span>
         <span></span>
       </button>
-    </div>
-
-    <!-- Menú móvil -->
-    <div class="c-header__mobile-menu" :class="{ 'c-header__mobile-menu--open': menuOpen }">
-      <a
-        v-for="item in navItems"
-        :key="item.label"
-        :href="item.anchor"
-        class="c-header__mobile-link"
-        @click.prevent="
-          () => {
-            scrollTo(item.anchor)
-            menuOpen = false
-          }
-        "
+      <!-- Menú móvil -->
+      <Transition name="menu-slide">
+      <div
+        v-if="isMobile && menuOpen"
+        class="c-header__mobile-menu"
       >
-        {{ item.label }}
-      </a>
-      <a
-        href="#contacto"
-        class="c-header__cta c-header__cta--mobile"
-        @click.prevent="
-          () => {
-            scrollTo('#contacto')
-            menuOpen = false
-          }
-        "
-      >
-        Solicitar Presupuesto
-      </a>
+        <a
+          v-for="item in navItems"
+          :key="item.label"
+          :href="item.anchor"
+          class="c-header__mobile-link"
+          @click.prevent="
+            () => {
+              scrollTo(item.anchor)
+              menuOpen = false
+            }
+          "
+        >
+          {{ item.label }}
+        </a>
+        <a
+          href="#contacto"
+          class="c-header__cta c-header__cta--mobile"
+          @click.prevent="
+            () => {
+              scrollTo('#contacto')
+              menuOpen = false
+            }
+          "
+        >
+          Solicitar Presupuesto
+        </a>
+      </div>
+      </Transition>
     </div>
   </header>
 </template>
@@ -90,9 +111,9 @@
 <style lang="scss" scoped>
   .c-header {
     position: fixed;
+    width: 100%;
     top: 0;
     left: 0;
-    right: 0;
     z-index: 100;
     border-bottom: 1px solid transparent;
     background: transparent;
@@ -135,10 +156,6 @@
       display: flex;
       align-items: center;
       gap: 2rem;
-
-      @media (max-width: 768px) {
-        display: none;
-      }
     }
 
     &__nav-link {
@@ -177,17 +194,13 @@
     }
 
     &__burger {
-      display: none;
+      display: flex;
       flex-direction: column;
       gap: 5px;
       background: none;
       border: none;
       cursor: pointer;
       padding: 4px;
-
-      @media (max-width: 768px) {
-        display: flex;
-      }
 
       span {
         display: block;
@@ -200,22 +213,41 @@
     }
 
     &__mobile-menu {
-      display: none;
+      display: flex;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      width: 100%;
       flex-direction: column;
       padding: 1rem 1.5rem 1.5rem;
       background: var(--color-black);
       border-top: 1px solid rgba(255, 255, 255, 0.08);
       gap: 1rem;
-
-      &--open {
-        display: flex;
-      }
-
-      @media (min-width: 769px) {
-        display: none !important;
-      }
+      transform-origin: top;
     }
+  }
 
+  .menu-slide-enter-active,
+  .menu-slide-leave-active {
+    transition:
+      transform 0.28s ease,
+      opacity 0.28s ease;
+  }
+
+  .menu-slide-enter-from,
+  .menu-slide-leave-to {
+    transform: scaleY(0);
+    opacity: 0;
+  }
+
+  .menu-slide-enter-to,
+  .menu-slide-leave-from {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+
+  .c-header {
     &__mobile-link {
       font-size: 1rem;
       color: rgba(255, 255, 255, 0.75);
