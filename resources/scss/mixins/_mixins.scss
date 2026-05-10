@@ -7,8 +7,8 @@
   }
 }
 
-@mixin av_col_push($cols: 1) {
-  margin-left: calc((#{$cols} / 12) * (100% - 0px));
+@mixin av_col_push($cols: 1, $total: 12) {
+  margin-left: calc((#{$cols} / #{$total}) * 100%);
 }
 
 @mixin av_col($size, $columns) {
@@ -36,25 +36,41 @@
   }
 }
 
-// ! XS -------------------------------------------
-// * de 0px a infinito (estilos por defecto)
-// XS
+// ! Mobile-first (min-width) — usar estos en componentes
+// Base (sin mixin) = mobile <768px
+@mixin from-sm() {
+  @include media-to-up(bp.$break-mobile) {
+    @content;
+  }
+}
+
+@mixin from-md() {
+  @include media-to-up(bp.$break-tablet) {
+    @content;
+  }
+}
+
+@mixin from-lg() {
+  @include media-to-up(bp.$break-desktop) {
+    @content;
+  }
+}
+
+// ! Isolated ranges — conservar solo para el sistema de cols
 @mixin only-xs() {
-  @include media-to-down(bp.$break-tablet) {
+  @include media-to-down(bp.$break-mobile - 1px) {
     @content;
   }
 }
 
-// SM
 @mixin only-sm() {
-  @include media-between(bp.$break-tablet + 1, bp.$break-desktop) {
+  @include media-between(bp.$break-mobile, bp.$break-tablet - 1px) {
     @content;
   }
 }
 
-// MD
 @mixin only-md() {
-  @include media-to-up(bp.$break-desktop + 1) {
+  @include media-between(bp.$break-tablet, bp.$break-desktop - 1px) {
     @content;
   }
 }

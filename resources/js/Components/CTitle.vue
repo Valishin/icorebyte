@@ -29,7 +29,11 @@
 </template>
 <style lang="scss" scoped>
   .c-title {
-    padding-top: 120px;
+    padding-top: 60px;
+
+    @include from-sm {
+      padding-top: 120px;
+    }
     &__inner {
       text-align: center;
       padding-bottom: 68px;

@@ -94,16 +94,39 @@
       border: 1px solid var(--color-gray-dark);
       border-radius: 8px;
       display: flex;
-      align-items: center;
+      flex-direction: column;
+
+      @include from-md {
+        flex-direction: row;
+        align-items: center;
+      }
     }
     &__box-content {
-      padding: 3rem;
-      width: 50%;
+      width: 100%;
+      padding: 1.5rem;
+
+      @include from-sm {
+        padding: 2rem;
+      }
+
+      @include from-md {
+        width: 50%;
+        padding: 3rem;
+      }
     }
     &__box-image {
-      width: 50%;
+      width: 100%;
       overflow: hidden;
-      height: 100%;
+      height: 220px;
+
+      @include from-sm {
+        height: 300px;
+      }
+
+      @include from-md {
+        width: 50%;
+        height: 100%;
+      }
     }
     &__image {
       width: 100%;

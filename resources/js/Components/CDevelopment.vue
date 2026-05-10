@@ -7,7 +7,9 @@
 <template>
   <div class="c-development">
     <div class="c-development__inner o-container">
-      <div class="c-development__col o-col-6@md o-col-push-3@md o-col-6@sm o-col-4@xs">
+      <div
+        class="c-development__col o-col-6@md o-col-push-3@md o-col-6@sm o-col-push-1@sm o-col-4@xs"
+      >
         <CTitle
           :overline="'Desarrollo webs & apps'"
           :title="'Estudio de Desarrollo'"
@@ -15,7 +17,7 @@
           :color="'gradient'"
         />
       </div>
-      <div class="c-development__col o-col-12@md o-col-6@sm o-col-4@xs">
+      <div class="c-development__col o-col-12@md o-col-6@sm o-col-push-1@sm o-col-4@xs">
         <div class="c-development__wrapper-services">
           <CServiceCard
             :title="'Plataforma E-Commerce'"
@@ -46,14 +48,29 @@
       display: grid;
       grid-template-columns: 1fr;
       gap: 1rem;
+      align-items: stretch;
 
       @include from-sm {
+        grid-template-columns: repeat(2, 1fr);
         gap: 1.5rem;
+
+        > *:last-child:nth-child(2n + 1) {
+          grid-column: 1 / -1;
+          max-width: calc(50% - 0.75rem);
+          margin-inline: auto;
+          width: 100%;
+        }
       }
 
       @include from-md {
         grid-template-columns: repeat(3, 1fr);
         gap: 2rem;
+
+        > *:last-child:nth-child(2n + 1) {
+          grid-column: unset;
+          max-width: unset;
+          margin-inline: 0;
+        }
       }
     }
   }

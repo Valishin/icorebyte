@@ -50,8 +50,8 @@ $display-2: (
 
 $display-3: (
   xs: (
-    'font-size': 28px,
-    'line-height': 38px,
+    'font-size': 20px,
+    'line-height': 30px,
     'letter-spacing': 0px,
     'font-family': $font-primary,
     'font-weight': 400
@@ -98,15 +98,15 @@ $display-body: (
 
 $display-caption: (
   xs: (
-    'font-size': 8px,
-    'line-height': 10px,
+    'font-size': 12px,
+    'line-height': 24px,
     'letter-spacing': 0px,
     'font-family': $font-primary,
     'font-weight': 400
   ),
   sm: (
-    'font-size': 8px,
-    'line-height': 10px,
+    'font-size': 12px,
+    'line-height': 24px,
     'letter-spacing': 0px,
     'font-family': $font-primary,
     'font-weight': 400
@@ -122,8 +122,8 @@ $display-caption: (
 
 $display-section: (
   xs: (
-    'font-size': 18px,
-    'line-height': 24px,
+    'font-size': 14px,
+    'line-height': 15px,
     'letter-spacing': 4px,
     'font-family': $font-primary,
     'font-weight': 400

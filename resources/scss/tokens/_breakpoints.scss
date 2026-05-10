@@ -1,9 +1,13 @@
+@use 'sass:map';
+
+// Fuente única de verdad — cambiar aquí propaga a todo el proyecto
 $breakpoints: (
-  xs: 610px,
-  sm: 1190px,
-  md: 1200px
+  mobile:  768px,
+  tablet:  1024px,
+  desktop: 1280px,
 );
 
-$break-desktop: 1190px;
-
-$break-tablet: 610px;
+// Variables derivadas del mapa — no escribir px aquí
+$break-mobile:  map.get($breakpoints, mobile);
+$break-tablet:  map.get($breakpoints, tablet);
+$break-desktop: map.get($breakpoints, desktop);

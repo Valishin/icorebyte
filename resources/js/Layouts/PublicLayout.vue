@@ -21,7 +21,11 @@
 
     &__main {
       flex: 1;
-      padding-top: 64px; // altura del header
+      padding-top: 36px;
+
+      @include from-md {
+        padding-top: 64px;
+      }
     }
   }
 </style>

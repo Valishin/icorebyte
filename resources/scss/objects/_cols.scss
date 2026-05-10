@@ -30,7 +30,7 @@
 
     &-push-#{$i}\@sm {
       @include mixins.only-sm {
-        @include mixins.av_col_push($i);
+        @include mixins.av_col_push($i, grid.$total-columns-sm);
       }
     }
   }
@@ -45,7 +45,7 @@
 
     &-push-#{$i}\@xs {
       @include mixins.only-xs {
-        @include mixins.av_col_push($i);
+        @include mixins.av_col_push($i, grid.$total-columns-xs);
       }
     }
   }

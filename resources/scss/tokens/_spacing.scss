@@ -1,3 +1,5 @@
+@use './breakpoints' as bp;
+
 :root {
   /* Espaciados base */
   --space-xxs: 4px;
@@ -8,9 +10,19 @@
   --space-xl: 32px;
   --space-xxl: 48px;
 
-  /* Container */
+  /* Container — mobile base */
   --container-width: 1400px;
   --container-padding: var(--space-md);
-  // --container-width-sm: 960px;
-  // --container-width-xs: 640px;
+}
+
+@media (min-width: #{bp.$break-mobile}) {
+  :root {
+    --container-padding: var(--space-xl);
+  }
+}
+
+@media (min-width: #{bp.$break-tablet}) {
+  :root {
+    --container-padding: var(--space-xxl);
+  }
 }

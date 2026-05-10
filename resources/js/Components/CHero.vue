@@ -1,8 +1,11 @@
 <script setup lang="ts">
+  import { useDevice } from '@/composables/useDevice'
   import { images } from '@/constants/images'
   import Logo from '@assets/logos/logo.svg'
   import { useScroll } from '../composables/useScroll'
   import CCard from './CCard.vue'
+
+  const { isMobile } = useDevice()
 
   const { scrollToNextSection } = useScroll()
 </script>
@@ -10,7 +13,7 @@
   <div class="c-hero">
     <div class="c-hero__inner">
       <div class="c-hero__container o-container">
-        <div class="c-hero__col o-col-8@md o-col-push-2@md o-col-8@sm o-col-4@xs">
+        <div class="c-hero__col o-col-8@md o-col-push-2@md o-col-6@sm o-col-push-1@sm o-col-4@xs">
           <div class="c-hero__overline">
             <p class="c-hero__overline-text o-font-display-caption">
               Servicios IT profesionales en tu zona
@@ -47,6 +50,7 @@
           />
         </div>
         <button
+          v-if="!isMobile"
           class="c-hero__explore"
           type="button"
           @click="scrollToNextSection('.c-hero')"
@@ -62,9 +66,15 @@
 <style lang="scss" scoped>
   .c-hero {
     &__inner {
-      height: 100vh;
+      height: 100%;
       text-align: center;
-      // padding-top: 50px;
+
+      @include from-sm {
+        padding-top: 100px;
+      }
+      @include from-md {
+        padding-top: 0px;
+      }
     }
     &__overline {
       padding-bottom: 40px;
@@ -126,10 +136,14 @@
     }
     &__wrapper-cards {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: 1fr;
       gap: 20px;
       justify-content: center;
       margin-top: 40px;
+
+      @include from-sm {
+        grid-template-columns: repeat(3, 1fr);
+      }
     }
   }
 

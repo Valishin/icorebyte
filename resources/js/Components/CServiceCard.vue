@@ -45,8 +45,16 @@
 </template>
 <style lang="scss" scoped>
   .c-service-card {
-    &__wrapper-content {
+    height: 100%;
+
+    &__inner {
+      height: 100%;
     }
+
+    &__wrapper-content {
+      height: 100%;
+    }
+
     &__wrapper-card {
       background-color: var(--color-black);
       border: 2px solid var(--color-primary-dark);
@@ -55,6 +63,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      height: 100%;
     }
     &__box-image {
       margin-bottom: 1.5rem;
@@ -70,8 +79,10 @@
     &__box-content {
       display: flex;
       flex-direction: column;
+      flex: 1;
       color: var(--color-white);
       padding: 0px 15px 15px 15px;
+      width: 100%;
     }
     &__wrapper-title {
       display: flex;

@@ -46,7 +46,7 @@
         :color="'secondary'"
       />
       <div class="c-contact__container o-container">
-        <div class="c-contact__col c-contact__col--cards o-col-4@md o-col-4@sm o-col-4@xs">
+        <div class="c-contact__col c-contact__col--cards o-col-4@md o-col-6@sm o-col-4@xs">
           <CPlaceCard
             :icon="'IconPhone'"
             :title="'+34 678 758 210'"
@@ -81,7 +81,7 @@
           />
         </div>
 
-        <div class="c-contact__col o-col-8@md o-col-4@sm o-col-4@xs">
+        <div class="c-contact__col o-col-8@md o-col-6@sm o-col-4@xs">
           <div class="c-contact__form-wrapper">
             <!-- Flash success -->
             <div v-if="page.props.flash.success" class="c-contact__flash">
@@ -207,6 +207,7 @@
     &__container {
       display: flex;
       flex-direction: column-reverse;
+      align-items: center;
       gap: 2rem;
 
       @include from-sm {
