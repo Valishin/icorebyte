@@ -44,8 +44,17 @@
   .c-development {
     &__wrapper-services {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 2rem;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+
+      @include from-sm {
+        gap: 1.5rem;
+      }
+
+      @include from-md {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+      }
     }
   }
 </style>

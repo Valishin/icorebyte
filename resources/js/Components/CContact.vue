@@ -206,7 +206,16 @@
 
     &__container {
       display: flex;
+      flex-direction: column-reverse;
       gap: 2rem;
+
+      @include from-sm {
+        flex-direction: column;
+      }
+
+      @include from-md {
+        flex-direction: row;
+      }
     }
 
     &__col {
@@ -214,6 +223,7 @@
         display: flex;
         flex-direction: column;
         justify-content: space-evenly;
+        gap: 1.5rem;
       }
     }
 
@@ -242,11 +252,11 @@
 
     &__row {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr;
       gap: 1rem;
 
-      @media (max-width: 640px) {
-        grid-template-columns: 1fr;
+      @include from-sm {
+        grid-template-columns: 1fr 1fr;
       }
     }
 

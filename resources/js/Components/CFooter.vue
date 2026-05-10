@@ -94,17 +94,18 @@
 
     &__inner {
       display: grid;
-      grid-template-columns: 1.5fr 1fr 1fr 1fr;
-      gap: 3rem;
+      grid-template-columns: 1fr;
+      gap: 2rem;
       padding-top: 3rem;
       padding-bottom: 3rem;
 
-      @media (max-width: 1024px) {
+      @include from-sm {
         grid-template-columns: 1fr 1fr;
+        gap: 3rem;
       }
 
-      @media (max-width: 640px) {
-        grid-template-columns: 1fr;
+      @include from-md {
+        grid-template-columns: 1.5fr 1fr 1fr 1fr;
       }
     }
 
@@ -175,15 +176,18 @@
 
     &__bottom-inner {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
+      flex-direction: column;
+      gap: 0.75rem;
+      text-align: center;
       padding-top: 1.25rem;
       padding-bottom: 1.25rem;
 
-      @media (max-width: 640px) {
-        flex-direction: column;
-        gap: 0.75rem;
-        text-align: center;
+      @include from-sm {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        text-align: left;
+        gap: 0;
       }
     }
 
