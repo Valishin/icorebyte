@@ -9,7 +9,7 @@
 SSH_USER="u863791557"
 SSH_HOST="icorebyte.com"
 SSH_PORT="65002"
-REMOTE_PATH="~/domains/icorebyte.com/laravel"
+REMOTE_PATH="~/domains/icorebyte.com/icorebyte"
 REMOTE_PUBLIC="~/domains/icorebyte.com/public_html"
 PHP="/opt/alt/php84/usr/bin/php"
 
@@ -31,7 +31,7 @@ echo "✅ Build generado correctamente."
 # — PASO 2: Subir carpeta build al servidor —
 echo ""
 echo "📤 [2/4] Subiendo assets al servidor..."
-scp -P $SSH_PORT -r ./public/build $SSH_USER@$SSH_HOST:$REMOTE_PATH/public/
+scp -P $SSH_PORT -r ./public/build $SSH_USER@$SSH_HOST:/home/$SSH_USER/domains/icorebyte.com/icorebyte/public/
 
 if [ $? -ne 0 ]; then
   echo "❌ Error subiendo el build. Deploy cancelado."
@@ -62,7 +62,7 @@ ssh -p $SSH_PORT $SSH_USER@$SSH_HOST << EOF
 
   # Copia build a public_html
   echo "  → Copiando assets a public_html..."
-  cp -r $REMOTE_PATH/public/build/. $REMOTE_PUBLIC/build/
+  cp -r /home/$SSH_USER/domains/icorebyte.com/icorebyte/public/build/. /home/$SSH_USER/domains/icorebyte.com/public_html/build/
 
   # Ejecuta migraciones si hay archivos nuevos en database/migrations
   if git diff HEAD@{1} --name-only | grep -q "database/migrations"; then
@@ -71,7 +71,7 @@ ssh -p $SSH_PORT $SSH_USER@$SSH_HOST << EOF
   fi
 
   # Limpia y regenera caché
-  echo "  → Optimizando Laravel..."
+  echo "  → Optimizando icorebyte..."
   $PHP artisan optimize:clear
   $PHP artisan optimize
 

@@ -25,7 +25,7 @@
           <div class="c-hero__subtitle">
             <p class="c-hero__subtitle-text o-font-display-3">
               Tu centro integral de soluciones informáticas. Reparación, venta y desarrollo
-              tecnológico al más alto nivel. CAMBIO APLICADO
+              tecnológico al más alto nivel.
             </p>
           </div>
         </div>
