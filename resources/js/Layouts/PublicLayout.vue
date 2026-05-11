@@ -2,6 +2,7 @@
   import CCookieBanner from '@/Components/CCookieBanner.vue'
   import CFooter from '@/Components/CFooter.vue'
   import CHeader from '@/Components/CHeader.vue'
+  import CPageLoader from '@/Components/CPageLoader.vue'
   import CToast from '@/Components/CToast.vue'
   import { useTheme } from '@/composables/useTheme'
   import { onMounted } from 'vue'
@@ -12,6 +13,7 @@
 
 <template>
   <div class="l-public">
+    <CPageLoader />
     <CHeader />
     <main class="l-public__main">
       <slot />

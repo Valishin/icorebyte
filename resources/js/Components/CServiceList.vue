@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import { useInView } from '@/composables/useInView'
   import { images } from '@/constants/images'
   import { icons } from '@assets/icons'
   import type { Swiper as SwiperType } from 'swiper'
@@ -22,6 +23,8 @@
 
   const prev = () => swiperRef.value?.slidePrev()
   const next = () => swiperRef.value?.slideNext()
+
+  const { el: sliderRef, isVisible: sliderVisible } = useInView(0.1)
 
   const cards: { image: string; icon: IconKey; title: string; content: string }[] = [
     {
@@ -91,6 +94,11 @@
             :color="'primary'"
           />
         </div>
+        <div
+          ref="sliderRef"
+          class="c-service-list__slider-wrapper"
+          :class="{ 'is-visible': sliderVisible }"
+        >
         <Swiper
           class="c-service-list__slider"
           :modules="modules"
@@ -106,7 +114,7 @@
           }"
           @swiper="onSwiper"
         >
-          <div class="c-service-list__nav">
+          <div class="c-service-list__nav" >
             <button class="c-service-list__nav-btn" @click="prev" aria-label="Anterior">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -137,6 +145,7 @@
             />
           </SwiperSlide>
         </Swiper>
+        </div>
       </div>
     </div>
   </div>
@@ -145,6 +154,26 @@
 <style lang="scss" scoped>
   .c-service-list {
     padding-top: 40px;
+
+    // ── Animación entrada ──────────────────────────────────
+    &__slider-wrapper {
+      opacity: 0;
+      transform: translateY(28px);
+      transition:
+        opacity 0.6s ease,
+        transform 0.6s ease;
+
+      @media (prefers-reduced-motion: reduce) {
+        opacity: 1;
+        transform: none;
+        transition: none;
+      }
+
+      &.is-visible {
+        opacity: 1;
+        transform: none;
+      }
+    }
 
     &__header {
       display: flex;

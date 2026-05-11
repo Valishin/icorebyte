@@ -1,6 +1,9 @@
 <script setup lang="ts">
+  import { useInView } from '@/composables/useInView'
   import { useToast } from '@/composables/useToast'
   import { images } from '@/constants/images'
+
+  const { el: wrapperRef, isVisible: wrapperVisible } = useInView(0.1)
   import CButton from './CButton.vue'
   import CCategoryGrid from './CCategoryGrid.vue'
   import CIcon from './CIcon.vue'
@@ -25,7 +28,11 @@
       </div>
       <div class="c-shop__container o-container">
         <div class="c-shop__col o-col-12@md o-col-8@sm o-col-4@xs">
-          <div class="c-shop__wrapper">
+          <div
+            ref="wrapperRef"
+            class="c-shop__wrapper"
+            :class="{ 'is-visible': wrapperVisible }"
+          >
             <div class="c-shop__box-image">
               <img
                 class="c-shop__image"
@@ -105,6 +112,36 @@
       padding: 4rem 0;
     }
     &__wrapper {
+      // ── Animación hijos ──────────────────────────────────
+      .c-shop__box-image {
+        opacity: 0;
+        transform: translateX(-24px);
+        transition: opacity 0.6s ease, transform 0.6s ease;
+
+        @media (prefers-reduced-motion: reduce) { opacity: 1; transform: none; }
+      }
+
+      .c-shop__box-content {
+        opacity: 0;
+        transform: translateX(24px);
+        transition: opacity 0.6s ease 0.15s, transform 0.6s ease 0.15s;
+
+        @media (prefers-reduced-motion: reduce) { opacity: 1; transform: none; }
+      }
+
+      &.is-visible {
+        .c-shop__box-image  { opacity: 1; transform: none; }
+        .c-shop__box-content { opacity: 1; transform: none; }
+      }
+
+      // En mobile los dos vienen desde abajo (no hay izq/der)
+      @media (max-width: 1023px) {
+        .c-shop__box-image,
+        .c-shop__box-content {
+          transform: translateY(20px);
+        }
+      }
+
       border: 1px solid var(--color-gray-dark);
       box-shadow: var(--box-shadow);
       border-radius: 8px;

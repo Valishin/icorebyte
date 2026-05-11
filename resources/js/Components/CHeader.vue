@@ -1,11 +1,14 @@
 <script setup lang="ts">
   import { useDevice } from '@/composables/useDevice'
+  import { useHeroLogoState } from '@/composables/useHeroLogoState'
   import { useTheme } from '@/composables/useTheme'
+  import { router } from '@inertiajs/vue3'
   import Logo from '@assets/logos/logo.svg'
   import { onMounted, onUnmounted, ref, watch } from 'vue'
 
   const { isMobile } = useDevice()
   const { theme, toggle } = useTheme()
+  const { heroManagesLogo } = useHeroLogoState()
 
   const menuOpen = ref(false)
   const scrolled = ref(false)
@@ -33,45 +36,22 @@
     const el = document.querySelector(anchor)
     if (el) el.scrollIntoView({ behavior: 'smooth' })
   }
+
+  const handleNav = (anchor: string) => {
+    if (window.location.pathname === '/') {
+      scrollTo(anchor)
+    } else {
+      router.visit('/', {
+        onSuccess: () => setTimeout(() => scrollTo(anchor), 80)
+      })
+    }
+  }
 </script>
 
 <template>
   <header class="c-header" :class="{ 'c-header--scrolled': scrolled }">
     <div class="c-header__inner o-container">
-      <!-- Logo -->
-      <a
-        v-if="!isMobile"
-        class="c-header__logo"
-        @click.prevent="scrollTo('#inicio')"
-        href="#inicio"
-      >
-        <component class="c-header__svg" :is="Logo" />
-      </a>
-
-      <!-- Nav -->
-      <nav v-if="!isMobile" class="c-header__nav">
-        <a
-          v-for="item in navItems"
-          :key="item.label"
-          :href="item.anchor"
-          class="c-header__nav-link"
-          @click.prevent="scrollTo(item.anchor)"
-        >
-          {{ item.label }}
-        </a>
-      </nav>
-
-      <!-- Theme toggle -->
-      <button
-        class="c-header__theme-toggle"
-        @click="toggle"
-        :aria-label="theme === 'dark' ? 'Activar modo claro' : 'Activar modo oscuro'"
-      >
-        <span v-if="theme === 'dark'">☀️</span>
-        <span v-else>🌙</span>
-      </button>
-
-      <!-- Burger móvil -->
+      <!-- Burger móvil (izquierda) -->
       <button
         v-if="isMobile"
         class="c-header__burger"
@@ -82,6 +62,53 @@
         <span></span>
         <span></span>
       </button>
+
+      <!-- Logo desktop (izquierda) -->
+      <!-- visibility:hidden (not display:none) so CHero can still measure its rect -->
+      <a
+        v-if="!isMobile"
+        class="c-header__logo"
+        :class="{ 'c-header__logo--hero-managed': heroManagesLogo }"
+        @click.prevent="handleNav('#inicio')"
+        href="#inicio"
+      >
+        <component class="c-header__svg" :is="Logo" />
+      </a>
+
+      <!-- Logo mobile (centrado absoluto) -->
+      <a
+        v-if="isMobile"
+        class="c-header__logo c-header__logo--mobile"
+        :class="{ 'c-header__logo--hero-managed': heroManagesLogo }"
+        @click.prevent="handleNav('#inicio')"
+        href="#inicio"
+      >
+        <component class="c-header__svg" :is="Logo" />
+      </a>
+
+      <!-- Nav desktop -->
+      <nav v-if="!isMobile" class="c-header__nav">
+        <a
+          v-for="item in navItems"
+          :key="item.label"
+          :href="item.anchor"
+          class="c-header__nav-link"
+          @click.prevent="handleNav(item.anchor)"
+        >
+          {{ item.label }}
+        </a>
+      </nav>
+
+      <!-- Theme toggle (derecha) -->
+      <button
+        class="c-header__theme-toggle"
+        @click="toggle"
+        :aria-label="theme === 'dark' ? 'Activar modo claro' : 'Activar modo oscuro'"
+      >
+        <span v-if="theme === 'dark'">☀️</span>
+        <span v-else>🌙</span>
+      </button>
+
       <!-- Menú móvil -->
       <Transition name="menu-slide">
         <div v-if="isMobile && menuOpen" class="c-header__mobile-menu">
@@ -92,7 +119,7 @@
             class="c-header__mobile-link"
             @click.prevent="
               () => {
-                scrollTo(item.anchor)
+                handleNav(item.anchor)
                 menuOpen = false
               }
             "
@@ -104,7 +131,7 @@
             class="c-header__cta c-header__cta--mobile"
             @click.prevent="
               () => {
-                scrollTo('#contacto')
+                handleNav('#contacto')
                 menuOpen = false
               }
             "
@@ -140,6 +167,7 @@
       align-items: center;
       justify-content: space-between;
       height: 64px;
+      position: relative;
     }
 
     &__logo {
@@ -294,6 +322,21 @@
       text-decoration: none;
       cursor: pointer;
       width: 140px;
+
+      &--mobile {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 120px;
+        pointer-events: auto;
+      }
+
+      // Hidden while the hero's fixed logo manages this slot.
+      // visibility:hidden keeps the layout box so getBoundingClientRect still returns a valid rect.
+      &--hero-managed {
+        visibility: hidden;
+        pointer-events: none;
+      }
     }
   }
 </style>

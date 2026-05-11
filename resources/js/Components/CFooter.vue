@@ -1,8 +1,10 @@
 <script setup lang="ts">
+  import { useInView } from '@/composables/useInView'
   import { Link } from '@inertiajs/vue3'
   import Logo from '@assets/logos/logo.svg'
 
   const currentYear = new Date().getFullYear()
+  const { el, isVisible } = useInView(0.1)
 
   const services = [
     'Reparación de Ordenadores',
@@ -30,8 +32,8 @@
 </script>
 
 <template>
-  <footer class="c-footer">
-    <div class="c-footer__inner o-container">
+  <footer class="c-footer" :class="{ 'is-visible': isVisible }">
+    <div ref="el" class="c-footer__inner o-container">
       <!-- Col izquierda -->
       <div class="c-footer__brand">
         <div class="c-footer__logo">
@@ -93,6 +95,41 @@
     background: var(--color-black);
     border-top: 1px solid var(--color-border-subtle);
     margin-top: 4rem;
+
+    // ── Animación entrada ─────────────────────────────────
+    &__brand,
+    &__col {
+      opacity: 0;
+      transform: translateY(20px);
+      transition:
+        opacity 0.5s ease,
+        transform 0.5s ease;
+
+      @media (prefers-reduced-motion: reduce) {
+        opacity: 1;
+        transform: none;
+        transition: none;
+      }
+    }
+
+    &__bottom {
+      opacity: 0;
+      transition: opacity 0.5s ease 0.45s;
+
+      @media (prefers-reduced-motion: reduce) {
+        opacity: 1;
+        transition: none;
+      }
+    }
+
+    &.is-visible {
+      .c-footer__brand      { opacity: 1; transform: none; transition-delay: 0s; }
+      .c-footer__col:nth-child(2) { opacity: 1; transform: none; transition-delay: 0.1s; }
+      .c-footer__col:nth-child(3) { opacity: 1; transform: none; transition-delay: 0.2s; }
+      .c-footer__col:nth-child(4) { opacity: 1; transform: none; transition-delay: 0.3s; }
+      .c-footer__bottom     { opacity: 1; }
+    }
+    // ─────────────────────────────────────────────────────
 
     &__inner {
       display: grid;

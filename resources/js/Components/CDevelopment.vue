@@ -1,7 +1,10 @@
 <script setup lang="ts">
+  import { useInView } from '@/composables/useInView'
   import { images } from '@/constants/images'
   import CServiceCard from './CServiceCard.vue'
   import CTitle from './CTitle.vue'
+
+  const { el: cardsRef, isVisible: cardsVisible } = useInView(0.1)
 </script>
 
 <template>
@@ -18,7 +21,11 @@
         />
       </div>
       <div class="c-development__col o-col-12@md o-col-6@sm o-col-push-1@sm o-col-4@xs">
-        <div class="c-development__wrapper-services">
+        <div
+          ref="cardsRef"
+          class="c-development__wrapper-services"
+          :class="{ 'is-visible': cardsVisible }"
+        >
           <CServiceCard
             :title="'Plataforma E-Commerce'"
             :description="'Nuestra plataforma de e-commerce te permite vender tus productos online de forma sencilla y eficiente.'"
@@ -49,6 +56,26 @@
       grid-template-columns: 1fr;
       gap: 1rem;
       align-items: stretch;
+
+      :deep(.c-service-card) {
+        opacity: 0;
+        transform: translateY(24px);
+        transition:
+          opacity 0.5s ease,
+          transform 0.5s ease;
+
+        @media (prefers-reduced-motion: reduce) {
+          opacity: 1;
+          transform: none;
+          transition: none;
+        }
+      }
+
+      &.is-visible {
+        :deep(.c-service-card:nth-child(1)) { opacity: 1; transform: none; transition-delay: 0s; }
+        :deep(.c-service-card:nth-child(2)) { opacity: 1; transform: none; transition-delay: 0.12s; }
+        :deep(.c-service-card:nth-child(3)) { opacity: 1; transform: none; transition-delay: 0.24s; }
+      }
 
       @include from-sm {
         grid-template-columns: repeat(2, 1fr);

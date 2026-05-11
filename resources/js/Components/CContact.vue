@@ -1,8 +1,11 @@
 <script setup lang="ts">
+  import { useInView } from '@/composables/useInView'
   import { useForm, usePage } from '@inertiajs/vue3'
   import CButton from './CButton.vue'
   import CPlaceCard from './CPlaceCard.vue'
   import CTitle from './CTitle.vue'
+
+  const { el: colsRef, isVisible: colsVisible } = useInView(0.1)
 
   const page = usePage<{
     flash: { success?: string }
@@ -49,7 +52,11 @@
           />
         </div>
       </div>
-      <div class="c-contact__container o-container">
+      <div
+        ref="colsRef"
+        class="c-contact__container o-container"
+        :class="{ 'is-visible': colsVisible }"
+      >
         <div class="c-contact__col c-contact__col--cards o-col-4@md o-col-6@sm o-col-4@xs">
           <CPlaceCard
             :icon="'IconPhone'"
@@ -202,6 +209,36 @@
     }
 
     &__container {
+      // ── Animación columnas ───────────────────────────────
+      .c-contact__col--cards {
+        opacity: 0;
+        transform: translateX(-24px);
+        transition: opacity 0.55s ease, transform 0.55s ease;
+
+        @media (prefers-reduced-motion: reduce) { opacity: 1; transform: none; }
+      }
+
+      .c-contact__col:not(.c-contact__col--cards) {
+        opacity: 0;
+        transform: translateX(24px);
+        transition: opacity 0.55s ease 0.15s, transform 0.55s ease 0.15s;
+
+        @media (prefers-reduced-motion: reduce) { opacity: 1; transform: none; }
+      }
+
+      &.is-visible {
+        .c-contact__col--cards                    { opacity: 1; transform: none; }
+        .c-contact__col:not(.c-contact__col--cards) { opacity: 1; transform: none; }
+      }
+
+      // En mobile ambos vienen desde abajo
+      @media (max-width: 1023px) {
+        .c-contact__col--cards,
+        .c-contact__col:not(.c-contact__col--cards) {
+          transform: translateY(20px);
+        }
+      }
+
       display: flex;
       flex-direction: column-reverse;
       align-items: center;
