@@ -62,6 +62,10 @@
         padding: 15px;
         border-radius: 8px;
         background-color: var(--color-primary-dark);
+
+        .theme-light & {
+          border: 0px solid transparent;
+        }
       }
     }
 

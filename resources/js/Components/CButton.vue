@@ -6,8 +6,11 @@
   const props = defineProps<{
     title: string
     type?: 'primary' | 'secondary' | 'tertiary'
+    nativeType?: 'submit' | 'button' | 'reset'
     icon?: keyof typeof icons
     color?: ColorType
+    disabled?: boolean
+    loading?: boolean
   }>()
 
   const emit = defineEmits<{
@@ -22,8 +25,11 @@
   <button
     class="c-button"
     :class="{
-      'c-button--gradient': props.color === 'gradient'
+      'c-button--gradient': props.color === 'gradient',
+      'c-button--disabled': props.disabled || props.loading
     }"
+    :type="props.nativeType ?? 'button'"
+    :disabled="props.disabled || props.loading"
     @click="handleClick"
     :style="{
       ...(props.color && props.color !== 'gradient'
@@ -34,8 +40,8 @@
     <div v-if="props.icon" class="c-button__icon">
       <CIcon :icon="props.icon" />
     </div>
-    <div class="c-button__title">{{ props.title }}</div>
-    <CIcon :icon="'IconLink'" />
+    <div class="c-button__title">{{ props.loading ? 'Enviando...' : props.title }}</div>
+    <CIcon v-if="!props.loading" :icon="'IconLink'" />
   </button>
 </template>
 <style lang="scss" scoped>
@@ -50,8 +56,23 @@
     cursor: pointer;
     transition: all 0.3s ease;
 
+    .theme-light & {
+      color: var(--color-black);
+    }
+
     &:hover {
-      background-color: var(--color-primary-dark);
+      background-color: var(--color-secondary);
+
+      .theme-light & {
+        opacity: 0.9;
+        color: var(--color-white);
+      }
+    }
+
+    &--disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
     }
 
     &__icon {

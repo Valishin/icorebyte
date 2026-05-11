@@ -1,13 +1,8 @@
 <script setup lang="ts">
-  import { useToast } from '@/composables/useToast'
+  import { Link } from '@inertiajs/vue3'
   import Logo from '@assets/logos/logo.svg'
 
-  const { show } = useToast()
   const currentYear = new Date().getFullYear()
-
-  const onLegalClick = () => {
-    show('info', 'Esta página estará disponible próximamente.')
-  }
 
   const services = [
     'Reparación de Ordenadores',
@@ -84,9 +79,9 @@
       <div class="c-footer__bottom-inner o-container">
         <p class="c-footer__copy">© {{ currentYear }} iCoreByte. Todos los derechos reservados.</p>
         <div class="c-footer__legal">
-          <a href="#" class="c-footer__legal-link" @click.prevent="onLegalClick">Política de Privacidad</a>
-          <a href="#" class="c-footer__legal-link" @click.prevent="onLegalClick">Aviso Legal</a>
-          <a href="#" class="c-footer__legal-link" @click.prevent="onLegalClick">Cookies</a>
+          <Link href="/politica-de-privacidad" class="c-footer__legal-link">Política de Privacidad</Link>
+          <Link href="/aviso-legal" class="c-footer__legal-link">Aviso Legal</Link>
+          <Link href="/politica-de-cookies" class="c-footer__legal-link">Cookies</Link>
         </div>
       </div>
     </div>

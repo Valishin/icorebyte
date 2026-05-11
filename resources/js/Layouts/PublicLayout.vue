@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import CCookieBanner from '@/Components/CCookieBanner.vue'
   import CFooter from '@/Components/CFooter.vue'
   import CHeader from '@/Components/CHeader.vue'
   import CToast from '@/Components/CToast.vue'
@@ -17,6 +18,7 @@
     </main>
     <CFooter />
     <CToast />
+    <CCookieBanner />
   </div>
 </template>
 

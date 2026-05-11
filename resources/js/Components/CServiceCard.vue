@@ -64,17 +64,24 @@
       flex-direction: column;
       align-items: center;
       height: 100%;
+
+      &:hover .c-service-card__image {
+        transform: scale(1.06);
+      }
     }
     &__box-image {
       margin-bottom: 1.5rem;
       position: relative;
+      overflow: hidden;
+      border-radius: 8px 8px 0 0;
     }
     &__image {
       border-radius: 8px 8px 0 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
-      overflow: hidden;
+      display: block;
+      transition: transform 0.5s ease;
     }
     &__box-content {
       display: flex;
@@ -105,6 +112,22 @@
       padding: 0.25rem 0.75rem;
       border-radius: 8px;
       border: 1px solid var(--color-primary);
+      transition:
+        background-color 0.3s ease,
+        color 0.3s ease;
+
+      .theme-light & {
+        border: 1px solid var(--color-primary);
+      }
+
+      &:hover {
+        background-color: var(--color-primary);
+        color: var(--color-white);
+
+        .theme-light & {
+          color: var(--color-black);
+        }
+      }
     }
   }
 </style>

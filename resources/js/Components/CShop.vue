@@ -111,6 +111,10 @@
       display: flex;
       flex-direction: column;
 
+      .theme-light & {
+        border: 0px solid transparent;
+      }
+
       @include from-md {
         flex-direction: row;
         align-items: center;

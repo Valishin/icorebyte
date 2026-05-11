@@ -29,6 +29,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// Legal
+Route::get('/aviso-legal',            fn () => Inertia::render('Legal/AvisoLegal'))->name('legal.aviso');
+Route::get('/politica-de-privacidad', fn () => Inertia::render('Legal/PoliticaPrivacidad'))->name('legal.privacidad');
+Route::get('/politica-de-cookies',    fn () => Inertia::render('Legal/PoliticaCookies'))->name('legal.cookies');
+
 Route::post('/contact', [ContactController::class, 'send'])
     ->middleware('throttle:contact')
     ->name('contact.send');

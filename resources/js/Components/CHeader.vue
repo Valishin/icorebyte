@@ -175,7 +175,7 @@
       cursor: pointer;
 
       &:hover {
-        color: var(--color-white);
+        color: var(--color-secondary);
       }
     }
 

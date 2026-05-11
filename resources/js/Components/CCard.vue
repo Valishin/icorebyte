@@ -34,6 +34,9 @@
       background-color: var(--color-white);
       overflow: hidden;
       transition: border-color 0.3s ease;
+      .theme-light & {
+        border: 0px solid transparent;
+      }
     }
 
     &__inner:hover {

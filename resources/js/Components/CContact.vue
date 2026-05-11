@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import { useForm, usePage } from '@inertiajs/vue3'
+  import CButton from './CButton.vue'
   import CPlaceCard from './CPlaceCard.vue'
   import CTitle from './CTitle.vue'
 
@@ -177,17 +178,15 @@
               </div>
 
               <!-- Botón -->
-              <button type="submit" :disabled="contactForm.processing" class="c-contact__submit">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-                  />
-                </svg>
-                {{ contactForm.processing ? 'Enviando...' : 'Enviar Mensaje' }}
-              </button>
+              <CButton
+                title="Enviar Mensaje"
+                native-type="submit"
+                color="gradient"
+                icon="IconEmail"
+                :loading="contactForm.processing"
+                :disabled="contactForm.processing"
+                class="c-contact__submit"
+              />
             </form>
           </div>
         </div>
@@ -231,6 +230,10 @@
       border: 1px solid var(--color-gray-dark);
       border-radius: 1rem;
       padding: 2rem;
+
+      .theme-light & {
+        border: 0px solid transparent;
+      }
     }
 
     &__flash {
@@ -334,33 +337,11 @@
 
     &__submit {
       width: 100%;
-      padding: 1rem;
-      border-radius: 0.75rem;
-      font-weight: 600;
-      color: var(--color-white);
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
       justify-content: center;
-      gap: 0.5rem;
-      background: var(--color-primary);
-      transition: opacity 0.2s;
       margin-top: 0.5rem;
-
-      svg {
-        width: 1rem;
-        height: 1rem;
-      }
-
-      &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-
-      &:hover:not(:disabled) {
-        opacity: 0.9;
-      }
+      border-radius: 0.75rem !important;
+      padding: 1rem !important;
+      font-weight: 600;
     }
   }
 </style>

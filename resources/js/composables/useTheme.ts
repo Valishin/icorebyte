@@ -8,6 +8,8 @@ export function useTheme() {
   const applyTheme = (t: Theme) => {
     theme.value = t
     document.documentElement.setAttribute('data-theme', t)
+    document.body.classList.remove('theme-dark', 'theme-light')
+    document.body.classList.add(`theme-${t}`)
     localStorage.setItem(STORAGE_KEY, t)
   }
 
