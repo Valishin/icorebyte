@@ -93,9 +93,7 @@
       bgEl.value.style.backgroundImage    = `url(${activeBgImage.value})`
       bgEl.value.style.backgroundPosition = 'center top'
 
-      if (!isMobile.value) {
-        window.addEventListener('scroll', onParallaxScroll, { passive: true })
-      }
+      window.addEventListener('scroll', onParallaxScroll, { passive: true })
     }
 
     // Arrancar animaciones cuando el loader termina
