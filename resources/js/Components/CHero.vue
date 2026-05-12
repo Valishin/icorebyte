@@ -31,7 +31,10 @@
   }
 
   onMounted(() => {
-    if (props.bgImage) window.addEventListener('scroll', onParallaxScroll, { passive: true })
+    // Parallax solo en desktop — en móvil es caro y genera jank
+    if (props.bgImage && !isMobile.value) {
+      window.addEventListener('scroll', onParallaxScroll, { passive: true })
+    }
   })
   onUnmounted(() => {
     window.removeEventListener('scroll', onParallaxScroll)
@@ -46,8 +49,8 @@
       v-if="bgImage"
       class="c-hero__bg"
       :style="{
-        backgroundImage: `url(${bgImage})`,
-        backgroundPosition: `center ${bgParallaxY}px`
+        backgroundImage   : `url(${bgImage})`,
+        backgroundPosition: isMobile ? 'center top' : `center ${bgParallaxY}px`,
       }"
       aria-hidden="true"
     />
