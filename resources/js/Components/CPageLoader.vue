@@ -3,6 +3,7 @@
   import { useLoaderState } from '@/composables/useLoaderState'
   import { router } from '@inertiajs/vue3'
   import Logo from '@assets/logos/logo.svg'
+  import gsap from 'gsap'
   import { onMounted, onUnmounted, ref } from 'vue'
 
   const { markReady } = useLoaderState()
@@ -10,21 +11,48 @@
 
   const isMobile = () => window.innerWidth < 768
 
-  // ── Loader inicial ────────────────────────────────────────
+  // ── Estado del overlay ────────────────────────────────────
   const initialVisible = ref(true)
-  const homeExiting    = ref(false)   // true durante la secuencia de salida home
-  const bgFading       = ref(false)   // fondo negro desapareciendo
-  const logoMorphStyle = ref<Record<string, string>>({})
+  const homeExiting    = ref(false)
   const loaderLogoRef  = ref<HTMLElement>()
+  const loaderBgRef    = ref<HTMLElement>()
+  const loaderBarRef   = ref<HTMLElement>()
 
   // ── Barra de progreso (navegaciones Inertia) ──────────────
   const barVisible  = ref(false)
   const barProgress = ref(0)
   const barDone     = ref(false)
 
-  let removeStart: () => void
+  let removeStart   : () => void
   let removeProgress: () => void
-  let removeFinish: () => void
+  let removeFinish  : () => void
+  let barPulseTween : gsap.core.Tween | null = null
+
+  // ── Animación de entrada del logo ─────────────────────────
+  const animateLogoIn = () => {
+    if (!loaderLogoRef.value) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      gsap.set(loaderLogoRef.value, { opacity: 1, y: 0 })
+      return
+    }
+    gsap.fromTo(
+      loaderLogoRef.value,
+      { opacity: 0, y: 10 },
+      { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }
+    )
+  }
+
+  // ── Animación de la barra de carga ────────────────────────
+  const animateBarIn = () => {
+    if (!loaderBarRef.value) return
+    const fill = loaderBarRef.value.querySelector('.c-page-loader__bar-fill') as HTMLElement
+    if (!fill) return
+    gsap.set(fill, { scaleX: 0.3, transformOrigin: 'left' })
+    barPulseTween = gsap.to(fill, {
+      scaleX: 1, duration: 0.9, ease: 'sine.inOut',
+      yoyo: true, repeat: -1,
+    })
+  }
 
   // ── Salida simple (mobile o páginas no-home) ──────────────
   const startSimpleExit = () => {
@@ -32,74 +60,58 @@
     setTimeout(() => { loaderIsActive.value = false; markReady() }, 1300)
   }
 
-  // ── Salida especial en home (solo desktop) ────────────────
+  // ── Salida con morph del logo al hero (desktop home) ──────
   const startHomeExit = () => {
-    homeExiting.value = true  // oculta la barra
-    bgFading.value    = true  // fondo empieza a desvanecerse ya
+    homeExiting.value = true
+    barPulseTween?.kill()
 
-    const loaderLogo  = loaderLogoRef.value
-    // Usamos data-hero-logo para no depender de clases CSS scoped
-    const heroSvg     = document.querySelector('[data-hero-logo]') as HTMLElement | null
+    const loaderLogo = loaderLogoRef.value
+    const heroSvg    = document.querySelector('[data-hero-logo]') as HTMLElement | null
 
     if (!loaderLogo || !heroSvg) {
-      // Fallback: fade estándar si no encontramos los elementos
-      setTimeout(() => { initialVisible.value = false; markReady() }, 450)
+      startSimpleExit()
       return
     }
 
-    // ── Paso 1: cancelar la animación CSS del logo del loader y preparar la transición.
-    //   NO se incluye transform todavía — la transición necesita ver el estado inicial
-    //   antes de que llegue el estado final (si se setean en el mismo tick, el browser
-    //   no tiene referencia de dónde partir y el elemento salta directamente al final).
-    logoMorphStyle.value = {
-      animation       : 'none',
-      transformOrigin : 'top left',
-      transition      : 'transform 0.52s cubic-bezier(0.4, 0, 0.2, 1)',
-    }
+    const from = loaderLogo.getBoundingClientRect()
+    const to   = heroSvg.getBoundingClientRect()
+    const sc   = to.width > 0 ? to.width / from.width : 1
+    const dx   = to.left - from.left
+    const dy   = to.top  - from.top
 
-    // ── Paso 2: en el siguiente frame el browser ya ha pintado el estado sin transform.
-    //   Ahora medimos y aplicamos el transform final → la transición se dispara correctamente.
-    requestAnimationFrame(() => {
-      const from = loaderLogo.getBoundingClientRect()
-      const to   = heroSvg.getBoundingClientRect()
+    // Fondo: fade-out independiente
+    gsap.to(loaderBgRef.value!, {
+      opacity: 0, duration: 0.45, ease: 'power1.inOut',
+    })
 
-      // Si el SVG del hero no tiene dimensiones aún, dejamos sc=1 (sin escala)
-      const sc = to.width > 0 ? to.width / from.width : 1
-      const dx = to.left - from.left
-      const dy = to.top  - from.top
-
-      logoMorphStyle.value = {
-        animation       : 'none',
-        transformOrigin : 'top left',
-        transition      : 'transform 0.52s cubic-bezier(0.4, 0, 0.2, 1)',
-        transform       : `translate(${dx}px, ${dy}px) scale(${sc})`,
-      }
-
-      // Al terminar la transición: todos los cambios en el mismo tick síncrono.
-      // Vue agrupa los tres en un solo render → overlay desaparece Y hero logo aparece
-      // en el mismo frame, sin ningún solapamiento visible.
-      setTimeout(() => {
-        loaderMorphedToHero.value = true  // CHero aparece sin fade-in
-        loaderIsActive.value      = false  // overlay ha terminado
-        markReady()                        // dispara el watch en useLogoMorph
-        initialVisible.value      = false  // elimina el overlay en el mismo render
-      }, 560)  // ligeramente más que los 0.52s de transición
+    // Logo: morph hacia la posición del hero
+    gsap.to(loaderLogo, {
+      x: dx, y: dy, scale: sc,
+      duration: 0.52,
+      ease: 'power2.inOut',
+      transformOrigin: 'top left',
+      onComplete: () => {
+        loaderMorphedToHero.value = true
+        loaderIsActive.value      = false
+        markReady()
+        initialVisible.value      = false
+      },
     })
   }
 
+  // ── Lifecycle ─────────────────────────────────────────────
   onMounted(() => {
-    // Señalamos que el overlay está activo: useLogoMorph esperará antes de mostrarse
     loaderIsActive.value = true
 
+    animateLogoIn()
+    animateBarIn()
+
     if (window.location.pathname === '/' && !isMobile()) {
-      // Home en desktop: salida con morph del logo al hero
       setTimeout(startHomeExit, 900)
     } else {
-      // Mobile o páginas no-home: fade estándar sin logo
       startSimpleExit()
     }
 
-    // Eventos del router Inertia
     removeStart = router.on('start', () => {
       barDone.value     = false
       barProgress.value = 0
@@ -121,6 +133,7 @@
   })
 
   onUnmounted(() => {
+    barPulseTween?.kill()
     removeStart?.()
     removeProgress?.()
     removeFinish?.()
@@ -128,24 +141,17 @@
 </script>
 
 <template>
-  <!-- Overlay carga inicial -->
-  <!--
-    En home usamos 'loader-instant' (sin transición) porque el fondo ya se fue
-    con CSS y el logo ya está en la posición del hero; quitar el div es imperceptible.
-    En otras páginas usamos 'loader-fade' (opacity 0.4s) como antes.
-  -->
   <Transition :name="homeExiting ? 'loader-instant' : 'loader-fade'">
     <div v-if="initialVisible" class="c-page-loader">
-      <!-- Capa de fondo — se desvanece independientemente del logo -->
-      <div class="c-page-loader__bg" :class="{ 'is-fading': bgFading }" />
+      <div ref="loaderBgRef" class="c-page-loader__bg" />
 
-      <!-- Logo — solo en desktop, anima hacia el hero en home -->
-      <div ref="loaderLogoRef" class="c-page-loader__logo" :style="logoMorphStyle">
+      <div ref="loaderLogoRef" class="c-page-loader__logo">
         <component :is="Logo" class="c-page-loader__svg" />
       </div>
 
-      <!-- Barra de carga — siempre visible en mobile, se oculta antes del morph en desktop -->
-      <div v-if="!homeExiting" class="c-page-loader__bar" />
+      <div v-if="!homeExiting" ref="loaderBarRef" class="c-page-loader__bar">
+        <span class="c-page-loader__bar-fill" />
+      </div>
     </div>
   </Transition>
 
@@ -159,7 +165,6 @@
 </template>
 
 <style lang="scss" scoped>
-  // ── Overlay inicial ───────────────────────────────────────
   .c-page-loader {
     position: fixed;
     inset: 0;
@@ -169,7 +174,6 @@
     align-items: center;
     justify-content: center;
     gap: 2rem;
-    // Sin background propio — lo gestiona __bg para poder desvanecerlo por separado
     background: transparent;
     pointer-events: none;
 
@@ -177,18 +181,13 @@
       position: absolute;
       inset: 0;
       background: var(--color-black);
-      transition: opacity 0.45s ease;
       z-index: 0;
-
-      &.is-fading {
-        opacity: 0;
-      }
     }
 
     &__logo {
       position: relative;
       z-index: 1;
-      animation: loader-logo-in 0.5s ease-out both;
+      opacity: 0; // GSAP anima a 1
     }
 
     &__svg {
@@ -208,31 +207,24 @@
       background: var(--color-border-subtle);
       border-radius: 99px;
       overflow: hidden;
+    }
 
-      &::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(90deg, var(--color-primary), var(--color-secondary, var(--color-primary)));
-        border-radius: 99px;
-        animation: loader-pulse 0.9s ease-in-out infinite alternate;
-      }
+    &__bar-fill {
+      display: block;
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, var(--color-primary), var(--color-secondary, var(--color-primary)));
+      border-radius: 99px;
+      transform-origin: left;
     }
   }
 
-  // ── Transiciones de salida ────────────────────────────────
-  // Páginas normales: fade del overlay completo
-  .loader-fade-leave-active {
-    transition: opacity 0.4s ease;
-  }
-  .loader-fade-leave-to {
-    opacity: 0;
-  }
+  // Páginas normales: fade del overlay
+  .loader-fade-leave-active { transition: opacity 0.4s ease; }
+  .loader-fade-leave-to     { opacity: 0; }
 
-  // Home: el fondo y el logo ya se fueron con CSS; quitamos el div sin transición
-  .loader-instant-leave-active {
-    transition: none;
-  }
+  // Home desktop: overlay ya vacío, quitar sin transición
+  .loader-instant-leave-active { transition: none; }
 
   // ── Barra de progreso Inertia ─────────────────────────────
   .c-progress-bar {
@@ -247,27 +239,8 @@
     box-shadow: 0 0 8px var(--color-primary);
 
     &--done {
-      transition:
-        width 0.15s ease,
-        opacity 0.4s ease 0.1s;
+      transition: width 0.15s ease, opacity 0.4s ease 0.1s;
       opacity: 0;
     }
-  }
-
-  // ── Keyframes ─────────────────────────────────────────────
-  @keyframes loader-logo-in {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes loader-pulse {
-    from { transform: scaleX(0.3); transform-origin: left; }
-    to   { transform: scaleX(1);   transform-origin: left; }
   }
 </style>

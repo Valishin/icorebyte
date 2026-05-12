@@ -3,12 +3,13 @@
   import { useLoaderState } from '@/composables/useLoaderState'
   import { useLogoMorph } from '@/composables/useLogoMorph'
   import Logo from '@assets/logos/logo.svg'
-  import { computed, onMounted, onUnmounted, ref } from 'vue'
+  import gsap from 'gsap'
+  import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
   import { useScroll } from '../composables/useScroll'
 
   const props = defineProps<{
-    bgImage?: string // imagen desktop — ej: images.imagenHero
-    bgImageMobile?: string // imagen móvil (menor resolución) — fallback: bgImage
+    bgImage?       : string
+    bgImageMobile? : string
   }>()
 
   const { isMobile } = useDevice()
@@ -16,17 +17,14 @@
   const { loaderReady } = useLoaderState()
   const { heroRef, logoFixedEl, handleLogoClick } = useLogoMorph()
 
-  // Imagen activa según dispositivo — móvil usa bgImageMobile si está disponible
   const activeBgImage = computed(() =>
     isMobile.value ? (props.bgImageMobile ?? props.bgImage) : props.bgImage
   )
 
-  // ── Parallax de fondo ─────────────────────────────────────
-  // Factor 0.25 → el fondo se mueve a 1/4 de la velocidad del scroll
-  // Se actualiza vía rAF para no bloquear el hilo principal
+  // ── Parallax ──────────────────────────────────────────────
   const PARALLAX_SPEED = 0.25
-  const bgParallaxY = ref(0)
-  let rafParallax = 0
+  const bgParallaxY    = ref(0)
+  let   rafParallax    = 0
 
   const onParallaxScroll = () => {
     if (!props.bgImage) return
@@ -36,12 +34,74 @@
     })
   }
 
+  // ── Refs para las animaciones GSAP ───────────────────────
+  const overlineRef  = ref<HTMLElement>()
+  const subtitleRef  = ref<HTMLElement>()
+  const arrowRef     = ref<HTMLElement>()
+
+  // ── Animaciones de entrada (GSAP) ─────────────────────────
+  let floatTween  : gsap.core.Tween | null = null
+  let bounceTween : gsap.core.Tween | null = null
+
+  const playEnterAnimations = () => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      gsap.set([overlineRef.value, subtitleRef.value], { opacity: 1, y: 0 })
+      return
+    }
+
+    const tl = gsap.timeline()
+
+    // Overline: sube + fade-in
+    tl.fromTo(
+      overlineRef.value,
+      { opacity: 0, y: 8 },
+      { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }
+    )
+
+    // Subtítulo: sube + fade-in (ligero solapamiento)
+    tl.fromTo(
+      subtitleRef.value,
+      { opacity: 0, y: 14 },
+      { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' },
+      '-=0.3'
+    )
+
+    // Flote continuo del overline (loop)
+    tl.call(() => {
+      floatTween = gsap.to(overlineRef.value, {
+        y: 2, duration: 1.6, ease: 'sine.inOut',
+        yoyo: true, repeat: -1,
+      })
+    })
+
+    // Bounce continuo de la flecha
+    if (arrowRef.value) {
+      bounceTween = gsap.to(arrowRef.value, {
+        y: 4, duration: 0.7, ease: 'sine.inOut',
+        yoyo: true, repeat: -1,
+      })
+    }
+  }
+
+  // ── Lifecycle ─────────────────────────────────────────────
   onMounted(() => {
     if (activeBgImage.value && !isMobile.value) {
       window.addEventListener('scroll', onParallaxScroll, { passive: true })
     }
+
+    // Arrancar animaciones cuando el loader termina
+    if (loaderReady.value) {
+      playEnterAnimations()
+    } else {
+      const stop = watch(loaderReady, (ready) => {
+        if (ready) { playEnterAnimations(); stop() }
+      })
+    }
   })
+
   onUnmounted(() => {
+    floatTween?.kill()
+    bounceTween?.kill()
     window.removeEventListener('scroll', onParallaxScroll)
     cancelAnimationFrame(rafParallax)
   })
@@ -49,22 +109,21 @@
 
 <template>
   <div ref="heroRef" class="c-hero">
-    <!-- Capa de fondo — visible solo si se pasa bgImage -->
     <div
       v-if="activeBgImage"
       class="c-hero__bg"
       :style="{
-        backgroundImage: `url(${activeBgImage})`,
-        backgroundPosition: isMobile ? 'center top' : `center ${bgParallaxY}px`
+        backgroundImage   : `url(${activeBgImage})`,
+        backgroundPosition: isMobile ? 'center top' : `center ${bgParallaxY}px`,
       }"
       aria-hidden="true"
     />
 
-    <div class="c-hero__inner" :class="{ 'is-ready': loaderReady }">
+    <div class="c-hero__inner">
       <div class="c-hero__container o-container">
         <div class="c-hero__col o-col-8@md o-col-push-2@md o-col-6@sm o-col-push-1@sm o-col-4@xs">
           <div class="c-hero__overline">
-            <p class="c-hero__overline-text o-font-display-caption">
+            <p ref="overlineRef" class="c-hero__overline-text o-font-display-caption">
               Servicios IT profesionales en tu zona
             </p>
           </div>
@@ -72,8 +131,6 @@
           <div class="c-hero__title">
             <h1>
               <span class="sr-only">iCoreByte</span>
-              <!-- Desktop: visibility:hidden reserva espacio (logo real es position:fixed) -->
-              <!-- Mobile: visible, el logo se muestra estático en el hero -->
               <div class="c-hero__logo-placeholder" aria-hidden="true">
                 <component data-hero-logo class="c-hero__svg" :is="Logo" />
               </div>
@@ -81,7 +138,7 @@
           </div>
 
           <div class="c-hero__subtitle">
-            <p class="c-hero__subtitle-text o-font-display-3">
+            <p ref="subtitleRef" class="c-hero__subtitle-text o-font-display-3">
               Tu centro integral de soluciones informáticas. Reparación, venta y desarrollo
               tecnológico al más alto nivel.
             </p>
@@ -95,13 +152,12 @@
             aria-label="Explorar y hacer scroll"
           >
             <span class="c-hero__explore-text">Explorar</span>
-            <span class="c-hero__explore-arrow" aria-hidden="true">↓</span>
+            <span ref="arrowRef" class="c-hero__explore-arrow" aria-hidden="true">↓</span>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Logo fijo: solo en desktop — en mobile el header gestiona su propio logo -->
     <a
       v-if="!isMobile"
       ref="logoFixedEl"
@@ -120,7 +176,6 @@
     position: relative;
     height: 100vh;
 
-    // ── Capa de fondo (imagen opcional) ───────────────────
     &__bg {
       position: absolute;
       inset: 0;
@@ -128,7 +183,6 @@
       background-repeat: no-repeat;
       z-index: 0;
 
-      // Overlay oscuro para mantener la legibilidad del texto
       &::after {
         content: '';
         position: absolute;
@@ -148,12 +202,9 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      // Desplaza el centro visual por debajo del header fijo
-      // (mismas alturas que el padding-top del layout)
-      padding-top: 0px;
+      padding-top: 0;
     }
 
-    // El o-container es hijo directo del flexbox — necesita ancho completo
     &__container {
       width: 100%;
       text-align: center;
@@ -170,47 +221,21 @@
       border: 1px solid var(--color-gray-dark);
       padding: 5px 10px;
       border-radius: 9999px;
-      opacity: 0;
-
-      .is-ready & {
-        animation:
-          c-hero-overline-enter 0.5s ease-out both,
-          c-hero-overline-float 3.2s ease-in-out 0.5s infinite;
-      }
-
-      @media (prefers-reduced-motion: reduce) {
-        opacity: 1 !important;
-        animation: none !important;
-      }
+      opacity: 0; // GSAP lo anima a 1
     }
 
     &__title {
       padding-bottom: 80px;
+      h1 { margin: 0; }
 
-      @include from-sm {
-        padding-bottom: 0px;
-      }
-      h1 {
-        margin: 0;
-      }
-
-      @include from-sm {
-        padding-bottom: 80px;
-      }
-
-      @include from-md {
-        padding-bottom: 140px;
-      }
+      @include from-sm { padding-bottom: 80px; }
+      @include from-md { padding-bottom: 140px; }
     }
 
-    // Mobile: logo visible y estático en el hero
-    // Desktop: invisible (el logo real viaja con position:fixed)
+    // Mobile: visible / Desktop: reserva espacio (logo real es position:fixed)
     &__logo-placeholder {
       visibility: visible;
-
-      @include from-sm {
-        visibility: hidden;
-      }
+      @include from-sm { visibility: hidden; }
     }
 
     &__svg {
@@ -222,13 +247,8 @@
       @include from-md {
         transform: translateX(calc(-50% - 10px));
       }
-
-      @media (prefers-reduced-motion: reduce) {
-        transform: translateX(-50%) !important;
-      }
     }
 
-    // El <a> del logo fijo — posición/tamaño/opacidad vienen de :style (useLogoMorph)
     &__logo-fixed {
       display: block;
       text-decoration: none;
@@ -240,16 +260,7 @@
 
     &__subtitle-text {
       color: var(--color-gray);
-      opacity: 0;
-
-      .is-ready & {
-        animation: c-hero-subtitle-enter 0.7s ease-out 0.55s both;
-      }
-
-      @media (prefers-reduced-motion: reduce) {
-        opacity: 1 !important;
-        animation: none !important;
-      }
+      opacity: 0; // GSAP lo anima a 1
     }
 
     &__explore {
@@ -265,9 +276,7 @@
       opacity: 0.85;
       transition: opacity 0.3s ease;
 
-      &:hover {
-        opacity: 1;
-      }
+      &:hover { opacity: 1; }
     }
 
     &__explore-text {
@@ -279,49 +288,6 @@
     &__explore-arrow {
       font-size: 1rem;
       line-height: 1;
-      animation: c-hero-arrow-bounce 1.4s ease-in-out infinite;
-    }
-  }
-
-  @keyframes c-hero-overline-enter {
-    from {
-      opacity: 0;
-      transform: translateY(8px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes c-hero-arrow-bounce {
-    0%,
-    100% {
-      transform: translateY(-2px);
-    }
-    50% {
-      transform: translateY(4px);
-    }
-  }
-
-  @keyframes c-hero-overline-float {
-    0%,
-    100% {
-      transform: translateY(-1px);
-    }
-    50% {
-      transform: translateY(2px);
-    }
-  }
-
-  @keyframes c-hero-subtitle-enter {
-    from {
-      opacity: 0;
-      transform: translateY(14px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
     }
   }
 </style>
