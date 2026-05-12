@@ -3,17 +3,23 @@
   import { useLoaderState } from '@/composables/useLoaderState'
   import { useLogoMorph } from '@/composables/useLogoMorph'
   import Logo from '@assets/logos/logo.svg'
-  import { onMounted, onUnmounted, ref } from 'vue'
+  import { computed, onMounted, onUnmounted, ref } from 'vue'
   import { useScroll } from '../composables/useScroll'
 
   const props = defineProps<{
-    bgImage?: string // imagen de fondo opcional — ej: images.imagenHero
+    bgImage?       : string  // imagen desktop — ej: images.imagenHero
+    bgImageMobile? : string  // imagen móvil (menor resolución) — fallback: bgImage
   }>()
 
   const { isMobile } = useDevice()
   const { scrollToNextSection } = useScroll()
   const { loaderReady } = useLoaderState()
   const { heroRef, fixedLogoStyle, handleLogoClick } = useLogoMorph()
+
+  // Imagen activa según dispositivo — móvil usa bgImageMobile si está disponible
+  const activeBgImage = computed(() =>
+    isMobile.value ? (props.bgImageMobile ?? props.bgImage) : props.bgImage
+  )
 
   // ── Parallax de fondo ─────────────────────────────────────
   // Factor 0.25 → el fondo se mueve a 1/4 de la velocidad del scroll
@@ -32,7 +38,7 @@
 
   onMounted(() => {
     // Parallax solo en desktop — en móvil es caro y genera jank
-    if (props.bgImage && !isMobile.value) {
+    if (activeBgImage.value && !isMobile.value) {
       window.addEventListener('scroll', onParallaxScroll, { passive: true })
     }
   })
@@ -46,10 +52,10 @@
   <div ref="heroRef" class="c-hero">
     <!-- Capa de fondo — visible solo si se pasa bgImage -->
     <div
-      v-if="bgImage"
+      v-if="activeBgImage"
       class="c-hero__bg"
       :style="{
-        backgroundImage   : `url(${bgImage})`,
+        backgroundImage   : `url(${activeBgImage})`,
         backgroundPosition: isMobile ? 'center top' : `center ${bgParallaxY}px`,
       }"
       aria-hidden="true"

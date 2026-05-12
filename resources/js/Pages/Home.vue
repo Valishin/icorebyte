@@ -10,7 +10,11 @@
 
 <template>
   <PublicLayout>
-    <CHero id="inicio" :bg-image="images.imageMotherboard" />
+    <CHero
+      id="inicio"
+      :bg-image="images.imageMotherboard"
+      :bg-image-mobile="images.imageMotherboardMobile"
+    />
     <CServiceList id="servicios" />
     <CShop id="productos" />
     <CDevelopment id="desarrollo" />
