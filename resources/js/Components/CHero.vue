@@ -37,7 +37,7 @@
   }
 
   onMounted(() => {
-    if (activeBgImage.value) {
+    if (activeBgImage.value && !isMobile.value) {
       window.addEventListener('scroll', onParallaxScroll, { passive: true })
     }
   })
@@ -55,7 +55,7 @@
       class="c-hero__bg"
       :style="{
         backgroundImage: `url(${activeBgImage})`,
-        backgroundPosition: `center ${bgParallaxY}px`
+        backgroundPosition: isMobile ? 'center top' : `center ${bgParallaxY}px`
       }"
       aria-hidden="true"
     />
