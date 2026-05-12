@@ -8,6 +8,8 @@
   const { markReady } = useLoaderState()
   const { loaderMorphedToHero, loaderIsActive } = useHeroLogoState()
 
+  const isMobile = () => window.innerWidth < 768
+
   // ── Loader inicial ────────────────────────────────────────
   const initialVisible = ref(true)
   const homeExiting    = ref(false)   // true durante la secuencia de salida home
@@ -24,7 +26,13 @@
   let removeProgress: () => void
   let removeFinish: () => void
 
-  // ── Salida especial en home ───────────────────────────────
+  // ── Salida simple (mobile o páginas no-home) ──────────────
+  const startSimpleExit = () => {
+    setTimeout(() => { initialVisible.value = false }, 900)
+    setTimeout(() => { loaderIsActive.value = false; markReady() }, 1300)
+  }
+
+  // ── Salida especial en home (solo desktop) ────────────────
   const startHomeExit = () => {
     homeExiting.value = true  // oculta la barra
     bgFading.value    = true  // fondo empieza a desvanecerse ya
@@ -83,13 +91,12 @@
     // Señalamos que el overlay está activo: useLogoMorph esperará antes de mostrarse
     loaderIsActive.value = true
 
-    if (window.location.pathname === '/') {
-      // Home: salida con morph a los 900ms
+    if (window.location.pathname === '/' && !isMobile()) {
+      // Home en desktop: salida con morph del logo al hero
       setTimeout(startHomeExit, 900)
     } else {
-      // Otras páginas: fade estándar
-      setTimeout(() => { initialVisible.value = false }, 900)
-      setTimeout(() => { loaderIsActive.value = false; markReady() }, 1300)
+      // Mobile o páginas no-home: fade estándar sin logo
+      startSimpleExit()
     }
 
     // Eventos del router Inertia
@@ -132,12 +139,12 @@
       <!-- Capa de fondo — se desvanece independientemente del logo -->
       <div class="c-page-loader__bg" :class="{ 'is-fading': bgFading }" />
 
-      <!-- Logo — anima hacia el hero en home, estático en otras páginas -->
+      <!-- Logo — solo en desktop, anima hacia el hero en home -->
       <div ref="loaderLogoRef" class="c-page-loader__logo" :style="logoMorphStyle">
         <component :is="Logo" class="c-page-loader__svg" />
       </div>
 
-      <!-- Barra de carga — se oculta antes del morph -->
+      <!-- Barra de carga — siempre visible en mobile, se oculta antes del morph en desktop -->
       <div v-if="!homeExiting" class="c-page-loader__bar" />
     </div>
   </Transition>

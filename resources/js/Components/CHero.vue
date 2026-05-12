@@ -7,8 +7,8 @@
   import { useScroll } from '../composables/useScroll'
 
   const props = defineProps<{
-    bgImage?       : string  // imagen desktop — ej: images.imagenHero
-    bgImageMobile? : string  // imagen móvil (menor resolución) — fallback: bgImage
+    bgImage?: string // imagen desktop — ej: images.imagenHero
+    bgImageMobile?: string // imagen móvil (menor resolución) — fallback: bgImage
   }>()
 
   const { isMobile } = useDevice()
@@ -37,8 +37,7 @@
   }
 
   onMounted(() => {
-    // Parallax solo en desktop — en móvil es caro y genera jank
-    if (activeBgImage.value && !isMobile.value) {
+    if (activeBgImage.value) {
       window.addEventListener('scroll', onParallaxScroll, { passive: true })
     }
   })
@@ -55,8 +54,8 @@
       v-if="activeBgImage"
       class="c-hero__bg"
       :style="{
-        backgroundImage   : `url(${activeBgImage})`,
-        backgroundPosition: isMobile ? 'center top' : `center ${bgParallaxY}px`,
+        backgroundImage: `url(${activeBgImage})`,
+        backgroundPosition: `center ${bgParallaxY}px`
       }"
       aria-hidden="true"
     />
@@ -73,7 +72,8 @@
           <div class="c-hero__title">
             <h1>
               <span class="sr-only">iCoreByte</span>
-              <!-- Placeholder invisible: reserva el espacio del logo en el layout -->
+              <!-- Desktop: visibility:hidden reserva espacio (logo real es position:fixed) -->
+              <!-- Mobile: visible, el logo se muestra estático en el hero -->
               <div class="c-hero__logo-placeholder" aria-hidden="true">
                 <component data-hero-logo class="c-hero__svg" :is="Logo" />
               </div>
@@ -101,8 +101,9 @@
       </div>
     </div>
 
-    <!-- Logo fijo: viaja del hero al header al hacer scroll (gestionado por useLogoMorph) -->
+    <!-- Logo fijo: solo en desktop — en mobile el header gestiona su propio logo -->
     <a
+      v-if="!isMobile"
       ref="logoFixedEl"
       class="c-hero__logo-fixed"
       href="#inicio"
@@ -185,8 +186,16 @@
 
     &__title {
       padding-bottom: 80px;
+
+      @include from-sm {
+        padding-bottom: 0px;
+      }
       h1 {
         margin: 0;
+      }
+
+      @include from-sm {
+        padding-bottom: 80px;
       }
 
       @include from-md {
@@ -194,9 +203,14 @@
       }
     }
 
-    // Reserva el espacio del logo sin mostrarlo (el logo real es position:fixed)
+    // Mobile: logo visible y estático en el hero
+    // Desktop: invisible (el logo real viaja con position:fixed)
     &__logo-placeholder {
-      visibility: hidden;
+      visibility: visible;
+
+      @include from-sm {
+        visibility: hidden;
+      }
     }
 
     &__svg {

@@ -1,3 +1,4 @@
+import { BREAKPOINTS } from '@/constants/breakpoints'
 import { clamp, easeOutQuart, lerp } from '@/utils/math'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { useHeroLogoState } from './useHeroLogoState'
@@ -5,26 +6,19 @@ import { useLoaderState } from './useLoaderState'
 
 
 /**
- * Gestiona el logo fijo que viaja desde la posición del hero hasta el header al hacer scroll.
- *
- * Uso:
- *   const { heroRef, logoFixedEl, handleLogoClick } = useLogoMorph()
- *
- * - heroRef      → poner en el elemento raíz del hero
- * - logoFixedEl  → poner en el <a> del logo fijo (ref de template, sin :style)
- * - handleLogoClick → @click del mismo <a>
- *
- * Optimización: los estilos de scroll (transform + opacity) se aplican directamente
- * al elemento DOM, sin pasar por la reactividad de Vue, para evitar VDOM diff en cada frame.
+ * Gestiona el logo fijo que viaja desde el hero hasta el header al hacer scroll.
+ * En mobile la animación se desactiva completamente — el header gestiona su propio logo.
  */
 export function useLogoMorph() {
   const { heroManagesLogo, loaderMorphedToHero, loaderIsActive } = useHeroLogoState()
   const { loaderReady } = useLoaderState()
 
-  const heroRef    = ref<HTMLElement>()
-  const logoFixedEl = ref<HTMLElement>()  // ref directo al elemento DOM del logo fijo
+  const heroRef     = ref<HTMLElement>()
+  const logoFixedEl = ref<HTMLElement>()
 
-  // Estado mutable interno (no reactivo, solo para cálculos de scroll)
+  // Comprobación de mobile en el momento del mount (sin listener reactivo)
+  const isMobileDevice = () => window.innerWidth < BREAKPOINTS.mobile
+
   let initRect     = { left: 0, top: 0, width: 0, height: 0 }
   let headRect     = { left: 0, top: 0, width: 0 }
   let triggerDist  = 350
@@ -32,22 +26,22 @@ export function useLogoMorph() {
   let entranceDone = false
   let rafId        = 0
 
-  // ── Estilos fijos (se aplican una vez al medir) ───────────
+  // ── Estilos fijos — se aplican una sola vez al medir ──────
   const setupElement = () => {
     const el = logoFixedEl.value
     if (!el) return
-    el.style.position       = 'fixed'
-    el.style.top            = '0'
-    el.style.left           = '0'
-    el.style.width          = `${initRect.width}px`
+    el.style.position        = 'fixed'
+    el.style.top             = '0'
+    el.style.left            = '0'
+    el.style.width           = `${initRect.width}px`
     el.style.transformOrigin = 'top left'
-    el.style.willChange     = 'transform, opacity'
-    el.style.pointerEvents  = 'auto'
-    el.style.zIndex         = '101'
-    el.style.cursor         = 'pointer'
+    el.style.willChange      = 'transform, opacity'
+    el.style.pointerEvents   = 'auto'
+    el.style.zIndex          = '101'
+    el.style.cursor          = 'pointer'
   }
 
-  // ── Solo transform + opacity en cada frame (compositor-only) ─
+  // ── Solo transform + opacity por frame (compositor-only) ──
   const applyTransform = (eased: number, opacity = 1, transition = '') => {
     const el = logoFixedEl.value
     if (!el) return
@@ -59,10 +53,10 @@ export function useLogoMorph() {
     el.style.transition = transition
   }
 
-  // ── Medir posiciones y arrancar la animación de entrada ───
+  // ── Medir y arrancar ──────────────────────────────────────
   const measurePositions = (skipEntrance = false) => {
     const placeholder = document.querySelector('[data-hero-logo]') as HTMLElement | null
-    const headerEl = (
+    const headerEl    = (
       document.querySelector('.c-header__logo--mobile') ??
       document.querySelector('.c-header__logo')
     ) as HTMLElement | null
@@ -73,17 +67,8 @@ export function useLogoMorph() {
     const hRect   = headerEl.getBoundingClientRect()
     const scrollY = window.scrollY
 
-    initRect = {
-      left  : pRect.left,
-      top   : pRect.top + scrollY,
-      width : pRect.width,
-      height: pRect.height,
-    }
-    headRect = {
-      left : hRect.left,
-      top  : hRect.top,
-      width: hRect.width,
-    }
+    initRect = { left: pRect.left, top: pRect.top + scrollY, width: pRect.width, height: pRect.height }
+    headRect = { left: hRect.left, top: hRect.top, width: hRect.width }
     triggerDist = heroRef.value
       ? Math.min(500, heroRef.value.offsetHeight * 0.5)
       : 350
@@ -102,7 +87,7 @@ export function useLogoMorph() {
         requestAnimationFrame(() => {
           applyTransform(eased, 1, 'opacity 0.5s ease-out')
           setTimeout(() => {
-            applyTransform(eased, 1, '') // quitar transition para no interferir con scroll
+            applyTransform(eased, 1, '')
             entranceDone = true
           }, 600)
         })
@@ -125,9 +110,15 @@ export function useLogoMorph() {
 
   // ── Lifecycle ─────────────────────────────────────────────
   onMounted(() => {
+    // ── Mobile: logo estático en el hero, header siempre visible, sin morph
+    if (isMobileDevice()) {
+      heroManagesLogo.value = false
+      return
+    }
+
     heroManagesLogo.value = true
 
-    // Ocultar el logo hasta que measurePositions lo posicione
+    // Ocultar el logo fijo hasta que measurePositions lo posicione
     if (logoFixedEl.value) {
       logoFixedEl.value.style.opacity       = '0'
       logoFixedEl.value.style.pointerEvents = 'none'
@@ -152,12 +143,11 @@ export function useLogoMorph() {
   onUnmounted(() => {
     heroManagesLogo.value     = false
     loaderMorphedToHero.value = false
-    window.removeEventListener('scroll', onScroll)
+window.removeEventListener('scroll', onScroll)
     window.removeEventListener('resize', () => measurePositions(false))
     cancelAnimationFrame(rafId)
   })
 
-  // ── Click — vuelve al inicio ──────────────────────────────
   const handleLogoClick = () =>
     document.querySelector('#inicio')?.scrollIntoView({ behavior: 'smooth' })
 

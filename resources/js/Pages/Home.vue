@@ -12,7 +12,7 @@
   <PublicLayout>
     <CHero
       id="inicio"
-      :bg-image="images.imageMotherboard"
+      :bg-image="images.imageMotherboardMobile"
       :bg-image-mobile="images.imageMotherboardMobile"
     />
     <CServiceList id="servicios" />
