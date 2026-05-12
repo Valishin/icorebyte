@@ -14,7 +14,7 @@
   const { isMobile } = useDevice()
   const { scrollToNextSection } = useScroll()
   const { loaderReady } = useLoaderState()
-  const { heroRef, fixedLogoStyle, handleLogoClick } = useLogoMorph()
+  const { heroRef, logoFixedEl, handleLogoClick } = useLogoMorph()
 
   // Imagen activa según dispositivo — móvil usa bgImageMobile si está disponible
   const activeBgImage = computed(() =>
@@ -103,8 +103,8 @@
 
     <!-- Logo fijo: viaja del hero al header al hacer scroll (gestionado por useLogoMorph) -->
     <a
+      ref="logoFixedEl"
       class="c-hero__logo-fixed"
-      :style="fixedLogoStyle"
       href="#inicio"
       aria-label="iCoreByte — ir al inicio"
       @click.prevent="handleLogoClick"
