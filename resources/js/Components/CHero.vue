@@ -22,15 +22,18 @@
   )
 
   // ── Parallax ──────────────────────────────────────────────
+  // backgroundPosition se aplica directo al DOM — sin pasar por reactividad Vue
+  // para evitar que el browser toque backgroundImage en cada frame de scroll
   const PARALLAX_SPEED = 0.25
-  const bgParallaxY    = ref(0)
+  const bgEl           = ref<HTMLElement>()
   let   rafParallax    = 0
 
   const onParallaxScroll = () => {
-    if (!props.bgImage) return
     cancelAnimationFrame(rafParallax)
     rafParallax = requestAnimationFrame(() => {
-      bgParallaxY.value = window.scrollY * PARALLAX_SPEED
+      if (bgEl.value) {
+        bgEl.value.style.backgroundPosition = `center ${window.scrollY * PARALLAX_SPEED}px`
+      }
     })
   }
 
@@ -85,8 +88,14 @@
 
   // ── Lifecycle ─────────────────────────────────────────────
   onMounted(() => {
-    if (activeBgImage.value && !isMobile.value) {
-      window.addEventListener('scroll', onParallaxScroll, { passive: true })
+    if (activeBgImage.value && bgEl.value) {
+      // Imagen: se fija UNA vez, el browser la cachea y nunca más la toca Vue
+      bgEl.value.style.backgroundImage    = `url(${activeBgImage.value})`
+      bgEl.value.style.backgroundPosition = 'center top'
+
+      if (!isMobile.value) {
+        window.addEventListener('scroll', onParallaxScroll, { passive: true })
+      }
     }
 
     // Arrancar animaciones cuando el loader termina
@@ -111,11 +120,8 @@
   <div ref="heroRef" class="c-hero">
     <div
       v-if="activeBgImage"
+      ref="bgEl"
       class="c-hero__bg"
-      :style="{
-        backgroundImage   : `url(${activeBgImage})`,
-        backgroundPosition: isMobile ? 'center top' : `center ${bgParallaxY}px`,
-      }"
       aria-hidden="true"
     />
 
