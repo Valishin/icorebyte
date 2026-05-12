@@ -5,11 +5,12 @@
   import CServiceList from '@/Components/CServiceList.vue'
   import CShop from '@/Components/CShop.vue'
   import PublicLayout from '@/Layouts/PublicLayout.vue'
+  import { images } from '@/constants/images'
 </script>
 
 <template>
   <PublicLayout>
-    <CHero id="inicio" />
+    <CHero id="inicio" :bg-image="images.imageMotherboard" />
     <CServiceList id="servicios" />
     <CShop id="productos" />
     <CDevelopment id="desarrollo" />

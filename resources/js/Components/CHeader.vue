@@ -2,8 +2,8 @@
   import { useDevice } from '@/composables/useDevice'
   import { useHeroLogoState } from '@/composables/useHeroLogoState'
   import { useTheme } from '@/composables/useTheme'
-  import { router } from '@inertiajs/vue3'
   import Logo from '@assets/logos/logo.svg'
+  import { router } from '@inertiajs/vue3'
   import { onMounted, onUnmounted, ref, watch } from 'vue'
 
   const { isMobile } = useDevice()
@@ -33,6 +33,10 @@
   ]
 
   const scrollTo = (anchor: string) => {
+    if (anchor === '#inicio') {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      return
+    }
     const el = document.querySelector(anchor)
     if (el) el.scrollIntoView({ behavior: 'smooth' })
   }
@@ -168,6 +172,7 @@
       justify-content: space-between;
       height: 64px;
       position: relative;
+      background-color: var(--color-black);
     }
 
     &__logo {
