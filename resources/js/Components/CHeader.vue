@@ -105,12 +105,51 @@
 
       <!-- Theme toggle (derecha) -->
       <button
-        class="c-header__theme-toggle"
+        class="c-theme-toggle"
+        :class="`c-theme-toggle--${theme}`"
         @click="toggle"
         :aria-label="theme === 'dark' ? 'Activar modo claro' : 'Activar modo oscuro'"
       >
-        <span v-if="theme === 'dark'">☀️</span>
-        <span v-else>🌙</span>
+        <span class="c-theme-toggle__track">
+          <span class="c-theme-toggle__thumb">
+            <Transition name="theme-icon" mode="out-in">
+              <svg
+                v-if="theme === 'dark'"
+                key="moon"
+                class="c-theme-toggle__icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+              </svg>
+              <svg
+                v-else
+                key="sun"
+                class="c-theme-toggle__icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="5" />
+                <line x1="12" y1="1" x2="12" y2="3" />
+                <line x1="12" y1="21" x2="12" y2="23" />
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                <line x1="1" y1="12" x2="3" y2="12" />
+                <line x1="21" y1="12" x2="23" y2="12" />
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+              </svg>
+            </Transition>
+          </span>
+        </span>
       </button>
 
       <!-- Menú móvil -->
@@ -156,15 +195,7 @@
     left: 0;
     z-index: 100;
     border-bottom: 1px solid transparent;
-    background: transparent;
-    transition:
-      background 0.3s ease,
-      border-color 0.3s ease;
-
-    &--scrolled {
-      background: var(--color-black);
-      border-bottom-color: var(--color-border-subtle);
-    }
+    background: var(--color-black);
 
     &__inner {
       display: flex;
@@ -235,25 +266,6 @@
       }
     }
 
-    &__theme-toggle {
-      background: none;
-      border: 1px solid var(--color-border-subtle);
-      border-radius: 8px;
-      cursor: pointer;
-      padding: 6px 10px;
-      font-size: 1rem;
-      line-height: 1;
-      transition:
-        border-color 0.2s,
-        background 0.2s;
-      flex-shrink: 0;
-
-      &:hover {
-        border-color: var(--color-gray-dark);
-        background: var(--color-primary-dark);
-      }
-    }
-
     &__burger {
       display: flex;
       flex-direction: column;
@@ -289,6 +301,97 @@
     }
   }
 
+  // ── Pill toggle ───────────────────────────────────────────────
+  .c-theme-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px;
+    flex-shrink: 0;
+    outline: none;
+
+    &:focus-visible .c-theme-toggle__track {
+      outline: 2px solid var(--color-secondary);
+      outline-offset: 2px;
+    }
+
+    &__track {
+      position: relative;
+      display: block;
+      width: 52px;
+      height: 28px;
+      border-radius: 14px;
+      border: 1px solid var(--color-border-subtle);
+      background: rgba(255, 255, 255, 0.06);
+      transition:
+        background 0.35s ease,
+        border-color 0.35s ease;
+    }
+
+    &__thumb {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+      color: #1e1b4b;
+    }
+
+    &__icon {
+      width: 11px;
+      height: 11px;
+      display: block;
+    }
+
+    &--dark {
+      .c-theme-toggle__thumb {
+        transform: translateX(24px);
+        color: #1e1b4b;
+      }
+    }
+
+    &--light {
+      .c-theme-toggle__track {
+        background: rgba(245, 158, 11, 0.15);
+        border-color: rgba(245, 158, 11, 0.5);
+      }
+
+      .c-theme-toggle__thumb {
+        transform: translateX(0);
+        color: #f59e0b;
+      }
+    }
+
+    &:hover .c-theme-toggle__track {
+      border-color: var(--color-secondary, rgba(255, 255, 255, 0.3));
+    }
+  }
+
+  .theme-icon-enter-active,
+  .theme-icon-leave-active {
+    transition:
+      opacity 0.18s ease,
+      transform 0.18s ease;
+  }
+
+  .theme-icon-enter-from {
+    opacity: 0;
+    transform: rotate(45deg) scale(0.4);
+  }
+
+  .theme-icon-leave-to {
+    opacity: 0;
+    transform: rotate(-45deg) scale(0.4);
+  }
+
+  // ──────────────────────────────────────────────────────────────
   .menu-slide-enter-active,
   .menu-slide-leave-active {
     transition:

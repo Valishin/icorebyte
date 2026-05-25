@@ -313,7 +313,7 @@
       display: inline-block;
       color: var(--color-white);
       margin-bottom: 1rem;
-      border: 1px solid var(--color-gray-dark);
+      border: 1px solid var(--color-white);
       padding: 5px 10px;
       border-radius: 9999px;
       opacity: 0; // GSAP anima a 1

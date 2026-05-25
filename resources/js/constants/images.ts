@@ -16,11 +16,11 @@ import imageShop from '@assets/images/imageShop.png'
 import imageSupportIt from '@assets/images/imageSupportIt.jpg'
 
 // ── Imágenes reales del negocio ─────────────────────────────
-import heroSlide1 from '@assets/images/heroSlide1.jpg'  // Técnico reparando móvil
-import heroSlide2 from '@assets/images/heroSlide2.jpg'  // Montaje PC / GPU
-import heroSlide3 from '@assets/images/heroSlide3.jpg'  // Reparación portátil (PCB azul)
-import heroSlide4 from '@assets/images/heroSlide4.jpg'  // Microscopio + multímetro
-import heroSlide5 from '@assets/images/heroSlide5.jpg'  // Mostrador tienda
+import heroSlide1 from '@assets/images/heroSlide1.jpg' // Técnico reparando móvil
+import heroSlide2 from '@assets/images/heroSlide2.jpg' // Montaje PC / GPU
+import heroSlide3 from '@assets/images/heroSlide3.jpg' // Reparación portátil (PCB azul)
+import heroSlide4 from '@assets/images/heroSlide4.jpg' // Microscopio + multímetro
+import heroSlide5 from '@assets/images/heroSlide5.jpg' // Mostrador tienda
 import imageItMaintanceReal from '@assets/images/imageItMaintanceReal.jpg'
 import imageLaptopRepairReal from '@assets/images/imageLaptopRepairReal.jpg'
 import imagePcRepairReal from '@assets/images/imagePcRepairReal.jpg'
@@ -29,6 +29,10 @@ import imagePrinterRepairReal from '@assets/images/imagePrinterRepairReal.jpg'
 import imageShopReal from '@assets/images/imageShopReal.jpg'
 import imageSolderingReal from '@assets/images/imageSolderingReal.jpg'
 import imageSupportItReal from '@assets/images/imageSupportItReal.jpg'
+
+import appsatProject from '@assets/images/appsatProject.png'
+import imageMhdProject from '@assets/images/mhdProject.png'
+import validevProject from '@assets/images/validevProject.png'
 
 export const images = {
   // Legacy (mantener compatibilidad)
@@ -63,4 +67,8 @@ export const images = {
   imagePrinterRepairReal,
   imageItMaintanceReal,
   imageSupportItReal,
+
+  imageMhdProject,
+  validevProject,
+  appsatProject
 }

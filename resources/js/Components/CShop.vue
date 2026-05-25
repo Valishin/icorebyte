@@ -4,7 +4,6 @@
   import { images } from '@/constants/images'
   import CButton from './CButton.vue'
   import CCategoryGrid from './CCategoryGrid.vue'
-  import CIcon from './CIcon.vue'
   import CPlaceCard from './CPlaceCard.vue'
   import CTitle from './CTitle.vue'
 
@@ -22,7 +21,7 @@
       <div class="c-shop__container o-container">
         <CTitle
           :title="'Nuestra tienda de informática'"
-          :description="'Ofrecemos una amplia gama de productos de informática y tecnología.'"
+          :description="'Ofrecemos una amplia gama de productos de informática.'"
           :color="'primary'"
         />
       </div>
@@ -37,10 +36,6 @@
               />
             </div>
             <div class="c-shop__box-content">
-              <div class="c-shop__wrapper-overline">
-                <CIcon :icon="'IconShop'" :color="'secondary'" />
-                <p class="c-shop__overline o-font-display-caption">Nuestra tienda</p>
-              </div>
               <div class="c-shop__wrapper-title">
                 <h2 class="c-shop__title o-font-display-3">
                   Visítanos en <span>nuestra tienda</span>
@@ -226,7 +221,7 @@
       padding-bottom: 10px;
     }
     &__overline {
-      color: var(--color-secondary);
+      color: var(--color-primary);
     }
     &__title {
       margin-bottom: 1rem;
