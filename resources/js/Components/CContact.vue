@@ -48,7 +48,7 @@
           <CTitle
             :title="'¿Hablamos de tu proyecto?'"
             :description="'Cuéntanos qué necesitas y te enviaremos un presupuesto sin compromiso en menos de 24 horas.'"
-            :color="'secondary'"
+            :color="'primary'"
           />
         </div>
       </div>
@@ -69,7 +69,7 @@
           <CPlaceCard
             :icon="'IconEmail'"
             :title="'info@icorebyte.com'"
-            :description="'Respuesta en menos de 24 horas'"
+            :description="'Respuesta inmediata durante el horario de atención'"
             :iconColor="'primary'"
             :iconSize="'24px'"
             :is-wrapper="true"
@@ -77,7 +77,7 @@
           <CPlaceCard
             :icon="'IconLocation'"
             :title="'Ubicación'"
-            :description="'Carretera de Palamós 57 local, Sant Feliu de Guixols, Girona, 17220'"
+            :description="'Carretera de Palamós 57, 17220 Sant Feliu de Guíxols, Girona'"
             :iconColor="'primary'"
             :iconSize="'24px'"
             :is-wrapper="true"
@@ -85,7 +85,7 @@
           <CPlaceCard
             :icon="'IconTime'"
             :title="'Horario'"
-            :description="'Lunes a Viernes: 10:00 - 13:30 y 17:00 - 20:00'"
+            :description="'Lunes a Viernes: 10:00 - 13:30 y 17:00 - 20:00 Sábados 10:00 - 13:00'"
             :iconColor="'primary'"
             :iconSize="'24px'"
             :is-wrapper="true"
@@ -213,22 +213,38 @@
       .c-contact__col--cards {
         opacity: 0;
         transform: translateX(-24px);
-        transition: opacity 0.55s ease, transform 0.55s ease;
+        transition:
+          opacity 0.55s ease,
+          transform 0.55s ease;
 
-        @media (prefers-reduced-motion: reduce) { opacity: 1; transform: none; }
+        @media (prefers-reduced-motion: reduce) {
+          opacity: 1;
+          transform: none;
+        }
       }
 
       .c-contact__col:not(.c-contact__col--cards) {
         opacity: 0;
         transform: translateX(24px);
-        transition: opacity 0.55s ease 0.15s, transform 0.55s ease 0.15s;
+        transition:
+          opacity 0.55s ease 0.15s,
+          transform 0.55s ease 0.15s;
 
-        @media (prefers-reduced-motion: reduce) { opacity: 1; transform: none; }
+        @media (prefers-reduced-motion: reduce) {
+          opacity: 1;
+          transform: none;
+        }
       }
 
       &.is-visible {
-        .c-contact__col--cards                    { opacity: 1; transform: none; }
-        .c-contact__col:not(.c-contact__col--cards) { opacity: 1; transform: none; }
+        .c-contact__col--cards {
+          opacity: 1;
+          transform: none;
+        }
+        .c-contact__col:not(.c-contact__col--cards) {
+          opacity: 1;
+          transform: none;
+        }
       }
 
       // En mobile ambos vienen desde abajo

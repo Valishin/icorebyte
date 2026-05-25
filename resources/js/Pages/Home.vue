@@ -12,8 +12,13 @@
   <PublicLayout>
     <CHero
       id="inicio"
-      :bg-image="images.imageMotherboardMobile"
-      :bg-image-mobile="images.imageMotherboardMobile"
+      :bg-images="[
+        images.heroSlide1,
+        images.heroSlide2,
+        images.heroSlide3,
+        images.heroSlide4,
+        images.heroSlide5,
+      ]"
     />
     <CServiceList id="servicios" />
     <CShop id="productos" />

@@ -2,13 +2,13 @@
   import { useInView } from '@/composables/useInView'
   import { useToast } from '@/composables/useToast'
   import { images } from '@/constants/images'
-
-  const { el: wrapperRef, isVisible: wrapperVisible } = useInView(0.1)
   import CButton from './CButton.vue'
   import CCategoryGrid from './CCategoryGrid.vue'
   import CIcon from './CIcon.vue'
   import CPlaceCard from './CPlaceCard.vue'
   import CTitle from './CTitle.vue'
+
+  const { el: wrapperRef, isVisible: wrapperVisible } = useInView(0.1)
 
   const { show } = useToast()
 
@@ -23,20 +23,16 @@
         <CTitle
           :title="'Nuestra tienda de informática'"
           :description="'Ofrecemos una amplia gama de productos de informática y tecnología.'"
-          :color="'secondary'"
+          :color="'primary'"
         />
       </div>
       <div class="c-shop__container o-container">
         <div class="c-shop__col o-col-12@md o-col-8@sm o-col-4@xs">
-          <div
-            ref="wrapperRef"
-            class="c-shop__wrapper"
-            :class="{ 'is-visible': wrapperVisible }"
-          >
+          <div ref="wrapperRef" class="c-shop__wrapper" :class="{ 'is-visible': wrapperVisible }">
             <div class="c-shop__box-image">
               <img
                 class="c-shop__image"
-                :src="images.imageShop"
+                :src="images.imageShopReal"
                 alt="Imagen de la tienda de informática"
               />
             </div>
@@ -52,28 +48,32 @@
               </div>
               <div class="c-shop__wrapper-description">
                 <p class="c-shop__description o-font-display-body">
-                  Descubre nuestra amplia gama de productos de alta calidad. Desde componentes
-                  informáticos hasta accesorios tecnológicos, tenemos todo lo que necesitas para
-                  potenciar tu experiencia.
+                  Encuentra todo lo que necesitas para tu equipo en un solo lugar. Trabajamos con
+                  una selección cuidada de productos pensados para quienes buscan calidad y
+                  rendimiento, sin complicaciones. Desde componentes informáticos hasta accesorios
+                  para el día a día, nuestra gama cubre tanto las necesidades más básicas como las
+                  más exigentes. Ya seas usuario doméstico o profesional, tenemos lo que buscas.
+                  Porque equiparte bien no debería ser difícil. Productos de confianza, variedad
+                  real y todo en un mismo sitio.
                 </p>
               </div>
               <div class="c-shop__wrapper-info">
                 <CPlaceCard
                   :icon="'IconLocation'"
                   :title="'Ubicación'"
-                  :description="'Calle Falsa 123, Ciudad, País'"
+                  :description="'Carretera de Palamós 57, 17220 Sant Feliu de Guíxols, Girona'"
                   :iconColor="'primary'"
                   :iconSize="'24px'"
                 />
                 <CPlaceCard
                   :icon="'IconTime'"
                   :title="'Horario de atención'"
-                  :description="'Lunes a viernes: 9:00 - 18:00, Sábados: 10:00 - 14:00'"
+                  :description="'Lunes a viernes: 10:00 - 13:30 y de 17.00 - 20.00, Sábados: 10:00 - 13:00'"
                   :iconColor="'primary'"
                 />
                 <CPlaceCard
                   :icon="'IconPhone'"
-                  :title="'+34 912 345 678'"
+                  :title="'+34 678 758 210'"
                   :description="'También por WhatsApp'"
                   :iconColor="'primary'"
                 />
@@ -116,22 +116,38 @@
       .c-shop__box-image {
         opacity: 0;
         transform: translateX(-24px);
-        transition: opacity 0.6s ease, transform 0.6s ease;
+        transition:
+          opacity 0.6s ease,
+          transform 0.6s ease;
 
-        @media (prefers-reduced-motion: reduce) { opacity: 1; transform: none; }
+        @media (prefers-reduced-motion: reduce) {
+          opacity: 1;
+          transform: none;
+        }
       }
 
       .c-shop__box-content {
         opacity: 0;
         transform: translateX(24px);
-        transition: opacity 0.6s ease 0.15s, transform 0.6s ease 0.15s;
+        transition:
+          opacity 0.6s ease 0.15s,
+          transform 0.6s ease 0.15s;
 
-        @media (prefers-reduced-motion: reduce) { opacity: 1; transform: none; }
+        @media (prefers-reduced-motion: reduce) {
+          opacity: 1;
+          transform: none;
+        }
       }
 
       &.is-visible {
-        .c-shop__box-image  { opacity: 1; transform: none; }
-        .c-shop__box-content { opacity: 1; transform: none; }
+        .c-shop__box-image {
+          opacity: 1;
+          transform: none;
+        }
+        .c-shop__box-content {
+          opacity: 1;
+          transform: none;
+        }
       }
 
       // En mobile los dos vienen desde abajo (no hay izq/der)
@@ -188,7 +204,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      border-radius: 8px;
+      border-radius: 8px 0px 0px 8px;
     }
     &__wrapper-info {
       margin-top: 1.5rem;

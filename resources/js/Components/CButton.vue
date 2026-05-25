@@ -41,7 +41,6 @@
       <CIcon :icon="props.icon" />
     </div>
     <div class="c-button__title">{{ props.loading ? 'Enviando...' : props.title }}</div>
-    <CIcon v-if="!props.loading" :icon="'IconLink'" />
   </button>
 </template>
 <style lang="scss" scoped>
@@ -62,11 +61,6 @@
 
     &:hover {
       background-color: var(--color-secondary);
-
-      .theme-light & {
-        opacity: 0.9;
-        color: var(--color-white);
-      }
     }
 
     &--disabled {

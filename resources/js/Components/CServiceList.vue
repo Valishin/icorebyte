@@ -28,19 +28,19 @@
 
   const cards: { image: string; icon: IconKey; title: string; content: string }[] = [
     {
-      image: images.imagePcRepair,
+      image: images.imagePcRepairReal,
       icon: 'IconDesktop',
       title: 'PC de sobremesa',
       content: 'Diagnóstico, reparación y montaje de equipos de sobremesa.'
     },
     {
-      image: images.imageLaptopRepair,
+      image: images.imageLaptopRepairReal,
       icon: 'IconLaptop',
       title: 'Portátiles',
       content: 'Reparación, mantenimiento y venta de portátiles de todas las marcas.'
     },
     {
-      image: images.imagePhoneRepair,
+      image: images.imagePhoneRepairReal,
       icon: 'IconMobile',
       title: 'Móviles',
       content: 'Reparamos y optimizamos dispositivos móviles de todas las marcas.'
@@ -52,28 +52,28 @@
       content: 'Reparamos y optimizamos tablets de todas las marcas.'
     },
     {
-      image: images.imagenRepara,
+      image: images.imageSolderingReal,
       icon: 'IconElectronic',
       title: 'Electrónica en placa',
       content:
         'Reparación a nivel de componente en placas base. Microsoldadura y diagnóstico avanzado con osciloscopio.'
     },
     {
-      image: images.imagePrinterRepair,
+      image: images.imagePrinterRepairReal,
       icon: 'IconPrinter',
       title: 'Impresoras',
       content:
         'Reparación, mantenimiento y configuración de impresoras láser, inyección de tinta y multifunción.'
     },
     {
-      image: images.imageItMaintance,
+      image: images.imageItMaintanceReal,
       icon: 'IconMaintenance',
       title: 'Mantenimiento IT',
       content:
         'Servicios de mantenimiento informático preventivo y correctivo para particulares y empresas.'
     },
     {
-      image: images.imageSupportIt,
+      image: images.imageSupportItReal,
       icon: 'IconSupport',
       title: 'Soporte Empresarial',
       content:
