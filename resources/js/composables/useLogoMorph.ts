@@ -20,7 +20,9 @@ export function useLogoMorph() {
   const isMobileDevice = () => window.innerWidth < BREAKPOINTS.mobile
 
   let initRect     = { left: 0, top: 0, width: 0, height: 0 }
-  let headRect     = { left: 0, top: 0, width: 0 }
+  // topBase = top del logo en el header SIN el offset del banner.
+  // En cada frame se le suma el valor live de --banner-h (inline style, sin reflow).
+  let headRect     = { left: 0, top: 0, topBase: 0, width: 0 }
   let triggerDist  = 350
   let measured     = false
   let entranceDone = false
@@ -45,8 +47,15 @@ export function useLogoMorph() {
   const applyTransform = (eased: number, opacity = 1, transition = '') => {
     const el = logoFixedEl.value
     if (!el) return
-    const x = lerp(initRect.left, headRect.left, eased)
-    const y = lerp(initRect.top,  headRect.top,  eased)
+
+    // Leer --banner-h del inline style del <html> — es una lectura de string,
+    // sin forzar layout reflow, segura dentro de requestAnimationFrame.
+    const bannerH = parseFloat(
+      document.documentElement.style.getPropertyValue('--banner-h') || '0'
+    )
+
+    const x = lerp(initRect.left, headRect.left,            eased)
+    const y = lerp(initRect.top,  headRect.topBase + bannerH, eased)
     const s = lerp(1, headRect.width / initRect.width, eased)
     el.style.transform  = `translate(${x}px, ${y}px) scale(${s})`
     el.style.opacity    = String(opacity)
@@ -67,8 +76,18 @@ export function useLogoMorph() {
     const hRect   = headerEl.getBoundingClientRect()
     const scrollY = window.scrollY
 
+    // Leer el offset actual del banner (inline style set por CBanner) — sin reflow
+    const currentBannerH = parseFloat(
+      document.documentElement.style.getPropertyValue('--banner-h') || '0'
+    )
+
     initRect = { left: pRect.left, top: pRect.top + scrollY, width: pRect.width, height: pRect.height }
-    headRect = { left: hRect.left, top: hRect.top, width: hRect.width }
+    headRect = {
+      left   : hRect.left,
+      top    : hRect.top,
+      topBase: hRect.top - currentBannerH,   // posición sin banner
+      width  : hRect.width,
+    }
     triggerDist = heroRef.value
       ? Math.min(500, heroRef.value.offsetHeight * 0.5)
       : 350

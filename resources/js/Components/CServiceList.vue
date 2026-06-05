@@ -105,7 +105,7 @@
           :slides-per-view="1.2"
           :space-between="16"
           :loop="true"
-          :autoplay="{ delay: 3500, disableOnInteraction: false }"
+          :autoplay="{ delay: 3500, disableOnInteraction: false, pauseOnMouseEnter: true }"
           :pagination="{ clickable: true }"
           :breakpoints="{
             640: { slidesPerView: 2.2 },

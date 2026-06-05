@@ -59,8 +59,10 @@
       <button
         v-if="isMobile"
         class="c-header__burger"
+        :class="{ 'c-header__burger--open': menuOpen }"
         @click="menuOpen = !menuOpen"
-        aria-label="Menú"
+        :aria-label="menuOpen ? 'Cerrar menú' : 'Abrir menú'"
+        :aria-expanded="menuOpen"
       >
         <span></span>
         <span></span>
@@ -191,11 +193,15 @@
   .c-header {
     position: fixed;
     width: 100%;
-    top: 0;
+    top: var(--banner-h, 0px); // se desplaza cuando el banner está activo
     left: 0;
     z-index: 100;
     border-bottom: 1px solid transparent;
     background: var(--color-black);
+    transition:
+      top 0.35s ease,
+      background 0.3s ease,
+      border-color 0.3s ease;
 
     &__inner {
       display: flex;
@@ -251,7 +257,7 @@
       font-size: 0.9375rem;
       font-weight: 600;
       color: var(--color-white);
-      background: var(--color-gradient);
+      background: var(--color-primary);
       text-decoration: none;
       cursor: pointer;
       transition: opacity 0.2s;
@@ -269,11 +275,14 @@
     &__burger {
       display: flex;
       flex-direction: column;
+      justify-content: center;
       gap: 5px;
       background: none;
       border: none;
       cursor: pointer;
       padding: 4px;
+      width: 32px;
+      height: 32px;
 
       span {
         display: block;
@@ -281,7 +290,24 @@
         height: 2px;
         background: var(--color-white);
         border-radius: 2px;
-        transition: all 0.3s;
+        transition:
+          transform 0.3s ease,
+          opacity 0.3s ease;
+        transform-origin: center;
+      }
+
+      // ── Estado abierto → cruz ──────────────────────────────
+      &--open {
+        span:nth-child(1) {
+          transform: translateY(7px) rotate(45deg);
+        }
+        span:nth-child(2) {
+          opacity: 0;
+          transform: scaleX(0);
+        }
+        span:nth-child(3) {
+          transform: translateY(-7px) rotate(-45deg);
+        }
       }
     }
 

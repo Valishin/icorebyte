@@ -31,8 +31,10 @@ import imageSolderingReal from '@assets/images/imageSolderingReal.jpg'
 import imageSupportItReal from '@assets/images/imageSupportItReal.jpg'
 
 import appsatProject from '@assets/images/appsatProject.png'
+import makecoded from '@assets/images/makecoded.png'
 import imageMhdProject from '@assets/images/mhdProject.png'
 import validevProject from '@assets/images/validevProject.png'
+import vdBeauty from '@assets/images/vd-beauty.png'
 
 export const images = {
   // Legacy (mantener compatibilidad)
@@ -70,5 +72,7 @@ export const images = {
 
   imageMhdProject,
   validevProject,
-  appsatProject
+  appsatProject,
+  makecoded,
+  vdBeauty
 }

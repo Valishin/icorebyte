@@ -46,7 +46,7 @@
       <div class="c-contact__container o-container">
         <div class="o-col-12@md o-col-8@sm o-col-4@xs">
           <CTitle
-            :title="'¿Hablamos de tu proyecto?'"
+            :title="'¿Hablamos?'"
             :description="'Cuéntanos qué necesitas y te enviaremos un presupuesto sin compromiso en menos de 24 horas.'"
             :color="'primary'"
           />

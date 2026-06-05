@@ -15,7 +15,7 @@
         'Tienda online de maquinaria y equipamiento para hostelería con catálogo de productos, carrito de compra y pasarela de pago.',
       image: images.imageMhdProject,
       category: 'E-commerce',
-      tags: ['SASS', 'BEMIT', 'Woocommerce', 'PHP'],
+      tags: ['SASS', 'BEMIT', 'Woocommerce', 'WordPress', 'PHP'],
       link: 'https://vd-mhd.validev.es'
     },
     {
@@ -35,6 +35,24 @@
       category: 'CRM',
       tags: ['Vue.js', 'Laravel', 'SASS', 'Vite', 'API REST'],
       link: '#'
+    },
+    {
+      title: 'Makecoded',
+      description:
+        'Empresa de desarrollo de software a medida. El proyecto incluye diseño personalizado, catálogo de servicios, sección de proyectos realizados y formulario de contacto.',
+      image: images.makecoded,
+      category: 'Desarrollo Web',
+      tags: ['Wordpress', 'PHP', 'SASS', 'BEMIT'],
+      link: 'https://makecoded.com/'
+    },
+    {
+      title: 'VD Beauty',
+      description:
+        'Página sobre productos de belleza e información sobre tratamientos estéticos. El proyecto incluye diseño personalizado, catálogo de productos, blog y formulario de contacto.',
+      image: images.vdBeauty,
+      category: 'E-commerce',
+      tags: ['SASS', 'BEMIT', 'Wordpress', 'PHP'],
+      link: 'https://vd-beauty.validev.es'
     }
   ]
 </script>

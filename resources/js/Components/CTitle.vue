@@ -1,12 +1,42 @@
 <script setup lang="ts">
   import { useInView } from '@/composables/useInView'
+  import type { ColorType } from '@/types'
+  import { icons } from '@assets/icons'
+  import { computed } from 'vue'
+  import CButton from './CButton.vue'
+
+  interface ButtonConfig {
+    title: string
+    color?: ColorType
+    icon?: keyof typeof icons
+    type?: 'primary' | 'secondary' | 'tertiary'
+    nativeType?: 'submit' | 'button' | 'reset'
+    disabled?: boolean
+    /** Si se pasa, el botón actúa como enlace */
+    href?: string
+    target?: '_blank' | '_self'
+  }
 
   const props = defineProps<{
     overline?: string
     title: string
     description?: string
     color?: 'primary' | 'secondary' | 'gradient'
+    /** Botón CTA opcional bajo la descripción */
+    button?: ButtonConfig
   }>()
+
+  const emit = defineEmits<{ 'button-click': [] }>()
+
+  type CButtonBindProps = Omit<ButtonConfig, 'href' | 'target'>
+
+  // Tipo de retorno explícito para que TS no infiera la unión con {}
+  // y sepa que `title` siempre está presente en el v-bind.
+  const buttonProps = computed((): CButtonBindProps => {
+    if (!props.button) return { title: '' }  // rama muerta: v-if lo bloquea
+    const { href: _h, target: _t, ...rest } = props.button
+    return rest
+  })
 
   const { el, isVisible } = useInView(0.15)
 </script>
@@ -33,6 +63,19 @@
           {{ props.description }}
         </p>
       </div>
+
+      <div v-if="props.button" class="c-title__wrapper-button">
+        <a
+          v-if="props.button.href"
+          :href="props.button.href"
+          :target="props.button.target ?? '_self'"
+          :rel="props.button.target === '_blank' ? 'noopener noreferrer' : undefined"
+          class="c-title__button-link"
+        >
+          <CButton v-bind="buttonProps" @click="emit('button-click')" />
+        </a>
+        <CButton v-else v-bind="buttonProps" @click="emit('button-click')" />
+      </div>
     </div>
   </div>
 </template>
@@ -49,8 +92,12 @@
       text-align: center;
       padding-bottom: 68px;
 
-      &.color-primary  { color: var(--color-primary); }
-      &.color-secondary { color: var(--color-secondary); }
+      &.color-primary {
+        color: var(--color-primary);
+      }
+      &.color-secondary {
+        color: var(--color-secondary);
+      }
       &.color-gradient {
         background: var(--color-gradient);
         -webkit-background-clip: text;
@@ -61,7 +108,8 @@
     // ── Estado inicial: invisible ──────────────────────────
     &__wrapper-overline,
     &__wrapper-title,
-    &__wrapper-description {
+    &__wrapper-description,
+    &__wrapper-button {
       opacity: 0;
       transform: translateY(20px);
       transition:
@@ -94,6 +142,13 @@
         opacity: 1;
         transform: none;
         transition-delay: 0.2s;
+      }
+
+      &__wrapper-button {
+        opacity: 1;
+        transform: none;
+        transition-delay: 0.3s;
+        padding-top: 46px;
       }
     }
 
@@ -137,6 +192,15 @@
       background: var(--color-white);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+    }
+
+    &__wrapper-button {
+      padding-top: 8px;
+    }
+
+    &__button-link {
+      display: inline-block;
+      text-decoration: none;
     }
   }
 </style>

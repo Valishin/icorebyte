@@ -68,6 +68,8 @@
   let bounceTween: gsap.core.Tween | null = null
 
   const playEnterAnimations = () => {
+    if (!overlineRef.value || !subtitleRef.value) return
+
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       gsap.set([overlineRef.value, subtitleRef.value], { opacity: 1, y: 0 })
       return
@@ -177,14 +179,16 @@
       <div class="c-hero__container o-container">
         <div class="c-hero__col o-col-8@md o-col-push-2@md o-col-6@sm o-col-push-1@sm o-col-4@xs">
           <div class="c-hero__overline">
-            <p ref="overlineRef" class="c-hero__overline-text o-font-display-caption">
-              Servicios IT profesionales en tu zona
-            </p>
+            <h2 ref="overlineRef" class="c-hero__overline-text o-font-display-caption">
+              Reparación de teléfonos, ordenadores y tablets · Desarrollo web para empresas
+            </h2>
           </div>
 
           <div class="c-hero__title">
             <h1>
-              <span class="sr-only">iCoreByte</span>
+              <span class="sr-only"
+                >Servicio técnico informático en Sant Feliu de Guixols — iCoreByte</span
+              >
               <!-- Desktop: visibility:hidden reserva espacio (logo real es position:fixed) -->
               <!-- Mobile: visible, logo estático en hero -->
               <div class="c-hero__logo-placeholder" aria-hidden="true">
@@ -195,8 +199,9 @@
 
           <div class="c-hero__subtitle">
             <p ref="subtitleRef" class="c-hero__subtitle-text o-font-display-3">
-              Tu centro integral de soluciones informáticas. Reparación, venta y desarrollo
-              tecnológico al más alto nivel.
+              Tu servicio técnico de confianza en Sant Feliu de Guixols. Reparamos iPhone,
+              portátiles, tablets e impresoras. También creamos webs, tiendas online y soluciones
+              para empresas de la Costa Brava.
             </p>
           </div>
 
@@ -323,6 +328,8 @@
       h1 {
         margin: 0;
       }
+
+      padding-bottom: 36px; // móvil
 
       @include from-sm {
         padding-bottom: 80px;
