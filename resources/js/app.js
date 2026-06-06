@@ -2,6 +2,7 @@ import "../css/app.css";
 import "../scss/main.scss";
 import "./bootstrap";
 
+import VueGoogleMaps from "@fawmi/vue-google-maps";
 import { createInertiaApp } from "@inertiajs/vue3";
 import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { createApp, h } from "vue";
@@ -20,6 +21,13 @@ createInertiaApp({
         return createApp({ render: () => h(App, props) })
             .use(plugin)
             .use(ZiggyVue)
+            .use(VueGoogleMaps, {
+                load: {
+                    key: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+                    language: "es",
+                    region: "ES",
+                },
+            })
             .mount(el);
     },
     progress: {

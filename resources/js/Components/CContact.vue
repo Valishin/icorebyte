@@ -1,11 +1,38 @@
 <script setup lang="ts">
   import { useInView } from '@/composables/useInView'
+  import { useTheme } from '@/composables/useTheme'
   import { useForm, usePage } from '@inertiajs/vue3'
+  import { computed } from 'vue'
   import CButton from './CButton.vue'
   import CPlaceCard from './CPlaceCard.vue'
   import CTitle from './CTitle.vue'
 
   const { el: colsRef, isVisible: colsVisible } = useInView(0.1)
+  const { theme } = useTheme()
+
+  // Coordenadas iCoreByte — Carretera de Palamós 57, Sant Feliu de Guíxols
+  const MAP_CENTER = { lat: 41.783112276338564, lng: 3.036094176676324 }
+
+  // Estilos oscuros para que el mapa encaje con el diseño dark
+  const darkMapStyles = [
+    { elementType: 'geometry',              stylers: [{ color: '#0a1123' }] },
+    { elementType: 'labels.text.stroke',    stylers: [{ color: '#0a1123' }] },
+    { elementType: 'labels.text.fill',      stylers: [{ color: '#64748b' }] },
+    { featureType: 'road', elementType: 'geometry',        stylers: [{ color: '#1e2d4a' }] },
+    { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#0a1123' }] },
+    { featureType: 'road', elementType: 'labels.text.fill',stylers: [{ color: '#9ca3af' }] },
+    { featureType: 'road.highway', elementType: 'geometry',        stylers: [{ color: '#2563eb' }] },
+    { featureType: 'road.highway', elementType: 'geometry.stroke', stylers: [{ color: '#1e40af' }] },
+    { featureType: 'water',   elementType: 'geometry', stylers: [{ color: '#06080f' }] },
+    { featureType: 'water',   elementType: 'labels.text.fill', stylers: [{ color: '#3b82f6' }] },
+    { featureType: 'poi',     stylers: [{ visibility: 'off' }] },
+    { featureType: 'transit', stylers: [{ visibility: 'off' }] },
+    { featureType: 'administrative', elementType: 'geometry', stylers: [{ color: '#1e293b' }] },
+    { featureType: 'administrative.country', elementType: 'labels.text.fill', stylers: [{ color: '#9ca3af' }] },
+    { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#d1d5db' }] },
+  ]
+
+  const mapStyles = computed(() => theme.value === 'dark' ? darkMapStyles : [])
 
   const page = usePage<{
     flash: { success?: string }
@@ -198,6 +225,24 @@
           </div>
         </div>
       </div>
+    </div>
+    <!-- Mapa Google Maps -->
+    <div class="c-contact__map-wrapper o-container">
+      <GMapMap
+        class="c-contact__map"
+        :center="MAP_CENTER"
+        :zoom="16"
+        :options="{
+          styles: mapStyles,
+          disableDefaultUI: false,
+          zoomControl: true,
+          streetViewControl: false,
+          mapTypeControl: false,
+          fullscreenControl: true,
+        }"
+      >
+        <GMapMarker :position="MAP_CENTER" :title="'iCoreByte — Carretera de Palamós 57'" />
+      </GMapMap>
     </div>
   </div>
 </template>
@@ -395,6 +440,22 @@
       border-radius: 0.75rem !important;
       padding: 1rem !important;
       font-weight: 600;
+    }
+
+    &__map-wrapper {
+      padding-bottom: 4rem;
+    }
+
+    &__map {
+      width: 100%;
+      height: 320px;
+      border-radius: 1rem;
+      overflow: hidden;
+      border: 1px solid var(--color-border-subtle);
+
+      @include from-sm {
+        height: 420px;
+      }
     }
   }
 </style>
