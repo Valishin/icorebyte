@@ -39,9 +39,30 @@ if [ $? -ne 0 ]; then
 fi
 echo "✅ Assets subidos correctamente."
 
+# — PASO 2b: Subir archivos estáticos directamente a public_html —
+# favicon, robots.txt, sitemap.xml y og-image no forman parte del build
+# de Vite y deben copiarse al web root manualmente.
+echo ""
+echo "📤 [2b] Subiendo archivos estáticos a public_html..."
+STATIC_FILES=(
+  "public/favicon.ico"
+  "public/favicon.png"
+  "public/robots.txt"
+  "public/sitemap.xml"
+  "public/og-image.png"
+)
+for FILE in "${STATIC_FILES[@]}"; do
+  if [ -f "./$FILE" ]; then
+    scp -P $SSH_PORT "./$FILE" $SSH_USER@$SSH_HOST:/home/$SSH_USER/domains/icorebyte.com/public_html/
+    echo "  ✅ $(basename $FILE)"
+  else
+    echo "  ⚠️  No encontrado: $FILE (saltando)"
+  fi
+done
+
 # — PASO 3: En el servidor: git pull + copiar build + optimizar —
 echo ""
-echo "🔄 [3/4] Actualizando servidor..."
+echo "🔄 [3/5] Actualizando servidor..."
 ssh -p $SSH_PORT $SSH_USER@$SSH_HOST << EOF
   set -e
 
@@ -70,6 +91,11 @@ ssh -p $SSH_PORT $SSH_USER@$SSH_HOST << EOF
     $PHP artisan migrate --force
   fi
 
+  # Forzar APP_URL correcto en producción
+  echo "  → Actualizando APP_URL en .env..."
+  sed -i 's|^APP_URL=.*|APP_URL=https://icorebyte.com|' .env
+  echo "  ✅ APP_URL=https://icorebyte.com"
+
   # Limpia y regenera caché
   echo "  → Optimizando icorebyte..."
   $PHP artisan optimize:clear
@@ -84,7 +110,7 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-# — PASO 4: Resumen —
+# — PASO 4/5: Resumen —
 echo ""
 echo "======================================"
 echo "🎉 Deploy completado con éxito!"

@@ -15,7 +15,7 @@
   <div class="c-card">
     <div class="c-card__inner">
       <div class="c-card__wrapper-image">
-        <img :src="props.image" alt="" class="c-card__image" />
+        <img :src="props.image" :alt="props.title" loading="lazy" class="c-card__image" />
         <CIcon v-if="props.iconInImage" :icon="props.iconInImage" />
       </div>
       <div class="c-card__wrapper-content">
