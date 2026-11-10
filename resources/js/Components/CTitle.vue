@@ -18,12 +18,13 @@
   }
 
   const props = defineProps<{
-    overline?: string
-    title: string
+    overline   ?: string
+    title        : string
+    titleHtml  ?: string  // HTML enriquecido — usar solo con contenido de confianza
     description?: string
-    color?: 'primary' | 'secondary' | 'gradient'
+    color      ?: 'primary' | 'secondary' | 'gradient'
     /** Botón CTA opcional bajo la descripción */
-    button?: ButtonConfig
+    button     ?: ButtonConfig
   }>()
 
   const emit = defineEmits<{ 'button-click': [] }>()
@@ -54,7 +55,12 @@
         </p>
       </div>
       <div class="c-title__wrapper-title">
-        <h2 class="c-title__title o-font-display-2">
+        <h2
+          class="c-title__title o-font-display-2"
+          v-if="props.titleHtml"
+          v-html="props.titleHtml"
+        />
+        <h2 class="c-title__title o-font-display-2" v-else>
           {{ props.title }}
         </h2>
       </div>
@@ -185,6 +191,26 @@
 
     &__title {
       margin-bottom: 1rem;
+
+      // Tag inline — se usa con titleHtml
+      :deep(.c-title__tag) {
+        display: inline-block;
+        vertical-align: middle;
+        padding: 2px 12px;
+        margin: 0 4px;
+        border-radius: 999px;
+        border: 1px solid var(--color-primary);
+        background: var(--color-primary-dark);
+        color: var(--color-primary);
+        font-size: 0.45em;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        line-height: 1.8;
+        // Sube el tag para alinearlo mejor con el texto
+        position: relative;
+        bottom: 0.1em;
+      }
     }
 
     &__description {

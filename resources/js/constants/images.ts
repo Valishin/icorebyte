@@ -21,6 +21,7 @@ import heroSlide2 from '@assets/images/heroSlide2.jpg' // Montaje PC / GPU
 import heroSlide3 from '@assets/images/heroSlide3.jpg' // Reparación portátil (PCB azul)
 import heroSlide4 from '@assets/images/heroSlide4.jpg' // Microscopio + multímetro
 import heroSlide5 from '@assets/images/heroSlide5.jpg' // Mostrador tienda
+import imageAppSatAnalitics from '@assets/images/imageAppSatAnalitics.png'
 import imageItMaintanceReal from '@assets/images/imageItMaintanceReal.jpg'
 import imageLaptopRepairReal from '@assets/images/imageLaptopRepairReal.jpg'
 import imagePcRepairReal from '@assets/images/imagePcRepairReal.jpg'
@@ -74,5 +75,6 @@ export const images = {
   validevProject,
   appsatProject,
   makecoded,
-  vdBeauty
+  vdBeauty,
+  imageAppSatAnalitics
 }

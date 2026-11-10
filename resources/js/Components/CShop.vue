@@ -2,18 +2,58 @@
   import { useInView } from '@/composables/useInView'
   import { useToast } from '@/composables/useToast'
   import { images } from '@/constants/images'
+  import { onMounted, onUnmounted, ref } from 'vue'
+  import { registerParallax, type ParallaxEntry } from '../composables/useParallaxLoop'
   import CButton from './CButton.vue'
   import CCategoryGrid from './CCategoryGrid.vue'
   import CPlaceCard from './CPlaceCard.vue'
   import CTitle from './CTitle.vue'
 
   const { el: wrapperRef, isVisible: wrapperVisible } = useInView(0.1)
-
   const { show } = useToast()
+  const onShopClick = () => show('info', 'La tienda online estará disponible próximamente.')
 
-  const onShopClick = () => {
-    show('info', 'La tienda online estará disponible próximamente.')
+  // ── Parallax imagen tienda ────────────────────────────────
+  const SHOP_PARALLAX_SPEED = 0.08
+  const shopBgEl            = ref<HTMLElement>()
+  const shopLoaded          = ref(false)
+  let targetY  = 0
+  let currentY = 0
+
+  const shopEntry: ParallaxEntry = {
+    updateTarget() {
+      if (!shopBgEl.value) return
+      const rect = shopBgEl.value.parentElement!.getBoundingClientRect()
+      if (rect.bottom < 0 || rect.top > window.innerHeight) return
+      targetY = (rect.top + rect.height / 2 - window.innerHeight / 2) * SHOP_PARALLAX_SPEED
+    },
+    lerp() {
+      if (!shopBgEl.value) return false
+      currentY += (targetY - currentY) * 0.12
+      shopBgEl.value.style.transform = `translate3d(0,${currentY | 0}px,0)`
+      if (Math.abs(currentY - targetY) > 0.1) return true
+      currentY = targetY
+      return false
+    }
   }
+  let unregisterShop: (() => void) | null = null
+
+  onMounted(() => {
+    if (shopBgEl.value) {
+      shopBgEl.value.style.backgroundImage = `url(${images.imageShopReal})`
+    }
+    const img = new Image()
+    img.src = images.imageShopReal
+    if (img.complete) {
+      shopLoaded.value = true
+    } else {
+      const timeout = setTimeout(() => { shopLoaded.value = true }, 2000)
+      img.onload = img.onerror = () => { clearTimeout(timeout); shopLoaded.value = true }
+    }
+
+    unregisterShop = registerParallax(shopEntry)
+  })
+  onUnmounted(() => { unregisterShop?.() })
 </script>
 <template>
   <div class="c-shop">
@@ -29,11 +69,12 @@
         <div class="c-shop__col o-col-12@md o-col-8@sm o-col-4@xs">
           <div ref="wrapperRef" class="c-shop__wrapper" :class="{ 'is-visible': wrapperVisible }">
             <div class="c-shop__box-image">
-              <img
-                class="c-shop__image"
-                :src="images.imageShopReal"
-                alt="Imagen de la tienda de informática"
-              />
+              <!-- skeleton visible mientras carga la imagen -->
+              <Transition name="c-shop-fade">
+                <div v-if="!shopLoaded" class="c-shop__skeleton" aria-hidden="true" />
+              </Transition>
+              <!-- div de fondo: background-image + parallax transform -->
+              <div ref="shopBgEl" class="c-shop__bg" aria-hidden="true" />
             </div>
             <div class="c-shop__box-content">
               <div class="c-shop__wrapper-title">
@@ -182,25 +223,52 @@
       }
     }
     &__box-image {
+      position: relative;
       width: 100%;
       overflow: hidden;
       height: 220px;
 
-      @include from-sm {
-        height: 300px;
-      }
+      @include from-sm { height: 300px; }
 
       @include from-md {
         width: 50%;
-        height: 100%;
+        height: auto;        // resetea los 300px del breakpoint anterior
+        align-self: stretch; // se estira a la altura del hermano
       }
     }
-    &__image {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 8px 0px 0px 8px;
+
+    // Skeleton shimmer — capa sobre el fondo mientras carga
+    &__skeleton {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      background: var(--color-primary-dark);
+      border-radius: 8px 0 0 8px;
+
+      &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent);
+        transform: translateX(-100%);
+        animation: c-shop-shimmer 1.6s ease-in-out infinite;
+      }
     }
+
+    // Fondo con parallax — se extiende 48px arriba/abajo para absorber el desplazamiento
+    &__bg {
+      position: absolute;
+      top: -48px;
+      left: 0;
+      right: 0;
+      bottom: -48px;
+      background-size: cover;
+      background-position: center;
+      border-radius: 8px 0 0 8px;
+      will-change: transform;
+      z-index: 1;
+    }
+
     &__wrapper-info {
       margin-top: 1.5rem;
       padding-bottom: 34px;
@@ -239,5 +307,13 @@
       justify-content: flex-end;
       align-items: center;
     }
+  }
+
+  // Fuera de .c-shop para que Vue Transition las encuentre correctamente
+  .c-shop-fade-leave-active { transition: opacity 0.4s ease; }
+  .c-shop-fade-leave-to     { opacity: 0; }
+
+  @keyframes c-shop-shimmer {
+    to { transform: translateX(100%); }
   }
 </style>

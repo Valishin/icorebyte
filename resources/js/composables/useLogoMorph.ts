@@ -20,13 +20,16 @@ export function useLogoMorph() {
   const isMobileDevice = () => window.innerWidth < BREAKPOINTS.mobile
 
   let initRect     = { left: 0, top: 0, width: 0, height: 0 }
-  // topBase = top del logo en el header SIN el offset del banner.
-  // En cada frame se le suma el valor live de --banner-h (inline style, sin reflow).
   let headRect     = { left: 0, top: 0, topBase: 0, width: 0 }
   let triggerDist  = 350
   let measured     = false
   let entranceDone = false
   let rafId        = 0
+
+  // Lerp state — separa el target (actualizado en scroll) del current (suavizado)
+  let targetEased  = 0
+  let currentEased = 0
+  let morphRunning = false
 
   // ── Estilos fijos — se aplican una sola vez al medir ──────
   const setupElement = () => {
@@ -48,16 +51,15 @@ export function useLogoMorph() {
     const el = logoFixedEl.value
     if (!el) return
 
-    // Leer --banner-h del inline style del <html> — es una lectura de string,
-    // sin forzar layout reflow, segura dentro de requestAnimationFrame.
     const bannerH = parseFloat(
       document.documentElement.style.getPropertyValue('--banner-h') || '0'
     )
 
-    const x = lerp(initRect.left, headRect.left,            eased)
+    const x = lerp(initRect.left, headRect.left,              eased)
     const y = lerp(initRect.top,  headRect.topBase + bannerH, eased)
-    const s = lerp(1, headRect.width / initRect.width, eased)
-    el.style.transform  = `translate(${x}px, ${y}px) scale(${s})`
+    const s = lerp(1, headRect.width / initRect.width,         eased)
+    // translate3d fuerza capa GPU independiente — cero layout reflow
+    el.style.transform  = `translate3d(${x}px,${y}px,0) scale(${s})`
     el.style.opacity    = String(opacity)
     el.style.transition = transition
   }
@@ -96,6 +98,9 @@ export function useLogoMorph() {
     setupElement()
 
     const eased = easeOutQuart(clamp(scrollY / triggerDist, 0, 1))
+    // Sincronizar el lerp state para que no haya salto en el primer frame
+    targetEased  = eased
+    currentEased = eased
 
     if (skipEntrance) {
       applyTransform(eased, 1)
@@ -114,17 +119,28 @@ export function useLogoMorph() {
     }
   }
 
-  // ── Scroll handler ────────────────────────────────────────
+  // ── Lerp tick — suaviza el movimiento del logo ───────────
+  const morphTick = () => {
+    currentEased += (targetEased - currentEased) * 0.1
+    applyTransform(currentEased, entranceDone ? 1 : parseFloat(logoFixedEl.value?.style.opacity ?? '1'))
+
+    if (Math.abs(currentEased - targetEased) > 0.0003) {
+      rafId = requestAnimationFrame(morphTick)
+    } else {
+      currentEased = targetEased
+      applyTransform(currentEased, 1)
+      morphRunning = false
+    }
+  }
+
+  // ── Scroll handler — solo actualiza el target, no cancela RAF ──
   const onScroll = () => {
-    cancelAnimationFrame(rafId)
-    rafId = requestAnimationFrame(() => {
-      if (!measured) return
-      const scrollY = window.scrollY
-      const eased   = easeOutQuart(clamp(scrollY / triggerDist, 0, 1))
-      const el      = logoFixedEl.value
-      const opacity = entranceDone ? 1 : parseFloat(el?.style.opacity ?? '1')
-      applyTransform(eased, opacity)
-    })
+    if (!measured) return
+    targetEased = easeOutQuart(clamp(window.scrollY / triggerDist, 0, 1))
+    if (!morphRunning) {
+      morphRunning = true
+      rafId        = requestAnimationFrame(morphTick)
+    }
   }
 
   // ── Lifecycle ─────────────────────────────────────────────
@@ -162,7 +178,8 @@ export function useLogoMorph() {
   onUnmounted(() => {
     heroManagesLogo.value     = false
     loaderMorphedToHero.value = false
-window.removeEventListener('scroll', onScroll)
+    morphRunning              = false
+    window.removeEventListener('scroll', onScroll)
     window.removeEventListener('resize', () => measurePositions(false))
     cancelAnimationFrame(rafId)
   })

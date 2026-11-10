@@ -34,7 +34,7 @@
       image: images.appsatProject,
       category: 'CRM',
       tags: ['Vue.js', 'Laravel', 'SASS', 'Vite', 'API REST'],
-      link: '#'
+      link: '/sat-it'
     },
     {
       title: 'Makecoded',

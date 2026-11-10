@@ -1,5 +1,7 @@
 <script setup lang="ts">
+  import { router } from '@inertiajs/vue3'
   import { computed } from 'vue'
+  import CImage from './CImage.vue'
 
   const props = withDefaults(
     defineProps<{
@@ -18,22 +20,25 @@
   )
 
   const isComingSoon = computed(() => !props.link || props.link === '#')
+  const isInternal   = computed(() => props.link?.startsWith('/'))
 </script>
 
 <template>
   <article class="c-project-card" :class="{ 'c-project-card--coming-soon': isComingSoon }">
     <component
       :is="isComingSoon ? 'div' : 'a'"
-      v-bind="isComingSoon ? {} : { href: link, target: '_blank', rel: 'noopener noreferrer' }"
+      v-bind="isComingSoon ? {} : isInternal
+        ? { href: link }
+        : { href: link, target: '_blank', rel: 'noopener noreferrer' }"
       class="c-project-card__link"
+      @click.prevent="!isComingSoon && isInternal ? router.visit(link) : undefined"
     >
       <!-- Imagen -->
       <div class="c-project-card__image-wrap">
-        <img
+        <CImage
           :src="image"
           :alt="alt ?? title"
           class="c-project-card__image"
-          loading="lazy"
         />
 
         <div class="c-project-card__overlay">
@@ -111,9 +116,9 @@
     &__image {
       width: 100%;
       height: 100%;
-      object-fit: cover;
       display: block;
       transition: transform 0.5s ease;
+      // object-fit: gestionado internamente por CImage
     }
 
     &__overlay {

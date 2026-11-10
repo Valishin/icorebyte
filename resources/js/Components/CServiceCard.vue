@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  import { router } from '@inertiajs/vue3'
+  import { onMounted, onUnmounted, ref } from 'vue'
+  import { registerParallax, type ParallaxEntry } from '../composables/useParallaxLoop'
   import CIcon from './CIcon.vue'
 
   const props = withDefaults(
@@ -6,16 +9,54 @@
       title       : string
       description : string
       image       : string
-      alt?        : string       // texto alternativo de la imagen (default: title)
-      items?      : string[]     // etiquetas/tags — si no se pasa no se renderiza la sección
-      link?       : string       // URL — si se pasa la card es un <a> y muestra el icono enlace
+      alt?        : string
+      items?      : string[]
+      link?       : string
     }>(),
-    {
-      alt  : undefined,
-      items: undefined,
-      link : undefined,
-    }
+    { alt: undefined, items: undefined, link: undefined }
   )
+
+  // ── Parallax + skeleton ───────────────────────────────────
+  const SPEED  = 0.06
+  const bgEl   = ref<HTMLElement>()
+  const loaded = ref(false)
+  let targetY  = 0, currentY = 0
+
+  const bgEntry: ParallaxEntry = {
+    updateTarget() {
+      const wrap = bgEl.value?.parentElement
+      if (!wrap) return
+      const rect = wrap.getBoundingClientRect()
+      if (rect.bottom < 0 || rect.top > window.innerHeight) return
+      targetY = (rect.top + rect.height / 2 - window.innerHeight / 2) * SPEED
+    },
+    lerp() {
+      if (!bgEl.value) return false
+      currentY += (targetY - currentY) * 0.12
+      bgEl.value.style.transform = `translate3d(0,${currentY | 0}px,0)`
+      if (Math.abs(currentY - targetY) > 0.1) return true
+      currentY = targetY
+      return false
+    }
+  }
+  let unregister: (() => void) | null = null
+
+  onMounted(() => {
+    if (bgEl.value) bgEl.value.style.backgroundImage = `url(${props.image})`
+
+    const img = new Image()
+    img.src = props.image
+    if (img.complete) {
+      loaded.value = true
+    } else {
+      const timeout = setTimeout(() => { loaded.value = true }, 2000)
+      img.onload = img.onerror = () => { clearTimeout(timeout); loaded.value = true }
+    }
+
+    unregister = registerParallax(bgEntry)
+  })
+
+  onUnmounted(() => { unregister?.() })
 </script>
 
 <template>
@@ -31,13 +72,13 @@
           :href="props.link ?? undefined"
           class="c-service-card__wrapper-card"
           :class="{ 'c-service-card__wrapper-card--link': props.link }"
+          @click.prevent="props.link ? router.visit(props.link) : undefined"
         >
           <div class="c-service-card__box-image">
-            <img
-              class="c-service-card__image"
-              :src="props.image"
-              :alt="props.alt ?? props.title"
-            />
+            <Transition name="c-sc-fade">
+              <div v-if="!loaded" class="c-service-card__skeleton" aria-hidden="true" />
+            </Transition>
+            <div ref="bgEl" class="c-service-card__bg" :aria-label="props.alt ?? props.title" />
           </div>
 
           <div class="c-service-card__box-content">
@@ -90,19 +131,7 @@
       text-decoration: none;     // por si es <a>
       color: inherit;
 
-      // Cursor y hover de enlace solo cuando tiene link
-      &--link {
-        cursor: pointer;
-
-        &:hover .c-service-card__image {
-          transform: scale(1.06);
-        }
-      }
-
-      // Sin link: hover también (pero sin cursor pointer)
-      &:not(&--link):hover .c-service-card__image {
-        transform: scale(1.06);
-      }
+      &--link { cursor: pointer; }
     }
 
     &__box-image {
@@ -111,15 +140,41 @@
       overflow: hidden;
       border-radius: 8px 8px 0 0;
       width: 100%;
+      height: 200px;
+
+      @include from-sm { height: 240px; }
     }
 
-    &__image {
+    // Skeleton shimmer
+    &__skeleton {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      background: var(--color-primary-dark);
       border-radius: 8px 8px 0 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      transition: transform 0.5s ease;
+
+      &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent);
+        transform: translateX(-100%);
+        animation: c-sc-shimmer 1.6s ease-in-out infinite;
+      }
+    }
+
+    // Fondo con parallax — se extiende 40px arriba/abajo para absorber el desplazamiento
+    &__bg {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      right: 0;
+      bottom: -40px;
+      background-size: cover;
+      background-position: center;
+      border-radius: 8px 8px 0 0;
+      will-change: transform;
+      z-index: 1;
     }
 
     &__box-content {
@@ -167,5 +222,13 @@
         .theme-light & { color: var(--color-black); }
       }
     }
+  }
+
+  // Fuera de .c-service-card para que Vue Transition las encuentre
+  .c-sc-fade-leave-active { transition: opacity 0.4s ease; }
+  .c-sc-fade-leave-to     { opacity: 0; }
+
+  @keyframes c-sc-shimmer {
+    to { transform: translateX(100%); }
   }
 </style>

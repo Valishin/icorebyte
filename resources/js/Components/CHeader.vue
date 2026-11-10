@@ -10,8 +10,16 @@
   const { theme, toggle } = useTheme()
   const { heroManagesLogo } = useHeroLogoState()
 
-  const menuOpen = ref(false)
-  const scrolled = ref(false)
+  const menuOpen     = ref(false)
+  const scrolled     = ref(false)
+  const softwareOpen = ref(false)   // dropdown desktop
+  const softwareMobileOpen = ref(false) // desplegable móvil
+
+  // Cerrar dropdown al hacer click fuera
+  const onClickOutside = (e: MouseEvent) => {
+    const el = document.querySelector('.c-header__dropdown')
+    if (el && !el.contains(e.target as Node)) softwareOpen.value = false
+  }
 
   watch(isMobile, (val) => {
     if (!val) menuOpen.value = false
@@ -21,8 +29,14 @@
     scrolled.value = window.scrollY > 20
   }
 
-  onMounted(() => window.addEventListener('scroll', onScroll))
-  onUnmounted(() => window.removeEventListener('scroll', onScroll))
+  onMounted(() => {
+    window.addEventListener('scroll', onScroll)
+    document.addEventListener('click', onClickOutside)
+  })
+  onUnmounted(() => {
+    window.removeEventListener('scroll', onScroll)
+    document.removeEventListener('click', onClickOutside)
+  })
 
   const navItems = [
     { label: 'Inicio', anchor: '#inicio' },
@@ -103,6 +117,33 @@
         >
           {{ item.label }}
         </a>
+
+        <!-- Dropdown Software -->
+        <div class="c-header__dropdown" :class="{ 'is-open': softwareOpen }">
+          <button
+            class="c-header__nav-link c-header__nav-link--dropdown"
+            :aria-expanded="softwareOpen"
+            aria-haspopup="true"
+            @click.stop="softwareOpen = !softwareOpen"
+          >
+            Software
+            <svg class="c-header__chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+
+          <Transition name="dropdown">
+            <div v-if="softwareOpen" class="c-header__dropdown-panel">
+              <a href="/sat-it" class="c-header__dropdown-item" @click.prevent="router.visit('/sat-it'); softwareOpen = false">
+                <span>
+                  <strong>SAT IT</strong>
+                  <span class="c-header__dropdown-item-desc">Gestión de talleres SAT</span>
+                </span>
+              </a>
+            </div>
+          </Transition>
+        </div>
       </nav>
 
       <!-- Theme toggle (derecha) -->
@@ -171,6 +212,32 @@
           >
             {{ item.label }}
           </a>
+          <!-- Software desplegable móvil -->
+          <div class="c-header__mobile-section">
+            <button
+              class="c-header__mobile-link c-header__mobile-link--section"
+              @click="softwareMobileOpen = !softwareMobileOpen"
+            >
+              Software
+              <svg class="c-header__chevron" :class="{ 'is-open': softwareMobileOpen }"
+                   viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <Transition name="dropdown">
+              <div v-if="softwareMobileOpen" class="c-header__mobile-sub">
+                <a
+                  href="/sat-it"
+                  class="c-header__mobile-sub-link"
+                  @click.prevent="router.visit('/sat-it'); menuOpen = false; softwareMobileOpen = false"
+                >
+                  SAT IT
+                </a>
+              </div>
+            </Transition>
+          </div>
+
           <a
             href="#contacto"
             class="c-header__cta c-header__cta--mobile"
@@ -247,6 +314,138 @@
       &:hover {
         color: var(--color-secondary);
       }
+
+      &--dropdown {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        background: none;
+        border: none;
+        padding: 0;
+        font-family: inherit;
+      }
+    }
+
+    // ── Dropdown ──────────────────────────────────────────
+    &__chevron {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      transition: transform 0.25s ease;
+
+      .is-open & { transform: rotate(180deg); }
+      &.is-open  { transform: rotate(180deg); }
+    }
+
+    &__dropdown {
+      position: relative;
+
+      &.is-open .c-header__nav-link--dropdown {
+        color: var(--color-white);
+      }
+    }
+
+    &__dropdown-panel {
+      position: absolute;
+      top: calc(100% + 16px);
+      left: 50%;
+      transform: translateX(-50%);
+      min-width: 220px;
+      background: var(--color-background);
+      border: 1px solid var(--color-border-subtle);
+      border-radius: 12px;
+      padding: 8px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18);
+      z-index: 200;
+
+      // Triángulo apuntador
+      &::before {
+        content: '';
+        position: absolute;
+        top: -6px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 10px;
+        height: 10px;
+        background: var(--color-background);
+        border-left: 1px solid var(--color-border-subtle);
+        border-top: 1px solid var(--color-border-subtle);
+        rotate: 45deg;
+      }
+    }
+
+    &__dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      text-decoration: none;
+      color: var(--color-text, var(--color-white));
+      transition: background 0.2s ease;
+
+      &:hover {
+        background: var(--color-primary-dark);
+      }
+
+      strong {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 600;
+      }
+    }
+
+    &__dropdown-item-icon {
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    &__dropdown-item-desc {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--color-gray-dark);
+      margin-top: 1px;
+    }
+
+    // ── Móvil: sección desplegable ────────────────────────
+    &__mobile-section {
+      display: flex;
+      flex-direction: column;
+    }
+
+    &__mobile-link--section {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: none;
+      border: none;
+      padding: 0;
+      font-family: inherit;
+      font-size: 1rem;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      width: 100%;
+      text-align: left;
+
+      &:hover { color: var(--color-white); }
+    }
+
+    &__mobile-sub {
+      padding-left: 16px;
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      border-left: 2px solid var(--color-primary);
+    }
+
+    &__mobile-sub-link {
+      font-size: 0.9rem;
+      color: var(--color-gray-dark);
+      text-decoration: none;
+      transition: color 0.2s;
+
+      &:hover { color: var(--color-white); }
     }
 
     &__cta {
@@ -418,6 +617,19 @@
   }
 
   // ──────────────────────────────────────────────────────────────
+  // ── Transición dropdown ───────────────────────────────────────
+  .dropdown-enter-active,
+  .dropdown-leave-active {
+    transition:
+      opacity   0.2s ease,
+      transform 0.2s ease;
+  }
+  .dropdown-enter-from,
+  .dropdown-leave-to {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
   .menu-slide-enter-active,
   .menu-slide-leave-active {
     transition:

@@ -29,6 +29,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// Productos / Software
+Route::get('/sat-it', fn () => Inertia::render('SatIT'))->name('sat-it');
+
 // Legal
 Route::get('/aviso-legal',            fn () => Inertia::render('Legal/AvisoLegal'))->name('legal.aviso');
 Route::get('/politica-de-privacidad', fn () => Inertia::render('Legal/PoliticaPrivacidad'))->name('legal.privacidad');

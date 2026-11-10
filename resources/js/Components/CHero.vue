@@ -5,6 +5,7 @@
   import Logo from '@assets/logos/logo.svg'
   import gsap from 'gsap'
   import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+  import { registerParallax, type ParallaxEntry } from '../composables/useParallaxLoop'
   import { useScroll } from '../composables/useScroll'
 
   const props = defineProps<{
@@ -26,9 +27,10 @@
     return single ? [single] : []
   })
 
-  const activeIndex = ref(0)
-  const slideEls = ref<HTMLElement[]>([])
-  const hasSlider = computed(() => slides.value.length > 1)
+  const activeIndex  = ref(0)
+  const slideEls     = ref<HTMLElement[]>([])  // wrapper — controla opacity
+  const bgInnerEls   = ref<HTMLElement[]>([])  // inner   — controla parallax transform
+  const hasSlider    = computed(() => slides.value.length > 1)
   let sliderInterval = 0
 
   const goToSlide = (index: number) => {
@@ -46,18 +48,21 @@
     goToSlide(next)
   }
 
-  // ── Parallax (directo al DOM, sin reactividad Vue) ────────
-  const PARALLAX_SPEED = 0.25
-  let rafParallax = 0
+  // ── Parallax — translate3d en div hijo (compositor-only, sin repaints) ───
+  const PARALLAX_SPEED = 0.22
+  let targetParallax   = 0
+  let currentParallax  = 0
 
-  const onParallaxScroll = () => {
-    cancelAnimationFrame(rafParallax)
-    rafParallax = requestAnimationFrame(() => {
-      const pos = `center ${window.scrollY * PARALLAX_SPEED}px`
-      slideEls.value.forEach((el) => {
-        el.style.backgroundPosition = pos
-      })
-    })
+  const heroParallaxEntry: ParallaxEntry = {
+    updateTarget() { targetParallax = window.scrollY * PARALLAX_SPEED },
+    lerp() {
+      currentParallax += (targetParallax - currentParallax) * 0.12
+      const y = currentParallax | 0
+      bgInnerEls.value.forEach(el => { el.style.transform = `translate3d(0,${y}px,0)` })
+      if (Math.abs(currentParallax - targetParallax) > 0.1) return true
+      currentParallax = targetParallax
+      return false
+    },
   }
 
   // ── Refs para animaciones GSAP ───────────────────────────
@@ -106,26 +111,50 @@
     }
   }
 
-  // ── Lifecycle ─────────────────────────────────────────────
-  onMounted(() => {
-    // Fijar imágenes en cada slide UNA sola vez (no Vue reactivity)
-    slides.value.forEach((src, i) => {
-      const el = slideEls.value[i]
-      if (!el) return
-      el.style.backgroundImage = `url(${src})`
-      el.style.backgroundPosition = 'center top'
-      el.style.opacity = i === 0 ? '1' : '0'
-    })
+  // ── IntersectionObserver — pausa parallax + slider + tweens al salir ────
+  let heroObserver: IntersectionObserver | null = null
+  let unregisterHeroParallax: (() => void) | null = null
 
-    // Arrancar slider automático si hay más de 1 imagen
-    if (hasSlider.value) {
+  const startHero = () => {
+    if (slides.value.length && !unregisterHeroParallax) {
+      unregisterHeroParallax = registerParallax(heroParallaxEntry)
+    }
+    if (hasSlider.value && sliderInterval === 0) {
       sliderInterval = window.setInterval(nextSlide, 5000)
     }
+    floatTween?.resume()
+    bounceTween?.resume()
+  }
 
-    // Parallax
-    if (slides.value.length) {
-      window.addEventListener('scroll', onParallaxScroll, { passive: true })
-    }
+  const stopHero = () => {
+    unregisterHeroParallax?.()
+    unregisterHeroParallax = null
+    clearInterval(sliderInterval)
+    sliderInterval = 0
+    floatTween?.pause()
+    bounceTween?.pause()
+  }
+
+  // ── Lifecycle ─────────────────────────────────────────────
+  onMounted(() => {
+    // Fijar imágenes en cada slide UNA sola vez — backgroundImage en el inner,
+    // opacity en el wrapper (separación de capas para compositor)
+    slides.value.forEach((src, i) => {
+      const outer = slideEls.value[i]
+      const inner = bgInnerEls.value[i]
+      if (!outer) return
+      outer.style.opacity = i === 0 ? '1' : '0'
+      if (inner) inner.style.backgroundImage = `url(${src})`
+    })
+
+    // Observar visibilidad del hero — arranca/para slider y parallax
+    heroObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) startHero()
+        else stopHero()
+      })
+    }, { threshold: 0 })
+    if (heroRef.value) heroObserver.observe(heroRef.value as HTMLElement)
 
     // Animaciones de texto
     if (loaderReady.value) {
@@ -141,28 +170,30 @@
   })
 
   onUnmounted(() => {
+    heroObserver?.disconnect()
+    unregisterHeroParallax?.()
+    unregisterHeroParallax = null
     clearInterval(sliderInterval)
     floatTween?.kill()
     bounceTween?.kill()
-    window.removeEventListener('scroll', onParallaxScroll)
-    cancelAnimationFrame(rafParallax)
   })
 </script>
 
 <template>
   <div ref="heroRef" class="c-hero">
-    <!-- Slides de fondo — uno por imagen -->
+    <!-- Slides de fondo — wrapper controla opacity, inner controla parallax -->
     <div
       v-for="(src, i) in slides"
       :key="src"
-      :ref="
-        (el) => {
-          if (el) slideEls[i] = el as HTMLElement
-        }
-      "
+      :ref="(el) => { if (el) slideEls[i] = el as HTMLElement }"
       class="c-hero__bg"
       aria-hidden="true"
-    />
+    >
+      <div
+        :ref="(el) => { if (el) bgInnerEls[i] = el as HTMLElement }"
+        class="c-hero__bg-inner"
+      />
+    </div>
 
     <!-- Dots del slider -->
     <div v-if="hasSlider" class="c-hero__dots" aria-hidden="true">
@@ -242,9 +273,7 @@
     &__bg {
       position: absolute;
       inset: 0;
-      background-size: cover;
-      background-repeat: no-repeat;
-      background-position: center !important;
+      overflow: hidden;   // recorta el inner que sobresale (parallax)
       z-index: 0;
       will-change: opacity;
 
@@ -253,12 +282,27 @@
         content: '';
         position: absolute;
         inset: 0;
+        z-index: 1;
         background: rgba(0, 0, 0, 0.6);
 
         .theme-light & {
           background: rgba(255, 255, 255, 0.5);
         }
       }
+    }
+
+    // Inner — 20% más alto que el wrapper para absorber el desplazamiento parallax
+    // sin cortes. transform: translate3d → GPU compositor, cero repaints.
+    &__bg-inner {
+      position: absolute;
+      top: -20%;
+      left: 0;
+      right: 0;
+      bottom: -20%;
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+      will-change: transform;
     }
 
     // ── Dots del slider ────────────────────────────────────
