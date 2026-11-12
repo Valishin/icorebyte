@@ -29,3 +29,10 @@ Thumbs.db
 
 /storage/logs
 /storage/framework
+
+# Defense-in-depth: already covered by database/.gitignore (*.sqlite*) and
+# storage/app/private/.gitignore (*), but explicit here too.
+/database/*.sqlite
+/database/*.sqlite-shm
+/database/*.sqlite-wal
+/storage/app/private/
