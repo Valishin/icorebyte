@@ -1,0 +1,30 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    paths:
+        - app/Http/Controllers/Chat
+        - app/Http/Middleware/ValidateChatToken.php
+        - app/Http/Requests/Chat
+        - app/Jobs/Chat
+        - app/Models/ChatConversation.php
+        - app/Models/ChatMessage.php
+        - app/Models/QuickReply.php
+        - app/Models/TelegramOutbound.php
+        - app/Models/TelegramUpdate.php
+        - app/Models/User.php
+        - app/Services/Chat
+        - app/Console/Commands/Chat/CreateAgentCommand.php
+        - app/Console/Commands/Chat
+        - app/Filament/Pages/ChatInbox.php
+        - app/Filament/Resources/QuickReplyResource.php
+        - app/Jobs/Chat/SendConversationNotificationJob.php
+        - app/Mail/Chat/ConversationNotificationMailable.php
+        - app/Console/Commands/Chat/PurgeOldConversations.php
+
+    level: 5
+
+    phpVersion: 80400   # target PHP 8.4
+
+    ignoreErrors: []
+    excludePaths: []
