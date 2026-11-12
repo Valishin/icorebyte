@@ -28,13 +28,13 @@
       link: 'https://validev.es'
     },
     {
-      title: 'APP SAT',
+      title: 'iCB SAT',
       description:
-        'CRM para gestión de servicios técnicos, con panel de administración, gestión de clientes, partes de trabajo y facturación.',
+        'Plataforma web de gestión de servicios técnicos adaptable a cualquier sector: talleres IT, electricistas, empresas de mantenimiento. Clientes, órdenes, analítica y permisos en un solo panel.',
       image: images.appsatProject,
-      category: 'CRM',
+      category: 'SaaS / CRM',
       tags: ['Vue.js', 'Laravel', 'SASS', 'Vite', 'API REST'],
-      link: '/sat-it'
+      link: '/icb-sat'
     },
     {
       title: 'Makecoded',

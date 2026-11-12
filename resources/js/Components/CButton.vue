@@ -57,7 +57,7 @@
     // ── Primary: fondo sólido, hover → secundario ─────────
     &--primary {
       background-color: var(--color-primary);
-      color: var(--color-white);
+      color: #fff;
       border-color: var(--color-primary);
 
       &:hover {
@@ -74,7 +74,7 @@
 
       &:hover {
         background-color: var(--color-primary);
-        color: var(--color-white);
+        color: #fff;
       }
     }
 

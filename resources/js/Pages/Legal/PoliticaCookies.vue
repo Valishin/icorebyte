@@ -39,7 +39,16 @@
       typeLabel: 'Preferencia',
       duration: 'Persistente (hasta que se borre manualmente)',
     },
+    {
+      name: 'icorebyte-cookies-accepted',
+      provider: 'icorebyte.com',
+      purpose: 'Registra si el usuario ha visto y cerrado el aviso informativo de cookies. Evita que el aviso se muestre en cada visita. No contiene datos personales ni se envía a ningún servidor.',
+      type: 'preference',
+      typeLabel: 'Preferencia',
+      duration: 'Persistente (hasta que se borre manualmente)',
+    },
   ]
+
 </script>
 
 <template>
@@ -51,7 +60,7 @@
       <section id="que-son" class="p-legal__section">
         <h2 class="p-legal__section-title">1. ¿Qué son las cookies?</h2>
         <p>Las cookies son pequeños archivos de texto que los sitios web almacenan en el navegador del usuario cuando este los visita. Su función principal es recordar información sobre la visita —como preferencias o el estado de sesión— para facilitar la navegación y mejorar la experiencia de uso.</p>
-        <p>Existen distintos tipos de cookies según su finalidad: técnicas (necesarias para que el sitio funcione), de preferencias, analíticas y publicitarias. En este Sitio Web <strong>únicamente se utilizan cookies técnicas estrictamente necesarias</strong>, por lo que no es preciso obtener tu consentimiento previo para su instalación, tal como establece el artículo 22.2 de la <strong>LSSICE</strong>.</p>
+        <p>Existen distintos tipos de cookies según su finalidad: técnicas (necesarias para que el sitio funcione), de preferencias, analíticas y publicitarias. En este Sitio Web se utilizan únicamente cookies técnicas propias, que no requieren consentimiento (art. 22.2 LSSICE). No se utilizan cookies de terceros.</p>
       </section>
 
       <section id="cuales-usa" class="p-legal__section">
@@ -122,7 +131,10 @@
 
       <section id="terceros" class="p-legal__section">
         <h2 class="p-legal__section-title">3. Cookies de terceros</h2>
-        <p>iCoreByte <strong>no instala cookies de terceros</strong> en este Sitio Web. No se integran servicios de analítica (como Google Analytics), redes sociales, publicidad programática ni ningún otro servicio externo que requiera el uso de cookies propias o de terceros más allá de las estrictamente necesarias descritas en la sección anterior.</p>
+        <div class="p-legal__info-box">
+          <p>Este Sitio Web <strong>no utiliza cookies de terceros</strong>. No se emplean Google Analytics, Meta Pixel, Google Tag Manager ni ningún otro servicio de analítica o publicidad.</p>
+        </div>
+        <p>El mapa de localización de la sección de contacto se muestra mediante un <strong>iframe estático de OpenStreetMap</strong> (openstreetmap.org). OpenStreetMap no instala cookies propias ni realiza seguimiento de usuarios. Únicamente se registra una petición de red a los servidores de tile de OSMF para renderizar el mapa, sin que se transmitan datos personales identificativos.</p>
       </section>
 
       <section id="gestion" class="p-legal__section">

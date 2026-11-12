@@ -362,10 +362,19 @@
       display: inline-block;
       color: var(--color-white);
       margin-bottom: 1rem;
-      border: 1px solid var(--color-white);
+      border: 1px solid rgba(255, 255, 255, 0.4);
       padding: 5px 10px;
       border-radius: 9999px;
+      background: rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       opacity: 0; // GSAP anima a 1
+
+      .theme-light & {
+        background: rgba(255, 255, 255, 0.55);
+        border-color: rgba(255, 255, 255, 0.6);
+        color: #0f172a;
+      }
     }
 
     &__title {

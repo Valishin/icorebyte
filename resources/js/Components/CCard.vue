@@ -87,6 +87,10 @@
       border-radius: 8px;
       background-color: var(--color-primary);
       opacity: 0.9;
+
+      :deep(.c-card__icon) {
+        color: #fff;
+      }
     }
     &__icon {
       width: 24px;

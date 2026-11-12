@@ -32,6 +32,15 @@ import imageSolderingReal from '@assets/images/imageSolderingReal.jpg'
 import imageSupportItReal from '@assets/images/imageSupportItReal.jpg'
 
 import appsatProject from '@assets/images/appsatProject.png'
+import icbsatAnaliticas from '@assets/images/icbsat_analiticas.webp'
+import icbsatSectorElectricista from '@assets/images/icbsat_sector_electricista.jpg'
+import icbsatSectorIT from '@assets/images/icbsat_sector_it.jpg'
+import icbsatClientes from '@assets/images/icbsat_clientes.webp'
+import icbsatDashboard from '@assets/images/icbsat_dashboard.webp'
+import icbsatElectricista from '@assets/images/icbsatElectricista.webp'
+import icbsatIT from '@assets/images/icbsatIT.webp'
+import icbsatUsuarios from '@assets/images/icbsat_usuarios.webp'
+import logoTilleVolt from '@assets/images/logoTilleVolt.png'
 import makecoded from '@assets/images/makecoded.png'
 import imageMhdProject from '@assets/images/mhdProject.png'
 import validevProject from '@assets/images/validevProject.png'
@@ -76,5 +85,14 @@ export const images = {
   appsatProject,
   makecoded,
   vdBeauty,
-  imageAppSatAnalitics
+  imageAppSatAnalitics,
+  logoTilleVolt,
+  icbsatIT,
+  icbsatElectricista,
+  icbsatDashboard,
+  icbsatClientes,
+  icbsatAnaliticas,
+  icbsatUsuarios,
+  icbsatSectorIT,
+  icbsatSectorElectricista
 }

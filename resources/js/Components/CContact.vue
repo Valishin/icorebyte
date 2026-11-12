@@ -1,38 +1,14 @@
 <script setup lang="ts">
   import { useInView } from '@/composables/useInView'
-  import { useTheme } from '@/composables/useTheme'
   import { useForm, usePage } from '@inertiajs/vue3'
-  import { computed } from 'vue'
+  import { ref } from 'vue'
   import CButton from './CButton.vue'
   import CPlaceCard from './CPlaceCard.vue'
   import CTitle from './CTitle.vue'
 
   const { el: colsRef, isVisible: colsVisible } = useInView(0.1)
-  const { theme } = useTheme()
 
-  // Coordenadas iCoreByte — Carretera de Palamós 57, Sant Feliu de Guíxols
-  const MAP_CENTER = { lat: 41.783112276338564, lng: 3.036094176676324 }
-
-  // Estilos oscuros para que el mapa encaje con el diseño dark
-  const darkMapStyles = [
-    { elementType: 'geometry',              stylers: [{ color: '#0a1123' }] },
-    { elementType: 'labels.text.stroke',    stylers: [{ color: '#0a1123' }] },
-    { elementType: 'labels.text.fill',      stylers: [{ color: '#64748b' }] },
-    { featureType: 'road', elementType: 'geometry',        stylers: [{ color: '#1e2d4a' }] },
-    { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#0a1123' }] },
-    { featureType: 'road', elementType: 'labels.text.fill',stylers: [{ color: '#9ca3af' }] },
-    { featureType: 'road.highway', elementType: 'geometry',        stylers: [{ color: '#2563eb' }] },
-    { featureType: 'road.highway', elementType: 'geometry.stroke', stylers: [{ color: '#1e40af' }] },
-    { featureType: 'water',   elementType: 'geometry', stylers: [{ color: '#06080f' }] },
-    { featureType: 'water',   elementType: 'labels.text.fill', stylers: [{ color: '#3b82f6' }] },
-    { featureType: 'poi',     stylers: [{ visibility: 'off' }] },
-    { featureType: 'transit', stylers: [{ visibility: 'off' }] },
-    { featureType: 'administrative', elementType: 'geometry', stylers: [{ color: '#1e293b' }] },
-    { featureType: 'administrative.country', elementType: 'labels.text.fill', stylers: [{ color: '#9ca3af' }] },
-    { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#d1d5db' }] },
-  ]
-
-  const mapStyles = computed(() => theme.value === 'dark' ? darkMapStyles : [])
+  const mapActive = ref(false)
 
   const page = usePage<{
     flash: { success?: string }
@@ -211,6 +187,12 @@
                 </p>
               </div>
 
+              <!-- Aviso de privacidad -->
+              <p class="c-contact__privacy">
+                Al enviar este formulario aceptas el tratamiento de tus datos para gestionar tu consulta o presupuesto.
+                Consulta nuestra <a href="/politica-de-privacidad" class="c-contact__privacy-link">Política de Privacidad</a>.
+              </p>
+
               <!-- Botón -->
               <CButton
                 title="Enviar Mensaje"
@@ -226,23 +208,34 @@
         </div>
       </div>
     </div>
-    <!-- Mapa Google Maps -->
-    <div class="c-contact__map-wrapper o-container">
-      <GMapMap
-        class="c-contact__map"
-        :center="MAP_CENTER"
-        :zoom="16"
-        :options="{
-          styles: mapStyles,
-          disableDefaultUI: false,
-          zoomControl: true,
-          streetViewControl: false,
-          mapTypeControl: false,
-          fullscreenControl: true,
-        }"
+    <!-- Mapa OpenStreetMap -->
+    <div class="c-contact__map-wrapper o-container" @mouseleave="mapActive = false">
+      <div
+        v-if="!mapActive"
+        class="c-contact__map-overlay"
+        @click="mapActive = true"
+        aria-hidden="true"
       >
-        <GMapMarker :position="MAP_CENTER" :title="'iCoreByte — Carretera de Palamós 57'" />
-      </GMapMap>
+        <span class="c-contact__map-hint">Clic para interactuar con el mapa</span>
+      </div>
+      <iframe
+        class="c-contact__map"
+        src="https://www.openstreetmap.org/export/embed.html?bbox=3.030094%2C41.780112%2C3.042094%2C41.786112&amp;layer=mapnik&amp;marker=41.783112%2C3.036094"
+        title="Ubicación de iCoreByte — Carretera de Palamós 57, Sant Feliu de Guíxols"
+        loading="lazy"
+        referrerpolicy="no-referrer"
+      ></iframe>
+      <a
+        href="https://www.google.com/maps/dir/?api=1&destination=41.783112276338564,3.036094176676324"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="c-contact__directions"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polygon points="3 11 22 2 13 21 11 13 3 11"/>
+        </svg>
+        Cómo llegar
+      </a>
     </div>
   </div>
 </template>
@@ -433,6 +426,19 @@
       margin: 0;
     }
 
+    &__privacy {
+      font-size: 0.78rem;
+      color: var(--color-text-subtle);
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    &__privacy-link {
+      color: var(--color-primary);
+      text-decoration: none;
+      &:hover { text-decoration: underline; }
+    }
+
     &__submit {
       width: 100%;
       justify-content: center;
@@ -444,6 +450,7 @@
 
     &__map-wrapper {
       padding-bottom: 4rem;
+      position: relative;
     }
 
     &__map {
@@ -452,9 +459,64 @@
       border-radius: 1rem;
       overflow: hidden;
       border: 1px solid var(--color-border-subtle);
+      display: block;
 
       @include from-sm {
         height: 420px;
+      }
+    }
+
+    &__directions {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 3;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 18px;
+      border-radius: 999px;
+      background: var(--color-primary);
+      color: #fff;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      box-shadow: 0 4px 16px rgba(0, 107, 223, 0.4);
+      transition: filter 0.2s ease, transform 0.15s ease;
+
+      svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+      &:hover {
+        filter: brightness(1.15);
+        transform: translateX(-50%) translateY(-1px);
+      }
+    }
+
+    &__map-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      border-radius: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    &__map-hint {
+      background: rgba(0, 0, 0, 0.55);
+      color: #fff;
+      font-size: 0.8rem;
+      font-weight: 500;
+      padding: 6px 14px;
+      border-radius: 999px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+
+      .c-contact__map-overlay:hover & {
+        opacity: 1;
       }
     }
   }

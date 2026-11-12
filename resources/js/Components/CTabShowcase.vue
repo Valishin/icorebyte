@@ -159,7 +159,7 @@
       align-items: center;
 
       @include from-md {
-        grid-template-columns: 1fr 1.6fr;
+        grid-template-columns: 1fr 1.1fr;
         gap: 56px;
       }
     }

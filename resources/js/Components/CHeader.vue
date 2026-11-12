@@ -38,12 +38,18 @@
     document.removeEventListener('click', onClickOutside)
   })
 
-  const navItems = [
-    { label: 'Inicio', anchor: '#inicio' },
-    { label: 'Servicios', anchor: '#servicios' },
-    { label: 'Productos', anchor: '#productos' },
+  interface NavItem {
+    label: string
+    anchor?: string   // scroll en home
+    href?: string     // ruta real
+  }
+
+  const navItems: NavItem[] = [
+    { label: 'Inicio',    anchor: '#inicio' },
+    { label: 'Servicios', href: '/servicios' },
+    { label: 'Productos', href: '/productos' },
     { label: 'Desarrollo', anchor: '#desarrollo' },
-    { label: 'Contacto', anchor: '#contacto' }
+    { label: 'Contacto',  anchor: '#contacto' }
   ]
 
   const scrollTo = (anchor: string) => {
@@ -55,7 +61,13 @@
     if (el) el.scrollIntoView({ behavior: 'smooth' })
   }
 
-  const handleNav = (anchor: string) => {
+  const handleNav = (item: NavItem) => {
+    if (item.href) {
+      router.visit(item.href)
+      menuOpen.value = false
+      return
+    }
+    const anchor = item.anchor!
     if (window.location.pathname === '/') {
       scrollTo(anchor)
     } else {
@@ -63,6 +75,7 @@
         onSuccess: () => setTimeout(() => scrollTo(anchor), 80)
       })
     }
+    menuOpen.value = false
   }
 </script>
 
@@ -111,9 +124,9 @@
         <a
           v-for="item in navItems"
           :key="item.label"
-          :href="item.anchor"
+          :href="item.href ?? item.anchor"
           class="c-header__nav-link"
-          @click.prevent="handleNav(item.anchor)"
+          @click.prevent="handleNav(item)"
         >
           {{ item.label }}
         </a>
@@ -135,10 +148,10 @@
 
           <Transition name="dropdown">
             <div v-if="softwareOpen" class="c-header__dropdown-panel">
-              <a href="/sat-it" class="c-header__dropdown-item" @click.prevent="router.visit('/sat-it'); softwareOpen = false">
+              <a href="/icb-sat" class="c-header__dropdown-item" @click.prevent="router.visit('/icb-sat'); softwareOpen = false">
                 <span>
-                  <strong>SAT IT</strong>
-                  <span class="c-header__dropdown-item-desc">Gestión de talleres SAT</span>
+                  <strong>iCB SAT</strong>
+                  <span class="c-header__dropdown-item-desc">Gestión de servicios técnicos</span>
                 </span>
               </a>
             </div>
@@ -201,14 +214,9 @@
           <a
             v-for="item in navItems"
             :key="item.label"
-            :href="item.anchor"
+            :href="item.href ?? item.anchor"
             class="c-header__mobile-link"
-            @click.prevent="
-              () => {
-                handleNav(item.anchor)
-                menuOpen = false
-              }
-            "
+            @click.prevent="handleNav(item)"
           >
             {{ item.label }}
           </a>
@@ -228,11 +236,11 @@
             <Transition name="dropdown">
               <div v-if="softwareMobileOpen" class="c-header__mobile-sub">
                 <a
-                  href="/sat-it"
+                  href="/icb-sat"
                   class="c-header__mobile-sub-link"
-                  @click.prevent="router.visit('/sat-it'); menuOpen = false; softwareMobileOpen = false"
+                  @click.prevent="router.visit('/icb-sat'); menuOpen = false; softwareMobileOpen = false"
                 >
-                  SAT IT
+                  iCB SAT
                 </a>
               </div>
             </Transition>
@@ -455,7 +463,7 @@
       border-radius: 6px;
       font-size: 0.9375rem;
       font-weight: 600;
-      color: var(--color-white);
+      color: #fff;
       background: var(--color-primary);
       text-decoration: none;
       cursor: pointer;

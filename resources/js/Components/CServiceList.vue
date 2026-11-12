@@ -26,58 +26,66 @@
 
   const { el: sliderRef, isVisible: sliderVisible } = useInView(0.1)
 
-  const cards: { image: string; icon: IconKey; title: string; content: string }[] = [
+  const cards: { image: string; icon: IconKey; title: string; content: string; link: string }[] = [
     {
       image: images.imagePcRepairReal,
       icon: 'IconDesktop',
       title: 'PC de sobremesa',
-      content: 'Diagnóstico, reparación y montaje de equipos de sobremesa.'
+      content: 'Diagnóstico, reparación y montaje de equipos de sobremesa.',
+      link: '/servicios#pc-sobremesa'
     },
     {
       image: images.imageLaptopRepairReal,
       icon: 'IconLaptop',
       title: 'Portátiles',
-      content: 'Reparación, mantenimiento y venta de portátiles de todas las marcas.'
+      content: 'Reparación, mantenimiento y venta de portátiles de todas las marcas.',
+      link: '/servicios#portatiles'
     },
     {
       image: images.imagePhoneRepairReal,
       icon: 'IconMobile',
       title: 'Móviles',
-      content: 'Reparamos y optimizamos dispositivos móviles de todas las marcas.'
+      content: 'Reparamos y optimizamos dispositivos móviles de todas las marcas.',
+      link: '/servicios#moviles-tablets'
     },
     {
       image: images.imageIpad,
       icon: 'IconTablet',
       title: 'Tablets',
-      content: 'Reparamos y optimizamos tablets de todas las marcas.'
+      content: 'Reparamos y optimizamos tablets de todas las marcas.',
+      link: '/servicios#moviles-tablets'
     },
     {
       image: images.imageSolderingReal,
       icon: 'IconElectronic',
       title: 'Electrónica en placa',
       content:
-        'Reparación a nivel de componente en placas base. Microsoldadura y diagnóstico avanzado con osciloscopio.'
+        'Reparación a nivel de componente en placas base. Microsoldadura y diagnóstico avanzado con osciloscopio.',
+      link: '/servicios#microsoldadura'
     },
     {
       image: images.imagePrinterRepairReal,
       icon: 'IconPrinter',
       title: 'Impresoras',
       content:
-        'Reparación, mantenimiento y configuración de impresoras láser, inyección de tinta y multifunción.'
+        'Reparación, mantenimiento y configuración de impresoras láser, inyección de tinta y multifunción.',
+      link: '/servicios#mantenimiento-it'
     },
     {
       image: images.imageItMaintanceReal,
       icon: 'IconMaintenance',
       title: 'Mantenimiento IT',
       content:
-        'Servicios de mantenimiento informático preventivo y correctivo para particulares y empresas.'
+        'Servicios de mantenimiento informático preventivo y correctivo para particulares y empresas.',
+      link: '/servicios#mantenimiento-it'
     },
     {
       image: images.imageSupportItReal,
       icon: 'IconSupport',
       title: 'Soporte Empresarial',
       content:
-        'Planes de mantenimiento a medida para empresas. Soporte técnico remoto y presencial con SLA garantizado.'
+        'Planes de mantenimiento a medida para empresas. Soporte técnico remoto y presencial con SLA garantizado.',
+      link: '/servicios#soporte-empresarial'
     }
   ]
 </script>
@@ -142,9 +150,15 @@
               :iconInImage="card.icon"
               :title="card.title"
               :content="card.content"
+              :link="card.link"
             />
           </SwiperSlide>
         </Swiper>
+        <div class="c-service-list__view-all">
+          <a href="/servicios" class="c-service-list__view-all-link">
+            Ver todos los servicios →
+          </a>
+        </div>
         </div>
       </div>
     </div>
@@ -190,6 +204,35 @@
       justify-content: space-between;
       width: 100%;
       bottom: -30px;
+    }
+
+    &__view-all {
+      display: flex;
+      justify-content: center;
+      padding-top: 32px;
+    }
+
+    &__view-all-link {
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 28px;
+      border-radius: 999px;
+      border: 1px solid var(--color-primary);
+      color: var(--color-primary);
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.2s ease, color 0.2s ease;
+
+      &:hover {
+        background: var(--color-primary);
+        color: #fff;
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 3px;
+      }
     }
 
     &__nav-btn {

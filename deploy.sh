@@ -79,6 +79,8 @@ ssh -p $SSH_PORT $SSH_USER@$SSH_HOST << EOF
   if git diff HEAD@{1} --name-only | grep -q "composer.lock"; then
     echo "  → composer.lock cambió, instalando dependencias..."
     composer install --optimize-autoloader --no-dev
+    echo "  → Publicando assets de Filament..."
+    $PHP artisan filament:assets
   fi
 
   # Copia build a public_html
@@ -100,6 +102,7 @@ ssh -p $SSH_PORT $SSH_USER@$SSH_HOST << EOF
   echo "  → Optimizando icorebyte..."
   $PHP artisan optimize:clear
   $PHP artisan optimize
+  $PHP artisan filament:optimize
 
   echo ""
   echo "✅ Servidor actualizado correctamente."

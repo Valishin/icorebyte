@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { useInView } from '@/composables/useInView'
-  import { useToast } from '@/composables/useToast'
+  import { router } from '@inertiajs/vue3'
   import { images } from '@/constants/images'
   import { onMounted, onUnmounted, ref } from 'vue'
   import { registerParallax, type ParallaxEntry } from '../composables/useParallaxLoop'
@@ -10,8 +10,7 @@
   import CTitle from './CTitle.vue'
 
   const { el: wrapperRef, isVisible: wrapperVisible } = useInView(0.1)
-  const { show } = useToast()
-  const onShopClick = () => show('info', 'La tienda online estará disponible próximamente.')
+  const goToProducts = () => router.visit('/productos')
 
   // ── Parallax imagen tienda ────────────────────────────────
   const SHOP_PARALLAX_SPEED = 0.08
@@ -117,22 +116,22 @@
               <CCategoryGrid
                 title="Categorías de productos"
                 :items="[
-                  { icon: 'IconLaptop', title: 'Portátiles', enlace: '#' },
-                  { icon: 'IconDesktop', title: 'Sobremesa', enlace: '#' },
-                  { icon: 'IconElectronic', title: 'Componentes', enlace: '#' },
-                  { icon: 'IconCable', title: 'Accesorios', enlace: '#' },
-                  { icon: 'IconPrinter', title: 'Impresoras', enlace: '#' },
-                  { icon: 'IconCartridge', title: 'Consumibles', enlace: '#' },
-                  { icon: 'IconHarddisk', title: 'Almacenamiento', enlace: '#' },
-                  { icon: 'IconSoftware', title: 'Software', enlace: '#' }
+                  { icon: 'IconLaptop',    title: 'Portátiles',     enlace: '/productos#portatiles' },
+                  { icon: 'IconDesktop',   title: 'Sobremesa',      enlace: '/productos#sobremesa' },
+                  { icon: 'IconElectronic',title: 'Componentes',    enlace: '/productos#componentes' },
+                  { icon: 'IconCable',     title: 'Accesorios',     enlace: '/productos#accesorios' },
+                  { icon: 'IconPrinter',   title: 'Impresoras',     enlace: '/productos#impresoras' },
+                  { icon: 'IconCartridge', title: 'Consumibles',    enlace: '/productos#consumibles' },
+                  { icon: 'IconHarddisk',  title: 'Almacenamiento', enlace: '/productos#almacenamiento' },
+                  { icon: 'IconSoftware',  title: 'Software',       enlace: '/productos#software' }
                 ]"
               />
               <div class="c-shop__wrapper-button">
                 <CButton
-                  title="Ir a la tienda"
+                  title="Ver todos los productos"
                   :icon="'IconShop'"
                   :color="'gradient'"
-                  @click="onShopClick"
+                  @click="goToProducts"
                 />
               </div>
             </div>
