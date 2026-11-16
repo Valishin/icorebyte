@@ -7,7 +7,7 @@
 
 # — Configuración —
 SSH_USER="u863791557"
-SSH_HOST="icorebyte.com"
+SSH_HOST="195.35.49.28"
 SSH_PORT="65002"
 REMOTE_PATH="~/domains/icorebyte.com/icorebyte"
 REMOTE_PUBLIC="~/domains/icorebyte.com/public_html"

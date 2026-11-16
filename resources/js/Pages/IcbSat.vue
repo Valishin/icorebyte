@@ -172,9 +172,6 @@
             <button class="icb-showcase__cta icb-showcase__cta--primary" @click="openModal">
               Contáctanos →
             </button>
-            <a href="/demo" class="icb-showcase__cta icb-showcase__cta--ghost">
-              Ver Demo
-            </a>
           </div>
         </div>
 
