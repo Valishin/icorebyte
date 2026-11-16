@@ -98,7 +98,7 @@ class TelegramService
 
     /**
      * Elimina un mensaje del chat de Telegram.
-     * Devuelve true si se borró, null si Telegram lo rechaza (ej. ya eliminado, no encontrado).
+     * Devuelve [] (array vacío) si se borró correctamente, null si Telegram lo rechaza.
      *
      * @return array<string, mixed>|null
      */
@@ -186,12 +186,17 @@ class TelegramService
         if (! is_array($body) || ! ($body['ok'] ?? false)) {
             Log::warning("TelegramService::{$method} — respuesta no OK", [
                 'status'      => $response->status(),
-                'description' => $body['description'] ?? '(sin descripción)',
+                'description' => is_array($body) ? ($body['description'] ?? '(sin descripción)') : '(respuesta inválida)',
             ]);
             return null;
         }
-        /** @var array<string, mixed> $result */
         $result = $body['result'] ?? [];
+        // Telegram devuelve true (booleano) en métodos como setWebhook, deleteWebhook,
+        // deleteMessage y answerCallbackQuery. Lo normalizamos a [] para respetar ?array.
+        if (! is_array($result)) {
+            return [];
+        }
+        /** @var array<string, mixed> $result */
         return $result;
     }
 }
