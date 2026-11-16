@@ -93,14 +93,15 @@
     @media (max-width: 480px) {
       width: 100%;
       border-radius: 20px 20px 0 0;
-      // Use visualViewport height when available (iOS keyboard avoidance)
-      height: var(--chat-visual-height, 100dvh);
-      max-height: var(--chat-visual-height, 100dvh);
-      bottom: var(--chat-visual-offset, 0px);
+      // JS (setupVisualViewport) sobreescribe bottom/height cuando el teclado está visible.
+      // svh = small viewport height (excluye barra URL y teclado en navegadores modernos).
+      bottom: 0;
+      height: 100svh;
+      max-height: 100svh;
 
       &--form {
         height: auto;
-        max-height: var(--chat-visual-height, 90dvh);
+        max-height: 100svh;
       }
     }
   }

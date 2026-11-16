@@ -725,12 +725,41 @@ function onDocKeydown(e) {
   if (e.key === 'Escape') emit('close')
 }
 
-// ── iOS visual viewport ───────────────────────────────────────────────────────
+// ── iOS/Android visual viewport (teclado virtual) ────────────────────────────
+// En móvil, `position:fixed; bottom:0` se ancla al layout viewport (incluye el
+// área del teclado). Cuando aparece el teclado el diálogo queda tapado.
+// Fix: detectar la altura del teclado y aplicar bottom+height directamente
+// al elemento, sobreescribiendo el CSS solo cuando el teclado está visible.
 function setupVisualViewport() {
   if (!window.visualViewport) return
   const update = () => {
-    document.documentElement.style.setProperty('--chat-visual-height', `${window.visualViewport.height}px`)
-    document.documentElement.style.setProperty('--chat-visual-offset', `${window.visualViewport.offsetTop}px`)
+    const vv  = window.visualViewport
+    const el  = dialogRef.value
+    if (!el) return
+
+    // Solo en pantallas estrechas (móvil)
+    if (window.innerWidth > 480) {
+      el.style.bottom    = ''
+      el.style.height    = ''
+      el.style.maxHeight = ''
+      return
+    }
+
+    // Altura del teclado = diferencia entre layout viewport y visual viewport
+    const kbHeight = Math.max(0, window.innerHeight - vv.offsetTop - vv.height)
+
+    // Desplazar el diálogo por encima del teclado
+    el.style.bottom = kbHeight + 'px'
+
+    if (kbHeight > 0) {
+      // Teclado visible: ajustar altura al espacio disponible
+      el.style.height    = vv.height + 'px'
+      el.style.maxHeight = vv.height + 'px'
+    } else {
+      // Sin teclado: dejar que el CSS controle altura (auto en form, 100svh en chat)
+      el.style.height    = ''
+      el.style.maxHeight = ''
+    }
   }
   window.visualViewport.addEventListener('resize', update)
   window.visualViewport.addEventListener('scroll', update)
