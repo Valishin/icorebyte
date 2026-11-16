@@ -7,7 +7,8 @@
     "build": "vite build",
     "test": "vitest run",
     "test:watch": "vitest",
-    "deploy": "./deploy.sh"
+    "deploy": "./deploy.sh",
+    "deploy:setup-ssh": "./deploy-setup-ssh.sh"
   },
   "devDependencies": {
     "@inertiajs/vue3": "^2.0.0",

@@ -3,6 +3,9 @@
 # ============================================
 # 🚀 DEPLOY SCRIPT — icorebyte.com
 # Uso: pnpm run deploy  o  ./deploy.sh
+#
+# Para no introducir contraseña en cada deploy:
+#   pnpm run deploy:setup-ssh   (una sola vez)
 # ============================================
 
 # — Configuración —
@@ -13,9 +16,28 @@ REMOTE_PATH="~/domains/icorebyte.com/icorebyte"
 REMOTE_PUBLIC="~/domains/icorebyte.com/public_html"
 PHP="/opt/alt/php84/usr/bin/php"
 
+# — ControlMaster: una sola conexión SSH para todo el deploy —
+SSH_SOCKET="/tmp/ssh-icorebyte-${SSH_USER}@${SSH_HOST}:${SSH_PORT}"
+SSH_OPTS="-p $SSH_PORT -o ControlMaster=auto -o ControlPath=$SSH_SOCKET -o ControlPersist=600 -o BatchMode=no"
+
+cleanup() {
+  ssh -O exit -o ControlPath="$SSH_SOCKET" "$SSH_USER@$SSH_HOST" 2>/dev/null
+}
+trap cleanup EXIT
+
 echo ""
 echo "🚀 Iniciando deploy a producción..."
 echo "======================================"
+
+# Abrir la conexión master (pide contraseña una sola vez si no hay clave SSH)
+echo ""
+echo "🔐 Conectando al servidor (una sola vez)..."
+ssh -f -N $SSH_OPTS $SSH_USER@$SSH_HOST
+if [ $? -ne 0 ]; then
+  echo "❌ No se pudo conectar al servidor."
+  exit 1
+fi
+echo "✅ Conexión establecida."
 
 # — PASO 1: Build de Vue/Vite en local —
 echo ""
@@ -31,7 +53,7 @@ echo "✅ Build generado correctamente."
 # — PASO 2: Subir carpeta build al servidor —
 echo ""
 echo "📤 [2/4] Subiendo assets al servidor..."
-scp -P $SSH_PORT -r ./public/build $SSH_USER@$SSH_HOST:/home/$SSH_USER/domains/icorebyte.com/icorebyte/public/
+scp $SSH_OPTS -r ./public/build $SSH_USER@$SSH_HOST:/home/$SSH_USER/domains/icorebyte.com/icorebyte/public/
 
 if [ $? -ne 0 ]; then
   echo "❌ Error subiendo el build. Deploy cancelado."
@@ -53,7 +75,7 @@ STATIC_FILES=(
 )
 for FILE in "${STATIC_FILES[@]}"; do
   if [ -f "./$FILE" ]; then
-    scp -P $SSH_PORT "./$FILE" $SSH_USER@$SSH_HOST:/home/$SSH_USER/domains/icorebyte.com/public_html/
+    scp $SSH_OPTS "./$FILE" $SSH_USER@$SSH_HOST:/home/$SSH_USER/domains/icorebyte.com/public_html/
     echo "  ✅ $(basename $FILE)"
   else
     echo "  ⚠️  No encontrado: $FILE (saltando)"
@@ -63,7 +85,7 @@ done
 # — PASO 3: En el servidor: git pull + copiar build + optimizar —
 echo ""
 echo "🔄 [3/5] Actualizando servidor..."
-ssh -p $SSH_PORT $SSH_USER@$SSH_HOST << EOF
+ssh $SSH_OPTS $SSH_USER@$SSH_HOST << EOF
   set -e
 
   # Usa PHP 8.4
