@@ -5,6 +5,11 @@ import { defineConfig } from 'vite'
 import svgLoader from 'vite-svg-loader'
 
 export default defineConfig({
+  test: {
+    environment: 'jsdom',
+    globals: false,
+    include: ['resources/js/**/__tests__/**/*.{test,spec}.js'],
+  },
   plugins: [
     laravel({
       input: 'resources/js/app.js',

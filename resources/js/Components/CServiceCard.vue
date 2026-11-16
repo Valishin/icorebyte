@@ -211,16 +211,6 @@
       padding: 0.25rem 0.75rem;
       border-radius: 8px;
       border: 1px solid var(--color-primary);
-      transition:
-        background-color 0.3s ease,
-        color 0.3s ease;
-
-      &:hover {
-        background-color: var(--color-primary);
-        color: var(--color-white);
-
-        .theme-light & { color: var(--color-black); }
-      }
     }
   }
 

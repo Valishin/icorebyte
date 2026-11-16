@@ -20,10 +20,10 @@ echo "======================================"
 # — PASO 1: Build de Vue/Vite en local —
 echo ""
 echo "📦 [1/4] Generando build de Vue..."
-npm run build
+pnpm run build
 
 if [ $? -ne 0 ]; then
-  echo "❌ Error en npm run build. Deploy cancelado."
+  echo "❌ Error en pnpm run build. Deploy cancelado."
   exit 1
 fi
 echo "✅ Build generado correctamente."
@@ -79,6 +79,8 @@ ssh -p $SSH_PORT $SSH_USER@$SSH_HOST << EOF
   if git diff HEAD@{1} --name-only | grep -q "composer.lock"; then
     echo "  → composer.lock cambió, instalando dependencias..."
     composer install --optimize-autoloader --no-dev
+    echo "  → Publicando assets de Filament..."
+    $PHP artisan filament:assets
   fi
 
   # Copia build a public_html
@@ -100,6 +102,7 @@ ssh -p $SSH_PORT $SSH_USER@$SSH_HOST << EOF
   echo "  → Optimizando icorebyte..."
   $PHP artisan optimize:clear
   $PHP artisan optimize
+  $PHP artisan filament:optimize
 
   echo ""
   echo "✅ Servidor actualizado correctamente."

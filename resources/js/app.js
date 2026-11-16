@@ -2,6 +2,25 @@ import "../css/app.css";
 import "../scss/main.scss";
 import "./bootstrap";
 
+// Chat widget — lazy, after page load, not on admin panel, only when enabled.
+// chat_enabled is a runtime Inertia shared prop — no recompile needed to toggle.
+const _inertiaPage = JSON.parse(document.getElementById('app')?.dataset?.page || '{}')
+const CHAT_ENABLED = _inertiaPage?.props?.chat_enabled !== false
+if (CHAT_ENABLED && !window.location.pathname.startsWith('/admin')) {
+  const idle = window.requestIdleCallback ?? ((cb) => setTimeout(cb, 2000))
+  idle(() => {
+    Promise.all([
+      import('./chat/ChatFab.vue'),
+      import('vue'),
+    ]).then(([{ default: ChatFab }, { createApp }]) => {
+      const el = document.createElement('div')
+      el.id = 'chat-widget-root'
+      document.body.appendChild(el)
+      createApp(ChatFab).mount('#chat-widget-root')
+    }).catch(() => { /* noop — widget is non-critical */ })
+  })
+}
+
 import VueGoogleMaps from "@fawmi/vue-google-maps";
 import { createInertiaApp } from "@inertiajs/vue3";
 import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";

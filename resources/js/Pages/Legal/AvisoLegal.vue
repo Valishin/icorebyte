@@ -31,6 +31,10 @@
               <dd>iCoreByte</dd>
             </div>
             <div class="p-legal__data-row">
+              <dt>NIF</dt>
+              <dd>49298273G</dd>
+            </div>
+            <div class="p-legal__data-row">
               <dt>Actividad</dt>
               <dd>Reparación de equipos informáticos, venta de productos tecnológicos y desarrollo web</dd>
             </div>

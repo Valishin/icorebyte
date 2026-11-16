@@ -218,7 +218,35 @@ chmod -R 775 bootstrap/cache
 ```bash
 php artisan optimize:clear
 php artisan optimize
+php artisan filament:assets    # publica CSS/JS/fonts del panel en public/
+php artisan filament:optimize  # caché de componentes e iconos Blade
 ```
+
+---
+
+## 👤 Paso 11b — Crear el primer agente del panel
+
+```bash
+php artisan chat:create-agent
+```
+
+El comando pide nombre, email y contraseña, y crea el usuario con `is_agent=true`.  
+La primera vez que el agente inicie sesión en `/admin` deberá escanear el código QR de autenticación en dos pasos con una app TOTP (Google Authenticator, Aegis, etc.).
+
+**Guarda los códigos de recuperación** que aparecen tras la configuración inicial en un lugar seguro (gestor de contraseñas). Son los únicos que permiten recuperar el acceso si pierdes el dispositivo con la app TOTP.
+
+---
+
+## 🔑 Aviso crítico: APP_KEY
+
+**Nunca rotar `APP_KEY` en producción** una vez que haya datos cifrados en la base de datos.
+
+El panel de chat cifra automáticamente los campos `app_authentication_secret` y `app_authentication_recovery_codes` del 2FA con la `APP_KEY`. Si la rotas (p.ej., ejecutando `php artisan key:generate`), todos los secretos TOTP quedan irrecuperables y los agentes pierden acceso al panel.
+
+Si necesitas rotar la clave por razones de seguridad:
+1. Desactiva temporalmente el 2FA de cada agente desde la BD.
+2. Genera la nueva `APP_KEY`.
+3. Los agentes reconfiguraron el 2FA en el siguiente inicio de sesión.
 
 ---
 
@@ -243,6 +271,10 @@ En hPanel → **SSL** → activa **Let's Encrypt** gratuito para tudominio.com.
 | ☐ | `storage:link` creado |
 | ☐ | Carpetas de storage creadas con permisos 775 |
 | ☐ | `php artisan optimize` ejecutado |
+| ☐ | `php artisan filament:assets` ejecutado |
+| ☐ | Primer agente creado con `chat:create-agent` |
+| ☐ | Códigos de recuperación 2FA guardados en lugar seguro |
+| ☐ | `APP_KEY` anotada — **no rotar** |
 | ☐ | SSL activado |
 
 ---

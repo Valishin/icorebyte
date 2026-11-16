@@ -43,6 +43,22 @@
           Tu centro integral de soluciones informáticas. Reparación, venta de productos y desarrollo
           web con la máxima calidad y profesionalidad.
         </p>
+        <div class="c-footer__social">
+          <a
+            href="https://www.instagram.com/icorebyte/?hl=es"
+            class="c-footer__social-link"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram de iCoreByte"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+              <circle cx="12" cy="12" r="4"/>
+              <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/>
+            </svg>
+            <span>@icorebyte</span>
+          </a>
+        </div>
       </div>
 
       <!-- Servicios -->
@@ -60,7 +76,7 @@
         <h4 class="c-footer__col-title">Productos</h4>
         <ul class="c-footer__list">
           <li v-for="item in products" :key="item">
-            <a href="#productos" class="c-footer__link">{{ item }}</a>
+            <a href="/productos" class="c-footer__link">{{ item }}</a>
           </li>
         </ul>
       </div>
@@ -174,6 +190,31 @@
       color: var(--color-text-muted);
       line-height: 1.6;
       max-width: 280px;
+    }
+
+    &__social {
+      display: flex;
+      gap: 12px;
+    }
+
+    &__social-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 14px 7px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--color-border-subtle);
+      color: var(--color-text-muted);
+      font-size: 0.85rem;
+      text-decoration: none;
+      transition: color 0.2s, border-color 0.2s;
+
+      svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+      &:hover {
+        color: #e1306c;
+        border-color: #e1306c;
+      }
     }
 
     &__col {

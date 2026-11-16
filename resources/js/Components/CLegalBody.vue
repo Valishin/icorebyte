@@ -128,6 +128,13 @@
       }
     }
 
+    &__subsection-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--color-white);
+      margin: 1.5rem 0 0.75rem;
+    }
+
     &__list {
       list-style: none;
       padding: 0;
