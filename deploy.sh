@@ -18,7 +18,9 @@ PHP="/opt/alt/php84/usr/bin/php"
 
 # — ControlMaster: una sola conexión SSH para todo el deploy —
 SSH_SOCKET="/tmp/ssh-icorebyte-${SSH_USER}@${SSH_HOST}:${SSH_PORT}"
-SSH_OPTS="-p $SSH_PORT -o ControlMaster=auto -o ControlPath=$SSH_SOCKET -o ControlPersist=600 -o BatchMode=no"
+SSH_COMMON="-o ControlMaster=auto -o ControlPath=$SSH_SOCKET -o ControlPersist=600 -o BatchMode=no"
+SSH_OPTS="-p $SSH_PORT $SSH_COMMON"   # ssh  usa -p (minúscula)
+SCP_OPTS="-P $SSH_PORT $SSH_COMMON"   # scp  usa -P (mayúscula)
 
 cleanup() {
   ssh -O exit -o ControlPath="$SSH_SOCKET" "$SSH_USER@$SSH_HOST" 2>/dev/null
@@ -53,7 +55,7 @@ echo "✅ Build generado correctamente."
 # — PASO 2: Subir carpeta build al servidor —
 echo ""
 echo "📤 [2/4] Subiendo assets al servidor..."
-scp $SSH_OPTS -r ./public/build $SSH_USER@$SSH_HOST:/home/$SSH_USER/domains/icorebyte.com/icorebyte/public/
+scp $SCP_OPTS -r ./public/build $SSH_USER@$SSH_HOST:/home/$SSH_USER/domains/icorebyte.com/icorebyte/public/
 
 if [ $? -ne 0 ]; then
   echo "❌ Error subiendo el build. Deploy cancelado."
@@ -75,7 +77,7 @@ STATIC_FILES=(
 )
 for FILE in "${STATIC_FILES[@]}"; do
   if [ -f "./$FILE" ]; then
-    scp $SSH_OPTS "./$FILE" $SSH_USER@$SSH_HOST:/home/$SSH_USER/domains/icorebyte.com/public_html/
+    scp $SCP_OPTS "./$FILE" $SSH_USER@$SSH_HOST:/home/$SSH_USER/domains/icorebyte.com/public_html/
     echo "  ✅ $(basename $FILE)"
   else
     echo "  ⚠️  No encontrado: $FILE (saltando)"
