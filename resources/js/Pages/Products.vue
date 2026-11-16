@@ -7,7 +7,7 @@
   import PublicLayout from '@/Layouts/PublicLayout.vue'
   import { productCategories, refurbishedEnabled } from '@/data/products'
   import { images } from '@/constants/images'
-  import { Head } from '@inertiajs/vue3'
+  import { Head, useForm } from '@inertiajs/vue3'
   import { onMounted, onUnmounted, ref } from 'vue'
   import { registerParallax, type ParallaxEntry } from '@/composables/useParallaxLoop'
 
@@ -71,10 +71,17 @@
     { question: '¿Puedo reservar un producto?',           answer: 'Sí, puedes consultarnos por WhatsApp o teléfono y te avisamos cuando el producto esté disponible o lo reservamos para ti.' },
     { question: '¿Qué garantía tienen los productos?',    answer: 'Todos los productos nuevos incluyen la garantía oficial del fabricante. Gestionamos cualquier incidencia de garantía directamente desde nuestra tienda.' },
     { question: '¿Qué formas de pago aceptáis?',          answer: 'Aceptamos efectivo, tarjeta, Bizum y transferencia bancaria.' },
-    { question: '¿Realizáis envíos?',                     answer: 'TODO: confirmar política de envíos.' },
-    { question: '¿Recogéis equipos viejos para reciclar?',answer: 'TODO: confirmar política de reciclaje / punto limpio.' },
+    { question: '¿Realizáis envíos?',                     answer: 'Sí realizamos envíos, aunque el coste depende de la zona y del tipo de producto. Consúltanos antes de hacer tu pedido y te calculamos el coste de envío sin compromiso.' },
     { question: '¿Hacéis montajes a medida?',             answer: 'Sí. Puedes traernos los componentes o comprarlos en nuestra tienda y nos encargamos del montaje, cableado y configuración inicial.' },
   ]
+
+  // ── Modal presupuesto empresas ────────────────────────────
+  const modalOpen = ref(false)
+  const modalSent = ref(false)
+  const modalForm = useForm({ name: '', email: '', phone: '', service: 'Equipamiento para oficina', message: '' })
+  const sendModal  = () => modalForm.post(route('contact.send'), { preserveScroll: true, onSuccess: () => { modalSent.value = true; modalForm.reset() } })
+  const openModal  = () => { modalOpen.value = true;  document.body.style.overflow = 'hidden' }
+  const closeModal = () => { modalOpen.value = false; document.body.style.overflow = ''; modalSent.value = false }
 
   const trustItems = [
     { icon: 'IconSupport'     as const, label: 'Valoraciones 5 estrellas en Google' },
@@ -203,13 +210,15 @@
               <p v-else class="p-categories__card-brands p-categories__card-brands--todo">
                 <!-- TODO confirmar marcas disponibles -->
               </p>
-              <a
-                :href="`${WA_BASE}${cat.ctaMessage}`"
-                class="p-categories__card-cta"
-                target="_blank"
-                rel="noopener noreferrer"
-              >Consultar por WhatsApp</a>
             </article>
+          </div>
+          <div class="p-categories__footer">
+            <a
+              :href="WA_GENERAL"
+              class="p-categories__cta"
+              target="_blank"
+              rel="noopener noreferrer"
+            >Consultar disponibilidad por WhatsApp →</a>
           </div>
         </div>
       </section>
@@ -257,27 +266,31 @@
 
       <!-- ── PCs a medida ───────────────────────────────────── -->
       <section class="p-custom-pc">
-        <div class="o-container">
-          <CTitle
-            overline="// MONTAJES"
-            title="PCs a medida"
-            description="Gaming, oficina o workstation. Diseñamos la build perfecta para ti."
-            color="primary"
-          />
-          <div class="p-custom-pc__grid">
-            <div v-for="build in pcBuilds" :key="build.title" class="p-custom-pc__card">
-              <h3 class="p-custom-pc__card-title">{{ build.title }}</h3>
-              <p class="p-custom-pc__card-desc">{{ build.desc }}</p>
-              <a
-                :href="WA_BASE + 'Hola%2C%20me%20interesa%20un%20' + encodeURIComponent(build.title) + '%20a%20medida'"
-                class="p-custom-pc__card-cta"
-                target="_blank"
-                rel="noopener noreferrer"
-              >Consultar →</a>
+        <div class="p-custom-pc__parallax">
+          <div class="p-custom-pc__parallax-bg" :style="{ backgroundImage: `url(${images.imagePcGaming})` }" aria-hidden="true" />
+          <div class="p-custom-pc__parallax-overlay" aria-hidden="true" />
+          <div class="p-custom-pc__parallax-content o-container">
+            <CTitle
+              overline="// MONTAJES"
+              title="PCs a medida"
+              description="Gaming, oficina o workstation. Diseñamos la build perfecta para ti."
+              color="primary"
+            />
+            <div class="p-custom-pc__grid">
+              <div v-for="build in pcBuilds" :key="build.title" class="p-custom-pc__card">
+                <h3 class="p-custom-pc__card-title">{{ build.title }}</h3>
+                <p class="p-custom-pc__card-desc">{{ build.desc }}</p>
+                <a
+                  :href="WA_BASE + 'Hola%2C%20me%20interesa%20un%20' + encodeURIComponent(build.title) + '%20a%20medida'"
+                  class="p-custom-pc__card-cta"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >Consultar →</a>
+              </div>
             </div>
-          </div>
-          <div class="p-custom-pc__footer">
-            <a href="/servicios" class="p-custom-pc__link">Ver también nuestros servicios de reparación →</a>
+            <div class="p-custom-pc__footer">
+              <a href="/servicios" class="p-custom-pc__link">Ver también nuestros servicios de reparación →</a>
+            </div>
           </div>
         </div>
       </section>
@@ -285,30 +298,42 @@
       <!-- ── Empresas ───────────────────────────────────────── -->
       <section class="p-business">
         <div class="o-container">
-          <div class="p-business__box">
-            <div class="p-business__text">
-              <p class="p-business__overline">// EMPRESAS</p>
-              <h2 class="p-business__title">Equipamiento para tu oficina</h2>
-              <p class="p-business__desc">
-                Suministramos y configuramos equipos para empresas y autónomos: PCs, portátiles,
-                impresoras, consumibles y periféricos. Presupuesto personalizado, factura con
-                desglose de IVA y suministro continuo de consumibles.
-              </p>
-              <ul class="p-business__list">
-                <li>Presupuestos para equipar oficinas completas</li>
-                <li>Factura a empresa con IVA desglosado</li>
-                <li>Suministro recurrente de consumibles</li>
-                <li>Soporte técnico incluido con plan de mantenimiento</li>
-              </ul>
-            </div>
+          <div class="p-business__card">
+            <p class="p-business__overline">// EMPRESAS</p>
+            <h2 class="p-business__title">Equipamiento para tu oficina</h2>
+            <p class="p-business__desc">
+              Suministramos y configuramos equipos para empresas y autónomos: PCs, portátiles,
+              impresoras, consumibles y periféricos. Presupuesto personalizado, factura con
+              desglose de IVA y suministro continuo de consumibles.
+            </p>
+            <ul class="p-business__list">
+              <li>
+                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8l3.5 3.5L13 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Presupuestos para equipar oficinas completas
+              </li>
+              <li>
+                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8l3.5 3.5L13 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Factura a empresa con IVA desglosado
+              </li>
+              <li>
+                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8l3.5 3.5L13 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Suministro recurrente de consumibles
+              </li>
+              <li>
+                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8l3.5 3.5L13 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Soporte técnico incluido con plan de mantenimiento
+              </li>
+            </ul>
             <div class="p-business__ctas">
-              <a href="/contacto" class="p-business__cta p-business__cta--primary">Solicitar presupuesto</a>
+              <button class="p-business__cta p-business__cta--primary" @click="openModal">
+                Solicitar presupuesto →
+              </button>
               <a
                 :href="WA_BASE + 'Hola%2C%20necesito%20equipamiento%20para%20mi%20empresa'"
                 class="p-business__cta p-business__cta--ghost"
                 target="_blank"
                 rel="noopener noreferrer"
-              >Consultar por WhatsApp</a>
+              >WhatsApp</a>
             </div>
           </div>
         </div>
@@ -407,6 +432,68 @@
 
     </div>
   </PublicLayout>
+
+  <!-- ── Modal presupuesto empresas ──────────────────────────── -->
+  <Teleport to="body">
+    <Transition name="p-modal">
+      <div v-if="modalOpen" class="p-modal-overlay" @click.self="closeModal">
+        <div class="p-modal" role="dialog" aria-modal="true" aria-label="Formulario de presupuesto">
+
+          <button class="p-modal__close" @click="closeModal" aria-label="Cerrar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+
+          <div v-if="!modalSent" class="p-modal__body">
+            <p class="p-modal__overline">// EMPRESAS</p>
+            <h3 class="p-modal__title">Consultar presupuesto</h3>
+            <p class="p-modal__desc">Cuéntanos qué necesitas equipar y te preparamos un presupuesto personalizado sin compromiso.</p>
+
+            <form @submit.prevent="sendModal" novalidate class="p-modal__form">
+              <div class="p-modal__row">
+                <div class="p-modal__field">
+                  <label class="p-modal__label">Nombre / Empresa</label>
+                  <input v-model="modalForm.name" type="text" placeholder="Tu nombre o empresa" class="p-modal__input" />
+                  <p v-if="modalForm.errors.name" class="p-modal__error">{{ modalForm.errors.name }}</p>
+                </div>
+                <div class="p-modal__field">
+                  <label class="p-modal__label">Email</label>
+                  <input v-model="modalForm.email" type="email" placeholder="tu@email.com" class="p-modal__input" />
+                  <p v-if="modalForm.errors.email" class="p-modal__error">{{ modalForm.errors.email }}</p>
+                </div>
+              </div>
+              <div class="p-modal__field">
+                <label class="p-modal__label">Teléfono (opcional)</label>
+                <input v-model="modalForm.phone" type="tel" placeholder="+34 XXX XXX XXX" class="p-modal__input" />
+              </div>
+              <div class="p-modal__field">
+                <label class="p-modal__label">Mensaje</label>
+                <textarea v-model="modalForm.message" placeholder="¿Cuántos puestos de trabajo? ¿Qué equipos necesitáis? ¿Presupuesto aproximado?" rows="4" class="p-modal__input p-modal__input--textarea"></textarea>
+                <p v-if="modalForm.errors.message" class="p-modal__error">{{ modalForm.errors.message }}</p>
+              </div>
+              <p class="p-modal__privacy">
+                Al enviar aceptas el tratamiento de tus datos para gestionar tu consulta.
+                <a href="/politica-de-privacidad" class="p-modal__privacy-link" target="_blank">Política de Privacidad</a>.
+              </p>
+              <button type="submit" class="p-modal__submit" :disabled="modalForm.processing">
+                {{ modalForm.processing ? 'Enviando…' : 'Enviar consulta' }}
+              </button>
+            </form>
+          </div>
+
+          <div v-else class="p-modal__success">
+            <svg viewBox="0 0 48 48" fill="none" class="p-modal__success-icon">
+              <circle cx="24" cy="24" r="22" stroke="currentColor" stroke-width="2"/>
+              <path d="M14 24l7 7 13-14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <h3 class="p-modal__title">¡Consulta enviada!</h3>
+            <p class="p-modal__desc">Te contactamos en menos de 24h con tu presupuesto personalizado.</p>
+            <button class="p-modal__submit" @click="closeModal">Cerrar</button>
+          </div>
+
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
 </template>
 
 <style lang="scss" scoped>
@@ -578,22 +665,26 @@
         margin: 0;
         &--todo { min-height: 1em; }
       }
+    }
 
-      &-cta {
-        display: inline-block;
-        margin-top: auto;
-        padding: 8px 16px;
-        background: var(--color-primary);
-        color: #fff;
-        border-radius: 999px;
-        font-size: 0.8rem;
-        font-weight: 700;
-        text-decoration: none;
-        text-align: center;
-        transition: filter 0.2s;
+    &__footer {
+      margin-top: 40px;
+      text-align: center;
+    }
 
-        &:hover { filter: brightness(1.15); }
-      }
+    &__cta {
+      display: inline-flex;
+      align-items: center;
+      padding: 13px 32px;
+      background: var(--color-primary);
+      color: #fff;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: filter 0.2s;
+
+      &:hover { filter: brightness(1.15); }
     }
   }
 
@@ -680,7 +771,53 @@
 
   // ── PCs a medida ───────────────────────────────────────────
   .p-custom-pc {
-    padding-bottom: 72px;
+    // Contenedor sin padding propio — el parallax lo gestiona todo
+    &__parallax {
+      position: relative;
+      overflow: hidden;
+    }
+
+    &__parallax-bg {
+      position: absolute;
+      inset: -15% 0;          // sobresale arriba/abajo para el efecto
+      background-size: cover;
+      background-position: center 30%;
+      background-attachment: fixed;  // imagen fija: el contenido scrollea encima
+
+      @media (max-width: 768px) {
+        background-attachment: scroll; // iOS no soporta fixed bien
+        inset: 0;
+      }
+    }
+
+    &__parallax-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(10,10,20,0.65) 0%,
+        rgba(10,10,20,0.45) 40%,
+        rgba(10,10,20,0.45) 60%,
+        rgba(10,10,20,0.65) 100%
+      );
+    }
+
+    &__parallax-content {
+      position: relative;
+      z-index: 1;
+      padding: 80px 16px;
+      // Always light text — overrides light-mode tokens locally
+      --color-text:       #ffffff;
+      --color-white:      #ffffff;
+      --color-text-muted: rgba(255, 255, 255, 0.75);
+
+      :deep(.c-title__overline),
+      :deep(.c-title__title),
+      :deep(.c-title__desc) {
+        color: #ffffff;
+        text-shadow: 0 2px 12px rgba(0,0,0,0.8), 0 1px 4px rgba(0,0,0,0.9);
+      }
+    }
 
     &__grid {
       display: grid;
@@ -692,16 +829,20 @@
     }
 
     &__card {
-      background: var(--color-black);
-      border: 1px solid var(--color-primary-dark);
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.1);
       border-radius: 12px;
       padding: 28px;
       display: flex;
       flex-direction: column;
       gap: 12px;
-      transition: border-color 0.2s;
+      transition: border-color 0.2s, background 0.2s;
 
-      &:hover { border-color: var(--color-primary); }
+      &:hover {
+        border-color: var(--color-primary);
+        background: rgba(0,0,0,0.70);
+      }
 
       &-title {
         font-size: 1.1rem;
@@ -712,7 +853,7 @@
 
       &-desc {
         font-size: 0.875rem;
-        color: var(--color-gray-dark);
+        color: rgba(255,255,255,0.75);
         line-height: 1.6;
         margin: 0;
         flex: 1;
@@ -735,24 +876,22 @@
 
     &__link {
       font-size: 0.9rem;
-      color: var(--color-primary);
+      color: rgba(255,255,255,0.7);
       text-decoration: none;
 
-      &:hover { text-decoration: underline; }
+      &:hover { color: #fff; }
     }
   }
 
   // ── Empresas ───────────────────────────────────────────────
   .p-business {
-    padding: 72px 0;
+    padding: 80px 0;
     background: var(--color-primary-dark);
 
-    &__box {
-      display: flex;
-      flex-direction: column;
-      gap: 32px;
-
-      @include from-md { flex-direction: row; align-items: flex-start; justify-content: space-between; gap: 64px; }
+    &__card {
+      max-width: 680px;
+      margin: 0 auto;
+      text-align: center;
     }
 
     &__overline {
@@ -762,11 +901,11 @@
       letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--color-primary);
-      margin: 0 0 12px;
+      margin: 0 0 14px;
     }
 
     &__title {
-      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-size: clamp(1.6rem, 3.5vw, 2.2rem);
       font-weight: 800;
       color: var(--color-white);
       margin: 0 0 16px;
@@ -775,42 +914,58 @@
     &__desc {
       font-size: 0.95rem;
       color: var(--color-gray-dark);
-      line-height: 1.7;
-      margin: 0 0 16px;
+      line-height: 1.75;
+      margin: 0 0 28px;
+      max-width: 560px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     &__list {
-      padding-left: 1.2rem;
-      margin: 0;
-      display: flex;
+      list-style: none;
+      padding: 0;
+      margin: 0 0 36px;
+      display: inline-flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 10px;
+      text-align: left;
 
       li {
-        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.9rem;
         color: var(--color-gray-dark);
         line-height: 1.5;
+
+        svg {
+          flex-shrink: 0;
+          width: 16px;
+          height: 16px;
+          color: var(--color-primary);
+        }
       }
     }
 
     &__ctas {
       display: flex;
-      flex-direction: column;
+      flex-wrap: wrap;
+      justify-content: center;
       gap: 12px;
-      flex-shrink: 0;
-
-      @include from-sm { flex-direction: row; }
-      @include from-md { flex-direction: column; align-items: flex-start; }
     }
 
     &__cta {
-      padding: 12px 28px;
+      display: inline-flex;
+      align-items: center;
+      padding: 13px 32px;
       border-radius: 999px;
       font-size: 0.9rem;
       font-weight: 700;
       text-decoration: none;
       white-space: nowrap;
-      transition: filter 0.2s, border-color 0.2s, color 0.2s;
+      cursor: pointer;
+      border: none;
+      transition: filter 0.2s;
 
       &--primary {
         background: var(--color-primary);
@@ -820,10 +975,148 @@
 
       &--ghost {
         background: transparent;
-        border: 1px solid var(--color-primary);
+        border: 1.5px solid var(--color-primary);
         color: var(--color-primary);
         &:hover { filter: brightness(1.2); }
       }
+    }
+  }
+
+  // ── Modal presupuesto empresas ──────────────────────────────
+  .p-modal-enter-active,
+  .p-modal-leave-active { transition: opacity 0.25s ease; }
+  .p-modal-enter-from,
+  .p-modal-leave-to     { opacity: 0; }
+
+  .p-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    z-index: 9000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+
+  .p-modal {
+    background: var(--color-bg, #0d0d14);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 540px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 32px;
+    position: relative;
+
+    &__close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--color-gray-dark);
+      padding: 4px;
+      svg { width: 20px; height: 20px; display: block; }
+      &:hover { color: var(--color-white); }
+    }
+
+    &__overline {
+      font-family: 'Courier New', monospace;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-primary);
+      margin: 0 0 10px;
+    }
+
+    &__title {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--color-white);
+      margin: 0 0 8px;
+    }
+
+    &__desc {
+      font-size: 0.875rem;
+      color: var(--color-gray-dark);
+      margin: 0 0 24px;
+      line-height: 1.6;
+    }
+
+    &__form { display: flex; flex-direction: column; gap: 16px; }
+
+    &__row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      @include from-sm { grid-template-columns: 1fr 1fr; }
+    }
+
+    &__field { display: flex; flex-direction: column; gap: 6px; }
+
+    &__label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--color-gray-dark);
+    }
+
+    &__input {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--color-white);
+      font-size: 0.9rem;
+      outline: none;
+      width: 100%;
+      box-sizing: border-box;
+      &:focus { border-color: var(--color-primary); }
+      &--textarea { resize: vertical; min-height: 100px; font-family: inherit; }
+    }
+
+    &__error { font-size: 0.78rem; color: #f87171; margin: 0; }
+
+    &__privacy {
+      font-size: 0.75rem;
+      color: var(--color-gray-dark);
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    &__privacy-link { color: var(--color-primary); text-decoration: underline; }
+
+    &__submit {
+      background: var(--color-primary);
+      color: #fff;
+      border: none;
+      border-radius: 999px;
+      padding: 13px 32px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: filter 0.2s;
+      align-self: flex-start;
+      &:hover { filter: brightness(1.15); }
+      &:disabled { opacity: 0.6; cursor: not-allowed; }
+    }
+
+    &__success {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 16px;
+      padding: 16px 0;
+    }
+
+    &__success-icon {
+      width: 56px;
+      height: 56px;
+      color: var(--color-primary);
     }
   }
 

@@ -309,7 +309,7 @@
 
           <div class="icb-pricing__price-wrap">
             <span class="icb-pricing__from">desde</span>
-            <span class="icb-pricing__price">24,99€</span>
+            <span class="icb-pricing__price">29,99€</span>
             <span class="icb-pricing__suffix">/mes</span>
           </div>
 

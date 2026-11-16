@@ -20,7 +20,7 @@ export const services: Service[] = [
     title: 'Móviles y Tablets',
     icon: 'IconMobile',
     image: images.imagePhoneRepairReal,
-    shortDesc: 'Reparamos móviles y tablets de todas las marcas con piezas de calidad y diagnóstico previo gratuito.',
+    shortDesc: 'Reparamos móviles y tablets de todas las marcas con piezas de calidad.',
     tasks: [
       'Cambio de pantalla y cristal',
       'Sustitución de batería',
@@ -76,7 +76,7 @@ export const services: Service[] = [
     anchor: 'consolas',
     title: 'Consolas',
     icon: 'IconElectronic',
-    image: images.imageMotherboard,
+    image: images.imageConsolaRepair,
     shortDesc: 'Reparamos PlayStation, Xbox, Nintendo Switch y otras consolas con garantía en la reparación.',
     tasks: [
       'Reparación de salida HDMI',

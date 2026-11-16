@@ -8,20 +8,20 @@
   --color-error:          #ef4444;
   --color-info:           #6366f1;
 
-  --color-black:          #111318;
-  --color-primary-dark:   #0d1528;
-  --color-success-dark:   #0d1a10;
-  --color-error-dark:     #1c1010;
-  --color-info-dark:      #101018;
+  --color-black:          #1e2130;
+  --color-primary-dark:   #1a2340;
+  --color-success-dark:   #172412;
+  --color-error-dark:     #261515;
+  --color-info-dark:      #181825;
   --color-white:          #ffffff;
   --color-gray:           #e2e8f0;
-  --color-gray-dark:      #64748b;
+  --color-gray-dark:      #8494a8;
   --color-text:           #ffffff;
-  --color-text-muted:     rgba(255, 255, 255, 0.5);
-  --color-text-subtle:    rgba(255, 255, 255, 0.4);
-  --color-border-subtle:  rgba(255, 255, 255, 0.08);
-  --color-bg:             #111318;
-  --color-background:     #111318;
+  --color-text-muted:     rgba(255, 255, 255, 0.55);
+  --color-text-subtle:    rgba(255, 255, 255, 0.45);
+  --color-border-subtle:  rgba(255, 255, 255, 0.10);
+  --color-bg:             #191c28;
+  --color-background:     #191c28;
 }
 
 // Modo claro — sobreescribe solo lo que cambia

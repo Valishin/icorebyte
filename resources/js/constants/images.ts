@@ -30,6 +30,8 @@ import imagePrinterRepairReal from '@assets/images/imagePrinterRepairReal.jpg'
 import imageShopReal from '@assets/images/imageShopReal.jpg'
 import imageSolderingReal from '@assets/images/imageSolderingReal.jpg'
 import imageSupportItReal from '@assets/images/imageSupportItReal.jpg'
+import imageConsolaRepair from '@assets/images/imageConsolaRepair.jpg'
+import imagePcGaming from '@assets/images/imagePcGaming.jpg'
 
 import appsatProject from '@assets/images/appsatProject.png'
 import icbsatAnaliticas from '@assets/images/icbsat_analiticas.webp'
@@ -79,6 +81,8 @@ export const images = {
   imagePrinterRepairReal,
   imageItMaintanceReal,
   imageSupportItReal,
+  imageConsolaRepair,
+  imagePcGaming,
 
   imageMhdProject,
   validevProject,
