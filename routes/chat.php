@@ -14,6 +14,11 @@ use Illuminate\Support\Facades\Route;
 | sin CSRF. La autenticación usa el header X-Chat-Visitor-Token (hash en BD).
 */
 
+// ── Interruptor global ────────────────────────────────────────────────────────
+// ChatEnabled middleware: si CHAT_ENABLED=false devuelve 503 en todas las rutas
+// excepto el webhook de Telegram (que siempre recibe 200 para evitar reintentos).
+Route::middleware(\App\Http\Middleware\ChatEnabled::class)->group(function () {
+
 // ── Webhook de Telegram ───────────────────────────────────────────────────────
 // La verificación de identidad se hace dentro del controlador (hash_equals del secret).
 // Siempre devuelve 200 para evitar reintento de Telegram.
@@ -92,3 +97,5 @@ Route::middleware('chat.token')->group(function () {
     Route::patch('/conversations/{uuid}/contact', [ConversationController::class, 'updateContact'])
         ->name('chat.conversations.contact');
 });
+
+}); // end ChatEnabled group

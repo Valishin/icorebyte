@@ -2,8 +2,9 @@ import "../css/app.css";
 import "../scss/main.scss";
 import "./bootstrap";
 
-// Chat widget — lazy, after page load, not on admin panel
-if (!window.location.pathname.startsWith('/admin')) {
+// Chat widget — lazy, after page load, not on admin panel, only when enabled
+const CHAT_ENABLED = import.meta.env.VITE_CHAT_ENABLED !== 'false'
+if (CHAT_ENABLED && !window.location.pathname.startsWith('/admin')) {
   const idle = window.requestIdleCallback ?? ((cb) => setTimeout(cb, 2000))
   idle(() => {
     Promise.all([

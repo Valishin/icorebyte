@@ -1,282 +1,358 @@
 # Despliegue del chat en Hostinger — guía paso a paso
 
-> Guía para el primer despliegue completo. Para actualizaciones posteriores, solo son necesarios los pasos marcados con ♻️.
+> El sitio **ya está en producción**. Esta guía describe el primer despliegue del módulo de chat
+> sobre la instalación existente. Los pasos de creación de proyecto, generación de APP_KEY y
+> `cp .env.example .env` **no se ejecutan**; el `.env` ya existe y no debe tocarse salvo para
+> AÑADIR las variables nuevas de la sección §1.
+>
+> El despliegue se integra con `deploy.sh` y `deploy-laravel-inertia-hostinger.md` existentes.
+> Los pasos marcados con ♻️ forman parte del ciclo de actualización normal.
 
 ---
 
-## 0. Requisitos previos
+## Requisitos del servidor
 
 | Requisito | Versión mínima |
 |-----------|---------------|
 | PHP | 8.4 |
-| MySQL | 8.0 |
-| Node.js | 20 LTS |
-| Composer | 2.x |
-| pnpm | 9.x |
+| MySQL | 8.0 **o MariaDB 10.6+** |
+| Extensiones PHP | `pdo_mysql`, `gd`, `fileinfo`, `mbstring`, `openssl`, `bcmath` |
 
-Extensiones PHP necesarias: `pdo_mysql`, `gd`, `fileinfo`, `mbstring`, `openssl`, `bcmath`, `ctype`, `tokenizer`, `xml`, `curl`.
+> **MariaDB**: todas las migraciones del chat son compatibles con MariaDB 10.6+.
+> Se usan solo `varchar`, `bigint`, `timestamp`, `tinyint` y `enum` — ningún tipo
+> exclusivo de MySQL 8 ni sintaxis incompatible con MariaDB.
 
 ---
 
-## 1. Variables de entorno `.env`
+## 1. Variables nuevas en `.env` de producción
 
-Copia `.env.example` como `.env` y configura estas variables:
-
-### Aplicación
+**No toques `APP_KEY`**. Solo añade las líneas que falten al `.env` existente:
 
 ```dotenv
-APP_NAME="iCoreByte"
-APP_ENV=production
-APP_KEY=              # generar con: php artisan key:generate
-APP_DEBUG=false
-APP_URL=https://icorebyte.com
-```
+# ── Identidad ────────────────────────────────────────────────────────────────
+APP_NAME="iCOREBYTE"
+MAIL_FROM_NAME="iCOREBYTE"
 
-### Base de datos (MySQL en Hostinger)
+# ── Cola y caché (recomendado para hosting compartido) ────────────────────────
+# La cola 'database' funciona sin Redis. Los jobs (Telegram, emails de
+# notificación) se procesan una vez por minuto mediante queue:work
+# --stop-when-empty, que el scheduler lanza automáticamente.
+QUEUE_CONNECTION=database
+CACHE_STORE=database
 
-```dotenv
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1    # o el host interno de Hostinger
-DB_PORT=3306
-DB_DATABASE=nombre_bbdd
-DB_USERNAME=usuario_bbdd
-DB_PASSWORD=contraseña_bbdd
-```
+# ── Chat ─────────────────────────────────────────────────────────────────────
+CHAT_ENABLED=true            # false → widget oculto, /api/chat/* 503, inbox oculto
+CHAT_AGENT_NAME="Alex · iCOREBYTE"
+CHAT_AGENT_PHONE="+34 678 758 210"
+CHAT_NO_REPLY_MINUTES=5
+CHAT_TIMEZONE=Europe/Madrid
+VITE_WHATSAPP_URL=https://wa.me/34678758210  # solo para compilar en local
 
-### Correo (Hostinger SMTP)
+# ── Telegram ─────────────────────────────────────────────────────────────────
+CHAT_TELEGRAM_ENABLED=true
+TELEGRAM_BOT_TOKEN=          # token del bot (de BotFather)
+TELEGRAM_CHAT_ID=            # tu chat privado con el bot — ver §6
+TELEGRAM_WEBHOOK_SECRET=     # secreto aleatorio min. 32 chars; genera con:
+                             #   openssl rand -hex 32
 
-```dotenv
+# ── Correo (SMTP Hostinger) ───────────────────────────────────────────────────
 MAIL_MAILER=smtp
 MAIL_HOST=smtp.hostinger.com
 MAIL_PORT=465
 MAIL_USERNAME=info@icorebyte.com
-MAIL_PASSWORD=contraseña_correo
+MAIL_PASSWORD=               # contraseña del buzón de Hostinger
 MAIL_ENCRYPTION=ssl
 MAIL_FROM_ADDRESS=info@icorebyte.com
-MAIL_FROM_NAME="iCoreByte"
+
+# ── Diagnóstico de proxy (temporal; vaciar después de §8) ─────────────────────
+CHAT_DIAGNOSE_TOKEN=         # secreto temporal — vaciar tras configurar TRUSTED_PROXIES
+
+# ── Proxies de confianza (configurar tras §8) ─────────────────────────────────
+TRUSTED_PROXIES=             # IPs/CIDRs separados por coma; puede quedarse vacío
 ```
 
-### Chat — variables nuevas
+---
 
+## 2. Build en local y subida de assets ♻️
+
+El build **se genera en local** (el servidor Hostinger no tiene Node). La variable
+`VITE_WHATSAPP_URL` debe estar en tu `.env` local antes de compilar.
+
+```bash
+pnpm run build          # genera public/build/
+```
+
+El script `deploy.sh` sube el build y ejecuta el resto automáticamente:
+
+```bash
+pnpm run deploy         # o: ./deploy.sh
+```
+
+> `deploy.sh` detecta si `composer.lock` o `database/migrations/` cambiaron y ejecuta
+> `composer install --no-dev` y `php artisan migrate --force` según corresponda.
+> También ejecuta `filament:assets` y `optimize` al final.
+
+Si quieres ejecutar los pasos manualmente (SSH):
+
+```bash
+export PHP=/opt/alt/php84/usr/bin/php
+cd ~/domains/icorebyte.com/icorebyte
+
+git pull
+$PHP artisan migrate --force
+$PHP artisan optimize:clear
+$PHP artisan optimize
+$PHP artisan filament:assets
+```
+
+> **Ruta real del PHP 8.4**: si `/opt/alt/php84/usr/bin/php` no existe, compruébala con
+> `ls /opt/alt/php*/usr/bin/php`. La ruta está también hardcodeada en `deploy.sh`
+> (variable `PHP`).
+
+---
+
+## 3. Exportar la base de datos ANTES de migrar
+
+> Siempre haz backup antes de ejecutar migraciones en producción.
+
+**Opción A — phpMyAdmin** (hPanel → Bases de datos → phpMyAdmin → Exportar → Quick → Go)
+
+**Opción B — línea de comandos** (SSH):
+
+```bash
+mysqldump -u USUARIO -p NOMBRE_BBDD > backup_$(date +%Y%m%d_%H%M%S).sql
+```
+
+Sustituye `USUARIO` y `NOMBRE_BBDD` por los valores de tu `.env`.
+
+---
+
+## 4. Migraciones del chat
+
+Las migraciones nuevas son (en orden):
+
+| Archivo | Qué hace |
+|---------|----------|
+| `2026_11_11_171414_create_chat_conversations_table` | Tabla principal de conversaciones |
+| `2026_11_11_171415_create_chat_messages_table` | Mensajes |
+| `2026_11_11_181914_create_telegram_updates_table` | Idempotencia de updates Telegram |
+| `2026_11_11_182720_create_telegram_outbound_table` | Registro de mensajes enviados a Telegram |
+| `2026_11_11_183013_create_settings_table` | Tabla de configuración del panel |
+| `2026_11_11_183014_add_locale_no_reply_to_chat_conversations` | Columnas `locale` y `no_reply_warned_at` |
+| `2026_11_11_193532_add_is_agent_to_users_table` | Flag `is_agent` en users |
+| `2026_11_11_193533_create_quick_replies_table` | Respuestas rápidas |
+| `2026_11_11_195722_add_app_authentication_to_users_table` | Columnas 2FA (Filament) |
+| `2026_11_12_000001_add_notification_fields_to_chat_conversations` | Email y timestamp de notificación |
+| `2026_11_12_000002_replace_cipher_with_nonce_on_chat_conversations` | Elimina cipher; añade nonce y resume_token |
+
+**Rollback** (deshace las 11 migraciones del chat en orden inverso):
+
+```bash
+$PHP artisan migrate:rollback --step=11
+```
+
+Todas son reversibles (usan `dropColumn`, `dropTable`). El rollback no borra datos
+de tablas no relacionadas con el chat.
+
+---
+
+## 5. Cron en hPanel (Hostinger)
+
+hPanel usa **hPanel → Hosting → Avanzado → Cron Jobs** (no cPanel).
+
+Añade esta tarea:
+
+```
+* * * * *   /opt/alt/php84/usr/bin/php /home/u863791557/domains/icorebyte.com/icorebyte/artisan schedule:run >> /dev/null 2>&1
+```
+
+Adapta la ruta del PHP y del proyecto a las tuyas (ver §2 para obtener la ruta real).
+
+**Tareas que activa el scheduler** (una vez configurado el cron):
+
+| Tarea | Frecuencia | Qué hace |
+|-------|-----------|----------|
+| `chat:no-reply-warning` | Cada minuto | Envía aviso por Telegram cuando hay mensajes sin respuesta |
+| `queue:work --stop-when-empty` | Cada minuto | Procesa jobs de cola (Telegram, emails de notificación) |
+| `chat:cleanup-telegram-updates` | Diario | Limpia registros de idempotencia Telegram > 7 días |
+| `chat:purge` | Diario 03:00 | Elimina conversaciones sin actividad en 90 días (RGPD) |
+
+> En hosting compartido **no hay `queue:work` en background**. El scheduler lanza
+> `queue:work --stop-when-empty --tries=3 --timeout=60` una vez por minuto, que
+> procesa todos los jobs pendientes y termina. Los jobs son: `SendTelegramMessageJob`
+> y `SendConversationNotificationJob` (email de reanudación). La latencia máxima
+> es ~1 minuto.
+
+---
+
+## 6. Crear el agente y configurar 2FA
+
+```bash
+$PHP artisan chat:create-agent
+```
+
+Tras crear el agente:
+1. Entra en `https://icorebyte.com/admin`.
+2. Ve a **Perfil → Autenticación de dos factores** y activa 2FA (app TOTP).
+3. Guarda los códigos de recuperación en un gestor de contraseñas.
+
+---
+
+## 7. Configurar el webhook de Telegram
+
+### 7a. Registrar el webhook
+
+```bash
+$PHP artisan chat:telegram-setup
+```
+
+### 7b. Verificar
+
+```bash
+$PHP artisan chat:telegram-test
+```
+
+Deberías recibir un mensaje de prueba en tu chat privado con el bot.
+
+---
+
+## 8. Obtener tu `TELEGRAM_CHAT_ID`
+
+`TELEGRAM_CHAT_ID` es el ID de tu chat privado con el bot (número **positivo**).
+
+1. Envía cualquier mensaje al bot en Telegram.
+2. Desde tu ordenador:
+   ```bash
+   curl -s "https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/getUpdates" | python3 -m json.tool
+   ```
+3. Busca `"chat": {"id": <número>}` en la respuesta. Ese número es tu `TELEGRAM_CHAT_ID`.
+
+> Si la respuesta está vacía, desactiva el webhook antes de llamar a `getUpdates`:
+> ```bash
+> curl -s "https://api.telegram.org/bot<TOKEN>/deleteWebhook"
+> ```
+> Luego vuelve a enviar un mensaje y llama a `getUpdates`. Registra el webhook
+> de nuevo con `chat:telegram-setup` cuando hayas obtenido el ID.
+
+---
+
+## 9. Diagnóstico de proxy y `TRUSTED_PROXIES`
+
+Hostinger puede usar un proxy inverso o Cloudflare. Sin `TRUSTED_PROXIES` la IP
+registrada en el chat sería la del proxy, no la del visitante.
+
+### 9a. Activar el endpoint (temporal)
+
+Añade en `.env`:
 ```dotenv
-# Telegram (obligatorio si CHAT_TELEGRAM_ENABLED=true)
-CHAT_TELEGRAM_ENABLED=true
-TELEGRAM_BOT_TOKEN=123456789:AAFxxxxx   # Token del bot de BotFather
-TELEGRAM_CHAT_ID=-100xxxxxxxxx          # ID del grupo/canal donde llegan los avisos
-TELEGRAM_WEBHOOK_SECRET=secreto_largo_aleatorio  # min. 32 caracteres aleatorios
-
-# Widget (opcional — anula los valores por defecto del código)
-CHAT_AGENT_NAME="iCoreByte"
-CHAT_AGENT_PHONE="+34 678 758 210"
-CHAT_NO_REPLY_MINUTES=5
-CHAT_TIMEZONE=Europe/Madrid
-
-# WhatsApp (Vite — se incrusta en el JS de producción)
-VITE_WHATSAPP_URL=https://wa.me/34678758210
-
-# Diagnóstico de proxy — SOLO durante la configuración inicial; vaciar después
-CHAT_DIAGNOSE_TOKEN=   # dejar vacío → ruta proxy-info invisible
-
-# Proxies de confianza (IPs o rangos CIDR separados por coma)
-# Configurar DESPUÉS de leer /api/chat/proxy-info (ver sección 7)
-TRUSTED_PROXIES=
+CHAT_DIAGNOSE_TOKEN=secreto_temporal_aleatorio_32chars
 ```
+Ejecuta `$PHP artisan optimize` para aplicar.
 
----
-
-## 2. Instalación y compilación ♻️
+### 9b. Lanzar desde tu ordenador
 
 ```bash
-composer install --no-dev --optimize-autoloader
-pnpm install --frozen-lockfile
-pnpm run build
-```
-
----
-
-## 3. Migraciones y assets ♻️
-
-```bash
-php artisan migrate --force
-php artisan storage:link
-php artisan filament:assets
-php artisan optimize
-```
-
-> `storage:link` crea el enlace simbólico `public/storage → storage/app/public`. Solo necesario en el primer despliegue o si se recrea el directorio.
-
----
-
-## 4. Cron de Laravel (Hostinger cPanel)
-
-En **cPanel → Tareas programadas (Cron Jobs)**, añade:
-
-```
-* * * * * /usr/local/bin/php /home/usuario/public_html/artisan schedule:run >> /dev/null 2>&1
-```
-
-Ajusta la ruta a `artisan` según tu estructura de directorios en Hostinger.
-
-Esto activa:
-- `chat:no-reply-warning` cada minuto
-- `chat:purge` diariamente a las 03:00 (limpieza RGPD 90 días)
-- `chat:cleanup-telegram-updates` diariamente
-
----
-
-## 5. Crear el agente y configurar 2FA
-
-```bash
-php artisan chat:create-agent
-```
-
-El comando pide nombre, correo y contraseña de forma interactiva.
-
-Después de crear el agente:
-1. Entra en `https://icorebyte.com/admin` con las credenciales creadas.
-2. Ve a **Perfil → Autenticación de dos factores** y activa 2FA (app TOTP, p. ej. Google Authenticator o Aegis).
-3. Guarda los códigos de recuperación en un lugar seguro.
-
----
-
-## 6. Configurar el webhook de Telegram
-
-### 6a. Registrar el webhook
-
-```bash
-php artisan chat:telegram-setup
-```
-
-El comando registra el webhook en `https://icorebyte.com/api/chat/telegram/webhook` con el `TELEGRAM_WEBHOOK_SECRET` configurado.
-
-### 6b. Verificar que funciona
-
-```bash
-php artisan chat:telegram-test
-```
-
-Deberías recibir un mensaje de prueba en el grupo/canal de Telegram configurado.
-
----
-
-## 7. Diagnóstico de proxy y configuración de `TRUSTED_PROXIES`
-
-Hostinger usa un proxy inverso (Cloudflare o proxy propio). Sin configurar `TRUSTED_PROXIES`, la IP registrada en el chat será la del proxy, no la del visitante.
-
-### 7a. Activar el endpoint de diagnóstico (temporal)
-
-En `.env`, añade un secreto aleatorio:
-
-```dotenv
-CHAT_DIAGNOSE_TOKEN=secreto_temporal_32chars_minimo
-```
-
-Ejecuta `php artisan optimize` para aplicar el cambio.
-
-### 7b. Leer la IP detectada
-
-```bash
-curl -s -H "X-Diagnose-Token: secreto_temporal_32chars_minimo" \
+curl -s -H "X-Diagnose-Token: secreto_temporal_aleatorio_32chars" \
   https://icorebyte.com/api/chat/proxy-info | python3 -m json.tool
 ```
 
-La respuesta muestra:
-- `ip_from_request`: IP que ve Laravel (debería ser la del proxy)
-- `x_forwarded_for`: cadena de IPs del header `X-Forwarded-For`
-- `trusted_proxies`: lo que está configurado ahora
-
-### 7c. Configurar `TRUSTED_PROXIES`
-
-Añade en `.env` el CIDR o IP del proxy de Hostinger que aparece en `ip_from_request`:
-
-```dotenv
-TRUSTED_PROXIES=1.2.3.4/32   # o el rango CIDR de Cloudflare / Hostinger
+Obtendrás algo como:
+```json
+{
+  "remote_addr":      "...",
+  "x_forwarded_for":  "...",
+  "cf_connecting_ip": "...",
+  "laravel_ip":       "...",
+  "trusted_proxies":  "(ninguno)"
+}
 ```
 
-> Si Hostinger usa Cloudflare, los rangos actuales están en [cloudflare.com/ips](https://www.cloudflare.com/ips/).
+Envía esa salida para decidir:
 
-### 7d. Desactivar el endpoint de diagnóstico
+- Si `laravel_ip` **coincide con tu IP pública** (compruébala con `curl ifconfig.me`),
+  el servidor ve directamente al cliente sin proxy y `TRUSTED_PROXIES` puede quedarse vacío.
+- Si `laravel_ip` es una IP interna o de Cloudflare, configura `TRUSTED_PROXIES` con
+  el CIDR de ese proxy. Los rangos de Cloudflare están en [cloudflare.com/ips](https://www.cloudflare.com/ips/).
+
+### 9c. Desactivar el endpoint
 
 ```dotenv
 CHAT_DIAGNOSE_TOKEN=
 ```
-
 ```bash
-php artisan optimize
+$PHP artisan optimize
 ```
-
 Verifica que `https://icorebyte.com/api/chat/proxy-info` devuelve `404`.
 
 ---
 
-## 8. Pruebas de humo en producción
-
-Realiza estas comprobaciones manualmente después del despliegue:
+## 10. Pruebas de humo en producción
 
 - [ ] `https://icorebyte.com` carga correctamente.
+- [ ] `/sat-it` redirige a `/icb-sat` (redirección de compatibilidad).
 - [ ] El widget de chat aparece en la esquina inferior derecha.
-- [ ] Iniciar una conversación (nombre obligatorio, consentimiento) → el bot de Telegram recibe el aviso.
+- [ ] Iniciar conversación (nombre + consentimiento) → bot de Telegram recibe el aviso.
 - [ ] Responder desde Telegram → el mensaje aparece en el chat del visitante.
 - [ ] Adjuntar una imagen → se muestra en el chat y llega a Telegram.
-- [ ] Enviar un mensaje de texto largo (>500 chars) → se recorta a 2000 chars.
-- [ ] Campo honeypot: enviar el formulario con el campo `website` relleno → HTTP 422 (comprobar con DevTools).
-- [ ] Si hay correo configurado: esperar el aviso de no-respuesta (`CHAT_NO_REPLY_MINUTES`) → llega el email de reanudación → el enlace abre el chat con la conversación.
-- [ ] Reutilizar el enlace de reanudación → página de error amigable (410).
 - [ ] Acceder a `/admin` → redirige al login de Filament.
-- [ ] `https://icorebyte.com/api/chat/proxy-info` → `404`.
-- [ ] Comprobar en los logs (`storage/logs/laravel.log`) que no hay errores inesperados.
+- [ ] Crear un agente nuevo con `chat:create-agent` → forzar activación de 2FA desde el perfil antes de acceder a la bandeja.
+- [ ] Dejar un mensaje sin responder **más de `CHAT_NO_REPLY_MINUTES` minutos** con un correo válido → el agente recibe el aviso por Telegram y el visitante recibe el email de reanudación. Usar el enlace → se abre el chat con la conversación.
+- [ ] Verificar que el cron funciona: `$PHP artisan schedule:list` debe mostrar las 4 tareas; esperar el siguiente minuto y comprobar que llega el aviso de no-respuesta real.
+- [ ] Probar en un dispositivo iOS real y en un dispositivo Android real (layout, apertura del chat, envío de mensajes).
+- [ ] `https://icorebyte.com/api/chat/proxy-info` → `404` (token vaciado en §9c).
+- [ ] Revisar `storage/logs/laravel.log` — sin errores inesperados.
 
 ---
 
-## 9. Plan de vuelta atrás
+## 11. Interruptor de emergencia (`CHAT_ENABLED`)
 
-Si algo falla después del despliegue:
-
-### Opción A — Revertir el código (no hay migraciones que deshacer)
-
-```bash
-git checkout <commit_anterior>
-composer install --no-dev --optimize-autoloader
-pnpm run build
-php artisan optimize
-```
-
-### Opción B — Deshacer la última migración (solo si se ejecutó una nueva)
-
-```bash
-php artisan migrate:rollback --step=1
-```
-
-> Las migraciones del chat añaden columnas nullable o crean tablas nuevas: el rollback es seguro y no destruye datos existentes.
-
-### Opción C — Deshabilitar el chat sin revertir
-
-Añade en `.env`:
+Si necesitas desactivar el chat sin revertir código:
 
 ```dotenv
-CHAT_ENABLED=false   # si has implementado esta guardia en el frontend
+CHAT_ENABLED=false
+```
+```bash
+$PHP artisan optimize
 ```
 
-O elimina el componente `<ChatFab>` del layout principal temporalmente.
+Efectos inmediatos:
+- El widget **no se monta** en el frontend (controlado por `VITE_CHAT_ENABLED` en el build, o en runtime si el build ya está desplegado con la guarda activa).
+- Todas las rutas `/api/chat/*` devuelven `503` excepto el webhook de Telegram, que siempre recibe `200`.
+- La bandeja de chat desaparece del menú de Filament.
 
-### Restaurar desde backup
-
-Hostinger hace backups automáticos diarios. Desde cPanel → **Backups** puedes restaurar la base de datos al estado anterior al despliegue.
+Para restaurar: `CHAT_ENABLED=true` + `$PHP artisan optimize`.
 
 ---
 
-## Resumen de variables `.env` nuevas
+## 12. Plan de vuelta atrás
 
-| Variable | Obligatoria | Descripción |
-|----------|------------|-------------|
-| `CHAT_TELEGRAM_ENABLED` | Si se usa Telegram | `true` para activar notificaciones |
-| `TELEGRAM_BOT_TOKEN` | Si Telegram activo | Token del bot (BotFather) |
-| `TELEGRAM_CHAT_ID` | Si Telegram activo | ID del grupo/canal destino |
-| `TELEGRAM_WEBHOOK_SECRET` | Si Telegram activo | Secreto de validación del webhook |
-| `CHAT_AGENT_NAME` | No | Nombre del agente visible al visitante |
-| `CHAT_AGENT_PHONE` | No | Teléfono del agente |
-| `CHAT_NO_REPLY_MINUTES` | No | Minutos hasta aviso de no-respuesta (defecto: 5) |
-| `CHAT_TIMEZONE` | No | Zona horaria del horario del chat (defecto: Europe/Madrid) |
-| `VITE_WHATSAPP_URL` | No | URL de WhatsApp para el botón del widget |
-| `TRUSTED_PROXIES` | Sí (producción) | IPs/CIDRs del proxy inverso |
-| `CHAT_DIAGNOSE_TOKEN` | Temporal | Solo durante configuración de proxy; vaciar después |
+### Opción A — Revertir migraciones del chat
+
+```bash
+$PHP artisan migrate:rollback --step=11
+```
+
+(Ver §4 para la lista completa. Todas son reversibles y no afectan datos fuera del chat.)
+
+### Opción B — Desactivar el chat sin revertir
+
+Usar el interruptor de §11. Es la opción más rápida.
+
+### Opción C — Revertir el código
+
+```bash
+git checkout <commit_anterior_al_chat>
+# en local:
+pnpm run build
+# subir build y ejecutar en servidor:
+./deploy.sh
+```
+
+### Restaurar base de datos desde backup
+
+hPanel → Bases de datos → phpMyAdmin → Importar el `.sql` del backup (§3),
+o desde SSH:
+
+```bash
+mysql -u USUARIO -p NOMBRE_BBDD < backup_YYYYMMDD_HHMMSS.sql
+```

@@ -9,9 +9,15 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 // Chat: aviso de no-respuesta — cada minuto
-// En producción: configurar cron en Hostinger cPanel:
-// * * * * * php /path/to/artisan schedule:run >> /dev/null 2>&1
 Schedule::command('chat:no-reply-warning')->everyMinute();
+
+// Cola de trabajos: procesa jobs pendientes después de cada tick del scheduler.
+// En hosting compartido sin queue:work en background, este comando vacía la
+// cola (Telegram, emails de notificación) una vez por minuto y termina.
+Schedule::command('queue:work --stop-when-empty --tries=3 --timeout=60')
+    ->everyMinute()
+    ->withoutOverlapping()
+    ->name('chat:process-queue');
 
 // Chat: limpieza de registros de idempotencia Telegram (> 7 días)
 Schedule::call(function () {

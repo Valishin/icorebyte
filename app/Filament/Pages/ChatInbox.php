@@ -48,6 +48,11 @@ class ChatInbox extends Page
 
     protected static ?int $navigationSort = 1;
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return (bool) config('chat.enabled', true);
+    }
+
     // ── Estado Livewire ───────────────────────────────────────────────────────
 
     public ?string $activeUuid = null;

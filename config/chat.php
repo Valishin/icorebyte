@@ -7,6 +7,12 @@ return [
     |--------------------------------------------------------------------------
     */
 
+    // Interruptor global del chat.
+    // false → el widget no se monta, /api/chat/* devuelve 503,
+    //         el webhook de Telegram devuelve 200 y descarta el update,
+    //         la bandeja de Filament queda oculta.
+    'enabled' => env('CHAT_ENABLED', true),
+
     // Tiempo máximo sin actividad para cerrar la conversación automáticamente (horas)
     'auto_close_hours' => env('CHAT_AUTO_CLOSE_HOURS', 24),
 

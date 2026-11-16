@@ -5,6 +5,7 @@ parameters:
     paths:
         - app/Http/Controllers/Chat
         - app/Http/Middleware/ValidateChatToken.php
+        - app/Http/Middleware/ChatEnabled.php
         - app/Http/Requests/Chat
         - app/Jobs/Chat
         - app/Models/ChatConversation.php
