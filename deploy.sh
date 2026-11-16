@@ -20,10 +20,10 @@ echo "======================================"
 # — PASO 1: Build de Vue/Vite en local —
 echo ""
 echo "📦 [1/4] Generando build de Vue..."
-npm run build
+pnpm run build
 
 if [ $? -ne 0 ]; then
-  echo "❌ Error en npm run build. Deploy cancelado."
+  echo "❌ Error en pnpm run build. Deploy cancelado."
   exit 1
 fi
 echo "✅ Build generado correctamente."

@@ -4,6 +4,7 @@ includes:
 parameters:
     paths:
         - app/Http/Controllers/Chat
+        - app/Http/Middleware/HandleInertiaRequests.php
         - app/Http/Middleware/ValidateChatToken.php
         - app/Http/Middleware/ChatEnabled.php
         - app/Http/Requests/Chat

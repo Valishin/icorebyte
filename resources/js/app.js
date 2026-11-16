@@ -2,8 +2,10 @@ import "../css/app.css";
 import "../scss/main.scss";
 import "./bootstrap";
 
-// Chat widget — lazy, after page load, not on admin panel, only when enabled
-const CHAT_ENABLED = import.meta.env.VITE_CHAT_ENABLED !== 'false'
+// Chat widget — lazy, after page load, not on admin panel, only when enabled.
+// chat_enabled is a runtime Inertia shared prop — no recompile needed to toggle.
+const _inertiaPage = JSON.parse(document.getElementById('app')?.dataset?.page || '{}')
+const CHAT_ENABLED = _inertiaPage?.props?.chat_enabled !== false
 if (CHAT_ENABLED && !window.location.pathname.startsWith('/admin')) {
   const idle = window.requestIdleCallback ?? ((cb) => setTimeout(cb, 2000))
   idle(() => {

@@ -14,7 +14,7 @@ Schedule::command('chat:no-reply-warning')->everyMinute();
 // Cola de trabajos: procesa jobs pendientes después de cada tick del scheduler.
 // En hosting compartido sin queue:work en background, este comando vacía la
 // cola (Telegram, emails de notificación) una vez por minuto y termina.
-Schedule::command('queue:work --stop-when-empty --tries=3 --timeout=60')
+Schedule::command('queue:work --stop-when-empty --tries=3 --timeout=55 --max-time=50')
     ->everyMinute()
     ->withoutOverlapping()
     ->name('chat:process-queue');

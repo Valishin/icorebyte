@@ -42,11 +42,13 @@ CACHE_STORE=database
 
 # ── Chat ─────────────────────────────────────────────────────────────────────
 CHAT_ENABLED=true            # false → widget oculto, /api/chat/* 503, inbox oculto
+                             # (se lee en tiempo de ejecución vía prop de Inertia;
+                             #  NO requiere recompilar el build — solo optimize)
 CHAT_AGENT_NAME="Alex · iCOREBYTE"
 CHAT_AGENT_PHONE="+34 678 758 210"
 CHAT_NO_REPLY_MINUTES=5
 CHAT_TIMEZONE=Europe/Madrid
-VITE_WHATSAPP_URL=https://wa.me/34678758210  # solo para compilar en local
+VITE_WHATSAPP_URL=https://wa.me/34678758210  # necesario en local al compilar
 
 # ── Telegram ─────────────────────────────────────────────────────────────────
 CHAT_TELEGRAM_ENABLED=true
@@ -77,6 +79,9 @@ TRUSTED_PROXIES=             # IPs/CIDRs separados por coma; puede quedarse vac�
 
 El build **se genera en local** (el servidor Hostinger no tiene Node). La variable
 `VITE_WHATSAPP_URL` debe estar en tu `.env` local antes de compilar.
+`CHAT_ENABLED` **no** necesita estar en el build — se lee en tiempo de ejecución
+vía prop compartida de Inertia; basta con `$PHP artisan optimize` para que el cambio
+surta efecto.
 
 ```bash
 pnpm run build          # genera public/build/
@@ -173,15 +178,16 @@ Adapta la ruta del PHP y del proyecto a las tuyas (ver §2 para obtener la ruta 
 | Tarea | Frecuencia | Qué hace |
 |-------|-----------|----------|
 | `chat:no-reply-warning` | Cada minuto | Envía aviso por Telegram cuando hay mensajes sin respuesta |
-| `queue:work --stop-when-empty` | Cada minuto | Procesa jobs de cola (Telegram, emails de notificación) |
+| `queue:work --stop-when-empty --max-time=50` | Cada minuto | Procesa jobs de cola (Telegram, emails de notificación) |
 | `chat:cleanup-telegram-updates` | Diario | Limpia registros de idempotencia Telegram > 7 días |
 | `chat:purge` | Diario 03:00 | Elimina conversaciones sin actividad en 90 días (RGPD) |
 
 > En hosting compartido **no hay `queue:work` en background**. El scheduler lanza
-> `queue:work --stop-when-empty --tries=3 --timeout=60` una vez por minuto, que
-> procesa todos los jobs pendientes y termina. Los jobs son: `SendTelegramMessageJob`
-> y `SendConversationNotificationJob` (email de reanudación). La latencia máxima
-> es ~1 minuto.
+> `queue:work --stop-when-empty --tries=3 --timeout=55 --max-time=50` una vez por
+> minuto. `--max-time=50` fuerza la salida a los 50 s aunque haya jobs nuevos,
+> evitando acumulación de procesos. `withoutOverlapping()` impide que se solapen
+> dos instancias. Los jobs son: `SendTelegramMessageJob` y
+> `SendConversationNotificationJob` (email de reanudación). Latencia máxima: ~1 min.
 
 ---
 
@@ -316,7 +322,7 @@ $PHP artisan optimize
 ```
 
 Efectos inmediatos:
-- El widget **no se monta** en el frontend (controlado por `VITE_CHAT_ENABLED` en el build, o en runtime si el build ya está desplegado con la guarda activa).
+- El widget **no se monta** en el frontend: `app.js` lee el prop `chat_enabled` que Inertia inyecta en el `data-page` del DOM — **sin recompilar**.
 - Todas las rutas `/api/chat/*` devuelven `503` excepto el webhook de Telegram, que siempre recibe `200`.
 - La bandeja de chat desaparece del menú de Filament.
 
