@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ChatMessage extends Model
 {
+    // 'sender' is intentionally fillable so internal code can use create([...]).
+    // It must NEVER be sourced from request data — controllers always hardcode the value.
+    // The SecurityAttackTest verifies this invariant survives refactors.
     protected $fillable = [
         'conversation_id',
         'sender',

@@ -84,7 +84,7 @@ class PurgeOldConversations extends Command
                 foreach ($conv->messages as $msg) {
                     if ($msg->attachment_path) {
                         try {
-                            Storage::disk('private')->delete($msg->attachment_path);
+                            Storage::disk('private')->delete('chat/attachments/' . $msg->attachment_path);
                             $files++;
                         } catch (\Throwable $e) {
                             Log::warning('chat:purge — failed to delete attachment', [

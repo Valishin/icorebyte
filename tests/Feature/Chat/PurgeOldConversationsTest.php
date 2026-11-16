@@ -134,10 +134,11 @@ class PurgeOldConversationsTest extends TestCase
 
         $old = $this->conv(['created_at' => now()->subDays(91)]);
         Storage::disk('private')->put('chat/attachments/test.jpg', 'fake-image-data');
+        // attachment_path stores only the filename (as ImageProcessor returns), not the full path
         $old->messages()->create([
             'sender'          => 'visitor',
             'body'            => '',
-            'attachment_path' => 'chat/attachments/test.jpg',
+            'attachment_path' => 'test.jpg',
         ]);
 
         $this->artisan('chat:purge')->assertExitCode(0);
@@ -154,8 +155,9 @@ class PurgeOldConversationsTest extends TestCase
         $old = $this->conv(['created_at' => now()->subDays(91)]);
         Storage::disk('private')->put('chat/attachments/img1.jpg', 'data1');
         Storage::disk('private')->put('chat/attachments/img2.jpg', 'data2');
-        $old->messages()->create(['sender' => 'visitor', 'body' => '', 'attachment_path' => 'chat/attachments/img1.jpg']);
-        $old->messages()->create(['sender' => 'agent',   'body' => '', 'attachment_path' => 'chat/attachments/img2.jpg']);
+        // attachment_path stores only the filename (as ImageProcessor returns), not the full path
+        $old->messages()->create(['sender' => 'visitor', 'body' => '', 'attachment_path' => 'img1.jpg']);
+        $old->messages()->create(['sender' => 'agent',   'body' => '', 'attachment_path' => 'img2.jpg']);
 
         $this->artisan('chat:purge')->assertExitCode(0);
 

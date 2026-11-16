@@ -81,7 +81,10 @@ Route::get('/chat/resume/{uuid}', function (Request $request, string $uuid) {
     ]);
 
     // 4. Redirect — token in fragment only (never reaches server, never in logs)
-    $base     = strtok($conv->page_url ?: '/', '?');
+    // Restrict page_url to own domain to prevent open-redirect token theft.
+    $rawBase  = strtok($conv->page_url ?: '/', '?');
+    $appUrl   = rtrim((string) config('app.url'), '/');
+    $base     = str_starts_with((string) $rawBase, $appUrl) ? $rawBase : $appUrl . '/';
     $fragment = 'chat=' . $uuid . '.' . $newRawToken;
 
     return redirect("{$base}#{$fragment}")
