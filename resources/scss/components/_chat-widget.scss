@@ -84,6 +84,12 @@
     box-shadow: 0 -4px 40px rgba(0, 0, 0, 0.35);
     z-index: 400;
 
+    // Form/new-conv phase: auto height so content is never scrollable
+    &--form {
+      height: auto;
+      max-height: 90dvh;
+    }
+
     @media (max-width: 480px) {
       width: 100%;
       border-radius: 20px 20px 0 0;
@@ -91,6 +97,11 @@
       height: var(--chat-visual-height, 100dvh);
       max-height: var(--chat-visual-height, 100dvh);
       bottom: var(--chat-visual-offset, 0px);
+
+      &--form {
+        height: auto;
+        max-height: var(--chat-visual-height, 90dvh);
+      }
     }
   }
 
@@ -199,71 +210,72 @@
 
     // Form/button variant (green button in form-wrap)
     .chat-widget__form-wrap & {
-      background: #25d366;
+      background: rgba(37, 211, 102, 0.12);
+      border: 1px solid rgba(37, 211, 102, 0.3);
       border-radius: 8px;
-      padding: 10px 16px;
-      color: #fff;
-      font-size: 14px;
+      padding: 8px 14px;
+      color: #25d366;
+      font-size: 13px;
       justify-content: center;
 
-      svg { fill: #fff; }
+      svg { fill: #25d366; }
 
       &:hover, &:focus-visible {
-        background: #1db855;
-        outline: 2px solid #1db855;
+        background: rgba(37, 211, 102, 0.2);
+        outline: 2px solid rgba(37, 211, 102, 0.4);
       }
     }
   }
 
   // ── Form ──────────────────────────────────────────────────────────────────
   &__form-wrap {
-    padding: var(--space-lg);
+    padding: 16px var(--space-md);
     display: flex;
     flex-direction: column;
-    gap: var(--space-md);
-    flex: 1;
+    gap: 10px;
     overflow-y: auto;
   }
 
   &__form-title {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
     color: var(--color-text);
     margin: 0;
   }
 
   &__out-hours {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--color-text-muted);
     background: rgba(255, 255, 255, 0.06);
     border-radius: 8px;
-    padding: var(--space-sm) var(--space-md);
+    padding: 8px 12px;
     line-height: 1.5;
   }
 
   &__form {
     display: flex;
     flex-direction: column;
-    gap: var(--space-md);
+    gap: 10px;
   }
 
   &__field {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 4px;
   }
 
   &__label {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
     color: var(--color-text-muted);
+    letter-spacing: 0.01em;
   }
 
   &__input {
     background: rgba(255, 255, 255, 0.07);
     border: 1px solid var(--color-border-subtle);
     border-radius: 8px;
-    padding: 10px 12px;
+    padding: 9px 12px;
     font-size: 16px;  // ≥16px prevents iOS zoom
     color: var(--color-text);
     font-family: inherit;
@@ -295,8 +307,8 @@
   &__consent {
     display: flex;
     align-items: flex-start;
-    gap: 10px;
-    font-size: 13px;
+    gap: 8px;
+    font-size: 12px;
     color: var(--color-text-muted);
     cursor: pointer;
     line-height: 1.5;
@@ -332,7 +344,7 @@
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    padding: 11px 20px;
+    padding: 10px 20px;
     transition: opacity 0.15s, transform 0.12s;
 
     &:disabled {

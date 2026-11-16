@@ -3,6 +3,7 @@
     <div
       ref="dialogRef"
       class="chat-widget__dialog"
+      :class="{ 'chat-widget__dialog--form': phase !== 'chat' }"
       role="dialog"
       aria-modal="true"
       :aria-label="t.title"
