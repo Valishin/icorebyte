@@ -22,16 +22,9 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        // Proxies de confianza: configurar en .env (TRUSTED_PROXIES).
-        // Dejar vacío por defecto — '*' permite falsear X-Forwarded-For y saltarse el rate limit.
-        // Formato: IP única, lista separada por comas, o '*' solo si hay un proxy de confianza delante.
-        $proxiesEnv = env('TRUSTED_PROXIES', '');
-        $proxies = match (true) {
-            $proxiesEnv === '*' => '*',
-            $proxiesEnv !== ''  => array_map('trim', explode(',', $proxiesEnv)),
-            default             => null,
-        };
-        $middleware->trustProxies(at: $proxies);
+        // trustProxies se configura en AppServiceProvider::boot() con config(),
+        // para que funcione con la config cacheada (php artisan optimize).
+        // env() aquí devuelve null con cache activa porque Dotenv no ha corrido aún.
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

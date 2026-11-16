@@ -43,6 +43,14 @@ return [
     // Habilitar con CHAT_TELEGRAM_ENABLED=true + TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID
     'telegram_enabled' => env('CHAT_TELEGRAM_ENABLED', false),
 
+    // Diagnóstico de proxy — dejar vacío para que la ruta /api/chat/proxy-info devuelva 404
+    'diagnose_token'  => env('CHAT_DIAGNOSE_TOKEN', ''),
+
+    // Proxies de confianza — dejar vacío por defecto; '*' solo si hay proxy dedicado delante
+    // Formato: IP única, lista separada por comas, o '*'
+    // Leer con config() para que funcione con la config cacheada (php artisan optimize)
+    'trusted_proxies' => env('TRUSTED_PROXIES', ''),
+
     // Locales admitidos en el widget (es=respaldo)
     'supported_locales' => ['es', 'ca', 'en', 'fr'],
 

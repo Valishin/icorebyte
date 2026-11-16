@@ -334,6 +334,67 @@ class SecurityXssAdminCorsTest extends TestCase
         );
     }
 
+    // ── env() fuera de config/ — regresión config cache ──────────────────────
+
+    /**
+     * Verifica que no quedan llamadas a env() fuera de config/ en el código fuente.
+     *
+     * Con `php artisan optimize` (config cacheada), env() devuelve null fuera de config/.
+     * Este test hace un grep del código para detectar cualquier regresión antes de que
+     * llegue a producción y rompa rutas o middlewares silenciosamente.
+     *
+     * Directorios analizados: app/, routes/, bootstrap/, resources/views/, database/
+     * Excluidos: config/ (env() correcto ahí), vendor/, node_modules/
+     */
+    public function test_no_env_calls_outside_config_directory(): void
+    {
+        $base = base_path();
+
+        $dirs = ['app', 'routes', 'bootstrap', 'resources/views', 'database'];
+
+        $found = [];
+
+        foreach ($dirs as $dir) {
+            $path = $base . '/' . $dir;
+            if (! is_dir($path)) {
+                continue;
+            }
+
+            $iterator = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS)
+            );
+
+            foreach ($iterator as $file) {
+                /** @var \SplFileInfo $file */
+                if ($file->getExtension() !== 'php') {
+                    continue;
+                }
+
+                $lines   = file($file->getPathname()) ?: [];
+                $relPath = str_replace($base . '/', '', $file->getPathname());
+
+                foreach ($lines as $lineNo => $line) {
+                    // Skip pure comments
+                    $trimmed = ltrim($line);
+                    if (str_starts_with($trimmed, '//') || str_starts_with($trimmed, '*') || str_starts_with($trimmed, '#')) {
+                        continue;
+                    }
+
+                    if (preg_match('/\benv\s*\(/', $line)) {
+                        $found[] = sprintf('%s:%d  %s', $relPath, $lineNo + 1, rtrim($line));
+                    }
+                }
+            }
+        }
+
+        $this->assertEmpty(
+            $found,
+            "Se encontraron llamadas a env() fuera de config/ — con la config cacheada devolverán null:\n"
+            . implode("\n", $found)
+            . "\n\nMueve cada env() al archivo de config correspondiente y usa config() en el código."
+        );
+    }
+
     /**
      * Una petición OPTIONS (preflight) desde un origen desconocido no revelea ACAO.
      */

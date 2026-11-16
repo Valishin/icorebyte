@@ -37,7 +37,7 @@ Route::post('/telegram/webhook', [TelegramController::class, 'webhook'])
 // Devuelve 404 si CHAT_DIAGNOSE_TOKEN no está configurado (ruta invisible).
 // Devuelve 404 si el token no coincide (no revela que la ruta existe).
 Route::get('/proxy-info', function (\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse {
-    $secret = env('CHAT_DIAGNOSE_TOKEN', '');
+    $secret = config('chat.diagnose_token', '');
 
     // Sin token configurado → la ruta no existe
     if ($secret === '') {
@@ -55,7 +55,7 @@ Route::get('/proxy-info', function (\Illuminate\Http\Request $request): \Illumin
         'cf_connecting_ip' => $request->header('CF-Connecting-IP'),
         'x_real_ip'        => $request->header('X-Real-IP'),
         'laravel_ip'        => $request->ip(),
-        'trusted_proxies'  => env('TRUSTED_PROXIES', '(ninguno)'),
+        'trusted_proxies'  => config('chat.trusted_proxies') ?: '(ninguno)',
     ]);
 })->name('chat.proxy-info');
 // ─────────────────────────────────────────────────────────────────────────────
