@@ -127,6 +127,88 @@ No hay transacción ni índice UNIQUE. Con dos requests simultáneos del mismo `
 
 ---
 
+### 🟡 MEDIO — CORS: `/api/chat` respondía con `Access-Control-Allow-Origin: *`
+
+**Archivo:** `config/cors.php` (creado)
+
+El proyecto no tenía `config/cors.php`. El framework aplica por defecto `'allowed_origins' => ['*']` a todas las rutas `api/*`. Resultado: cualquier origen podía llamar a la API de chat desde JS de terceros.
+
+**Impacto:** Un script en evil.com podía crear conversaciones falsas, leer mensajes de cualquier conversación cuyo token obtuviera (p.ej. robado de localStorage), y agotar los rate-limits de visitantes legítimos. Con CORS wildcard y `supports_credentials: false`, las cookies no viajan —pero los tokens Bearer sí.
+
+**Arreglo:** Crear `config/cors.php` con `'allowed_origins' => [env('APP_URL')]`. Solo el dominio propio puede hacer llamadas cross-origin.
+
+**Test:** `SecurityXssAdminCorsTest::test_cors_rejects_request_from_unknown_origin` y `test_cors_allows_request_from_app_url`.
+
+---
+
+## TABLA DE COBERTURA
+
+| # | Área auditada | Hallazgo | Estado | Test que lo demuestra |
+|---|---------------|----------|--------|----------------------|
+| 1 | IDOR — token por conversación | Sin problemas — middleware valida token + uuid | ✅ Confirmado seguro | `SecurityAttackTest::test_idor_visitor_token_of_conv_a_cannot_read_conv_b`, `test_idor_wrong_token_cannot_post_message_to_conversation`, `TokenAuthTest` (5 tests) |
+| 2 | XSS — widget, Filament, Telegram, email | Sin problemas — Vue `{{ }}`, Blade `{{ }}`, `htmlspecialchars()` en Telegram | ✅ Confirmado seguro | `SecurityXssAdminCorsTest` (4 tests: message body, visitor name, Telegram dispatch x2, email x2) |
+| 3 | Webhook Telegram — secret, chat_id, callback_query | Sin problemas — `hash_equals` del secret; filtra chat_id en message y callback_query | ✅ Confirmado seguro | `TelegramWebhookTest::test_missing_secret_returns_200_silently`, `test_wrong_secret_returns_200_silently`, `test_message_from_wrong_chat_id_is_ignored`, `test_callback_query_from_wrong_chat_id_is_ignored` |
+| 4 | Panel /admin — is_agent, 2FA obligatoria | Sin problemas — `canAccessPanel` → `is_agent`; Filament bloquea con 403 | ✅ Confirmado seguro | `SecurityXssAdminCorsTest::test_non_agent_user_cannot_access_admin_panel`, `test_non_agent_user_cannot_access_filament_livewire_endpoint` |
+| 5 | Rate limiting / CDN proxy (X-Forwarded-For falso) | Sin problemas en tests — `TRUSTED_PROXIES` vacío = ignora XFF | ✅ Confirmado seguro (ver nota) | `TrustProxiesTest::test_spoofed_x_forwarded_for_does_not_change_rate_limit_key`, `test_rate_limit_key_uses_remote_addr_not_forwarded_for` |
+| 6 | Open redirect (page_url) | **🔴 ALTO — CORREGIDO** — `page_url` externo redirigía con token en fragmento | ✅ Corregido | `SecurityAttackTest::test_resume_redirect_with_external_page_url_goes_to_home`, `test_resume_redirect_with_own_domain_page_url_is_allowed` |
+| 7 | GDPR purge — adjuntos borrados | **🟠 MEDIO-ALTO — CORREGIDO** — ruta `'uuid.jpg'` no encontraba `'chat/attachments/uuid.jpg'` | ✅ Corregido | `SecurityAttackTest::test_purge_deletes_attachment_file_from_disk`, `PurgeOldConversationsTest::test_purge_removes_attachment_files` |
+| 8 | CORS (`/api/chat` con `*`) | **🟡 MEDIO — CORREGIDO** — framework default aplicaba wildcard | ✅ Corregido | `SecurityXssAdminCorsTest::test_cors_rejects_request_from_unknown_origin`, `test_cors_allows_request_from_app_url` |
+
+> **Nota sobre rate limiting en producción:** Los tests usan REMOTE_ADDR = 127.0.0.1 (sin CDN), por lo que los tests pasan. En producción con Hostinger hcdn, `$request->ip()` = IP del CDN → todos los visitantes comparten el mismo bucket. Ver sección siguiente.
+
+---
+
+## CDN DE HOSTINGER (hcdn) — TRUSTED_PROXIES
+
+### Hallazgos de la investigación
+
+Hostinger no publica documentación oficial sobre qué cabecera usa su CDN (hcdn) para la IP real del cliente, ni rangos de IP oficiales. Las observaciones de la comunidad y el comportamiento típico de hcdn (basado en LiteSpeed y Nginx) sugieren `X-Forwarded-For`, pero no está garantizado.
+
+**Para determinarlo con certeza en producción:** usar el endpoint de diagnóstico del propio proyecto:
+
+```
+GET /api/chat/proxy-info
+X-Diagnose-Token: <CHAT_DIAGNOSE_TOKEN de .env>
+```
+
+Este endpoint devuelve todas las cabeceras recibidas, incluidas `X-Forwarded-For`, `X-Real-IP` y `CF-Connecting-IP` si las hubiera.
+
+### Opciones de configuración (de más segura a menos)
+
+#### Opción A — IP/CIDR fijo del CDN (más segura, difícil de mantener)
+```env
+TRUSTED_PROXIES=185.230.xxx.xxx/24
+TRUSTED_HEADERS=FORWARDED|X_FORWARDED_FOR|X_FORWARDED_HOST|X_FORWARDED_PORT|X_FORWARDED_PROTO
+```
+- **Ventaja:** Solo confía en proxies conocidos. Un atacante externo no puede spoofear la IP.
+- **Riesgo:** Si Hostinger rota las IPs del edge (fra-edge7, mad-edge2, etc.), la IP "de confianza" deja de coincidir con `REMOTE_ADDR` → `$request->ip()` vuelve a ser la IP del CDN → rate limiting ciego.
+- **Cómo obtenerla:** Leer REMOTE_ADDR en `/api/chat/proxy-info` desde producción.
+
+#### Opción B — Wildcard `*` (más simple, riesgo controlado)
+```env
+TRUSTED_PROXIES=*
+TRUSTED_HEADERS=X_FORWARDED_FOR
+```
+- **Comportamiento:** Laravel confía en CUALQUIER `X-Forwarded-For`, incluido uno falsificado por un atacante directo.
+- **Riesgo real:** Un atacante que llega directamente al servidor (saltándose el CDN) puede poner cualquier IP en `X-Forwarded-For` y bypassear el rate limit completamente.
+- **Cuándo es aceptable:** Si y solo si el servidor **no es accesible públicamente** en los puertos 80/443 sin pasar por el CDN. Con Hostinger Shared/Cloud, el origen suele ser accesible directamente — hay que verificarlo.
+
+**Verificación:** `curl -H "X-Forwarded-For: 1.2.3.4" https://icorebyte.com/api/chat/proxy-info | grep remote_addr`. Si `remote_addr` es la IP del CDN (no 1.2.3.4), el servidor NO filtra XFF antes de llegar a Laravel → `TRUSTED_PROXIES=*` es arriesgado.
+
+#### Opción C — Sin TRUSTED_PROXIES (estado actual en producción)
+- `$request->ip()` = IP del CDN → rate limiting ciego (todos comparten bucket)
+- XFF falso ignorado (no peor que el estado actual en cuanto a seguridad de rate limit)
+- **Recomendación:** Peor que las opciones A y B para rate limiting; igual de seguro frente a spoofing.
+
+### Recomendación
+
+1. Ejecutar `/api/chat/proxy-info` en producción con tráfico real para identificar REMOTE_ADDR y qué cabecera lleva la IP del visitante.
+2. Si REMOTE_ADDR es siempre la misma IP del CDN: usar **Opción A** con ese CIDR.
+3. Si REMOTE_ADDR varía (edge IPs rotan): usar **Opción B** solo si el servidor no es accesible sin CDN. Verificar cerrando el puerto 80/443 al tráfico no-CDN en el firewall de Hostinger.
+4. Si no es posible restringir el acceso directo: documentar el rate limiting ciego como riesgo aceptado (un atacante puede vaciar el límite diario de chat.create pero no spoofear la IP de otro visitante para hacer más daño).
+
+---
+
 ## Cambios en producción requeridos tras el fix
 
 ```bash
@@ -134,7 +216,10 @@ No hay transacción ni índice UNIQUE. Con dos requests simultáneos del mismo `
 php artisan optimize:clear
 php artisan optimize
 
-# Si se configura TRUSTED_PROXIES (tras identificar IP del CDN con proxy-info):
-# En .env de producción:
+# CORS: config/cors.php ya está publicado — no requiere cambios en .env.
+
+# Rate limiting / CDN (ver sección TRUSTED_PROXIES):
+# Una vez identificada la IP del CDN con proxy-info:
 TRUSTED_PROXIES=<ip-del-cdn-de-hostinger>
+TRUSTED_HEADERS=X_FORWARDED_FOR
 ```
