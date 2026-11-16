@@ -147,55 +147,116 @@ class SecurityXssAdminCorsTest extends TestCase
     }
 
     /**
-     * El email de reanudación usa Blade {{ }} (auto-escape) para el nombre del visitante.
-     * Verificamos que el HTML renderizado contiene &lt; y no el tag sin escapar.
+     * El email de reanudación usa Blade {{ }} directamente (sin e() previo).
+     * Verifica tres propiedades:
+     *  1. Caracteres legibles (apóstrofo, &) se muestran como tales en el navegador
+     *     (HTML contiene &amp; y &#039;, NO &amp;amp; ni &amp;#039; = doble escape).
+     *  2. Tags HTML en el body del mensaje se muestran como texto, no se ejecutan
+     *     (HTML contiene &lt;b&gt;, NO <b> literal).
+     *  3. Payload XSS no aparece sin escapar.
      *
-     * Nota: $message es una variable reservada en el pipeline de Mailable de Laravel
-     * (Illuminate\Mail\Message). Se prueba la plantilla directamente con view() para
-     * evitar la colisión de variables y verificar el escape de Blade de forma aislada.
+     * Nota: Se renderiza la plantilla con view() en lugar de $mailable->render()
+     * porque $message es una variable reservada en el pipeline de Mailable de Laravel
+     * (Illuminate\Mail\Message) que sobreescribiría la propiedad pública del Mailable.
      */
-    public function test_xss_in_visitor_name_is_escaped_in_resume_email(): void
+    public function test_email_escaping_is_correct_and_not_doubled(): void
     {
-        $xss  = '<img src=x onerror=alert(1)>';
-        $conv = $this->makeConv(['visitor_name' => $xss]);
-        $msg  = $conv->messages()->create(['sender' => 'agent', 'body' => 'Hola']);
+        // Name with apostrophe and ampersand — must be readable in the email client
+        $name = "L'Escala & Co";
+        // Body with HTML tags and ampersand — must be shown as text, not rendered as HTML
+        $body = '<b>hola</b> & adiós';
 
-        // Render the template directly (bypasses Mailable's reserved $message variable)
+        $conv = $this->makeConv(['visitor_name' => $name]);
+        $msg  = $conv->messages()->create(['sender' => 'agent', 'body' => $body]);
+
         $rendered = view('mail.chat.conversation-notification', [
             'conversation' => $conv,
             'message'      => $msg,
             'resumeUrl'    => 'http://localhost/',
         ])->render();
 
-        // The template pre-escapes with e() then wraps in {{ }}: double-escape is harmless
-        // but the raw payload must never appear verbatim in the output.
-        $this->assertStringNotContainsString(
-            $xss,
-            $rendered,
-            'Raw XSS payload must not appear unescaped in the rendered email'
-        );
+        // 1. Ampersand: single-encoded &amp; (browser shows &), NOT double-encoded &amp;amp;
+        $this->assertStringContainsString('&amp;', $rendered,
+            'Ampersand must be HTML-encoded (&amp;) so the browser renders it as &');
+        $this->assertStringNotContainsString('&amp;amp;', $rendered,
+            'Double-encoded ampersand (&amp;amp;) means e() + {{ }} double-escape bug is present');
+
+        // 2. Apostrophe: single-encoded &#039; (browser shows '), NOT double-encoded &amp;#039;
+        $this->assertStringContainsString('&#039;', $rendered,
+            'Apostrophe must be HTML-encoded (&#039;) so the browser renders it as \'');
+        $this->assertStringNotContainsString('&amp;#039;', $rendered,
+            'Double-encoded apostrophe (&amp;#039;) means e() + {{ }} double-escape bug is present');
+
+        // 3. HTML tags in body are escaped to text (not rendered as HTML)
+        $this->assertStringContainsString('&lt;b&gt;', $rendered,
+            '<b> tag in body must be escaped to &lt;b&gt; so it shows as text');
+        $this->assertStringNotContainsString('<b>hola</b>', $rendered,
+            'Raw <b> tag must not appear in email HTML — would render bold, not text');
+        $this->assertStringNotContainsString('&amp;lt;', $rendered,
+            'Double-encoded < (&amp;lt;) means body was pre-escaped before {{ }}');
+
+        // 4. XSS payload does not execute
+        $xssName = '<img src=x onerror=alert(1)>';
+        $xssConv = $this->makeConv(['visitor_name' => $xssName]);
+        $xssMsg  = $xssConv->messages()->create(['sender' => 'agent', 'body' => '<script>alert(document.cookie)</script>']);
+
+        $xssRendered = view('mail.chat.conversation-notification', [
+            'conversation' => $xssConv,
+            'message'      => $xssMsg,
+            'resumeUrl'    => 'http://localhost/',
+        ])->render();
+
+        $this->assertStringNotContainsString($xssName, $xssRendered,
+            'Raw XSS payload in visitor name must not appear in email');
+        $this->assertStringNotContainsString('<script>', $xssRendered,
+            'Raw <script> tag must not appear in email body');
     }
 
     /**
-     * El email también escapa el body del mensaje del agente.
+     * El mensaje de bienvenida se guarda en BD como texto plano.
+     * Si se guardara con e() (HTML pre-escapado), Filament y Vue harían doble escape
+     * y el visitante vería entidades HTML literales como &#039; y &amp;.
      */
-    public function test_xss_in_agent_message_body_is_escaped_in_resume_email(): void
+    public function test_welcome_message_visitor_name_stored_as_plain_text(): void
     {
-        $xss  = '<svg onload=alert(1)>';
-        $conv = $this->makeConv(['visitor_name' => 'Normal User']);
-        $msg  = $conv->messages()->create(['sender' => 'agent', 'body' => $xss]);
+        $this->mock(\App\Services\Chat\AvailabilityService::class, function ($mock) {
+            $mock->shouldReceive('isOnline')->andReturn(true);
+            $mock->shouldReceive('isOpen')->andReturn(true);
+            $mock->shouldReceive('isAgentAvailable')->andReturn(true);
+            $mock->shouldReceive('status')->andReturn([
+                'is_open'       => true,
+                'is_online'     => true,
+                'next_open_text' => '',
+                'timezone'      => 'Europe/Madrid',
+            ]);
+        });
 
-        $rendered = view('mail.chat.conversation-notification', [
-            'conversation' => $conv,
-            'message'      => $msg,
-            'resumeUrl'    => 'http://localhost/',
-        ])->render();
+        $response = $this->postJson('/api/chat/conversations', [
+            'visitor_name' => "L'Escala & Co",
+            'consent'      => '1',
+            'locale'       => 'es',
+        ]);
+        $response->assertStatus(201);
 
-        $this->assertStringNotContainsString(
-            $xss,
-            $rendered,
-            'Raw XSS tag must not appear unescaped in the email'
-        );
+        $token = $response->json('visitor_token');
+        $uuid  = $response->json('uuid');
+
+        // The system welcome message body must contain the raw name (plain text),
+        // NOT pre-escaped HTML entities — escaping happens at render time (Vue / Blade).
+        $messages = $this->withHeaders(['X-Chat-Visitor-Token' => $token])
+            ->getJson("/api/chat/conversations/{$uuid}/messages")
+            ->json('messages');
+
+        $sysMsg = collect($messages)->firstWhere('sender', 'system');
+        $this->assertNotNull($sysMsg, 'A system welcome message must be created');
+
+        // Raw apostrophe and ampersand in the JSON body — Vue {{ }} will escape at render time
+        $this->assertStringContainsString("L'Escala & Co", $sysMsg['body'],
+            'Welcome message body must contain the raw visitor name, not pre-HTML-encoded');
+        $this->assertStringNotContainsString('&#039;', $sysMsg['body'],
+            'Pre-encoded apostrophe (&#039;) in DB body means double-escape on render');
+        $this->assertStringNotContainsString('&amp;', $sysMsg['body'],
+            'Pre-encoded ampersand (&amp;) in DB body means double-escape on render');
     }
 
     // ── Admin panel: control de acceso ────────────────────────────────────────

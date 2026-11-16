@@ -33,11 +33,9 @@
         <p class="header-sub">icorebyte.com</p>
     </div>
     <div class="body">
-        @php $name = e($conversation->visitor_name); @endphp
-
         @switch($conversation->locale)
             @case('ca')
-                <p class="greeting">Hola, {{ $name }}!</p>
+                <p class="greeting">Hola, {{ $conversation->visitor_name }}!</p>
                 @if($message->body)
                 <p style="font-size:14px;color:#475569;margin:0 0 10px">T'hem enviat un missatge:</p>
                 <div class="bubble">{{ $message->body }}</div>
@@ -48,7 +46,7 @@
                 @break
 
             @case('en')
-                <p class="greeting">Hello, {{ $name }}!</p>
+                <p class="greeting">Hello, {{ $conversation->visitor_name }}!</p>
                 @if($message->body)
                 <p style="font-size:14px;color:#475569;margin:0 0 10px">We sent you a message:</p>
                 <div class="bubble">{{ $message->body }}</div>
@@ -59,7 +57,7 @@
                 @break
 
             @case('fr')
-                <p class="greeting">Bonjour, {{ $name }} !</p>
+                <p class="greeting">Bonjour, {{ $conversation->visitor_name }} !</p>
                 @if($message->body)
                 <p style="font-size:14px;color:#475569;margin:0 0 10px">Nous vous avons envoyé un message :</p>
                 <div class="bubble">{{ $message->body }}</div>
@@ -70,7 +68,7 @@
                 @break
 
             @default
-                <p class="greeting">Hola, {{ $name }}!</p>
+                <p class="greeting">Hola, {{ $conversation->visitor_name }}!</p>
                 @if($message->body)
                 <p style="font-size:14px;color:#475569;margin:0 0 10px">Te hemos enviado un mensaje:</p>
                 <div class="bubble">{{ $message->body }}</div>

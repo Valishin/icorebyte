@@ -186,7 +186,7 @@ class ConversationController extends Controller
     private function sendWelcomeMessage(ChatConversation $conversation): void
     {
         $locale = $conversation->locale;
-        $name   = e($conversation->visitor_name);
+        $name   = $conversation->visitor_name;
         $phone  = (string) config('chat.agent_phone', '+34 678 758 210');
 
         if ($this->availability->isOnline()) {
