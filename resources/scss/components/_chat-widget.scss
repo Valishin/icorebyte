@@ -185,6 +185,7 @@
     }
   }
 
+  // Icono WhatsApp en el header (junto al botón cerrar)
   &__whatsapp-btn {
     background: none;
     border: none;
@@ -196,35 +197,70 @@
     border-radius: 6px;
     text-decoration: none;
     color: rgba(255,255,255,0.85);
-    font-size: 13px;
-    font-weight: 500;
-    gap: 6px;
-    white-space: nowrap;
 
     svg { width: 20px; height: 20px; fill: #25d366; flex-shrink: 0; }
 
     &:hover, &:focus-visible {
       background: rgba(255,255,255,0.12);
       outline: 2px solid rgba(255,255,255,0.4);
+      outline-offset: 1px;
     }
+  }
 
-    // Form/button variant (green button in form-wrap)
-    .chat-widget__form-wrap & {
-      background: rgba(37, 211, 102, 0.12);
-      border: 1px solid rgba(37, 211, 102, 0.3);
-      border-radius: 8px;
-      padding: 8px 14px;
-      color: #25d366;
-      font-size: 13px;
-      justify-content: center;
+  // CTA WhatsApp en formulario y fase new-conv
+  &__whatsapp-cta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #25d366;
+    border-radius: 10px;
+    padding: 11px 14px;
+    text-decoration: none;
+    color: #fff;
+    transition: background 0.15s, box-shadow 0.15s;
 
-      svg { fill: #25d366; }
-
-      &:hover, &:focus-visible {
-        background: rgba(37, 211, 102, 0.2);
-        outline: 2px solid rgba(37, 211, 102, 0.4);
-      }
+    &:hover, &:focus-visible {
+      background: #20c05c;
+      box-shadow: 0 4px 16px rgba(37, 211, 102, 0.35);
+      outline: 2px solid rgba(37, 211, 102, 0.6);
+      outline-offset: 2px;
     }
+  }
+
+  &__whatsapp-cta-icon {
+    width: 22px;
+    height: 22px;
+    fill: #fff;
+    flex-shrink: 0;
+  }
+
+  &__whatsapp-cta-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__whatsapp-cta-label {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: #fff;
+  }
+
+  &__whatsapp-cta-sub {
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1.3;
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  &__whatsapp-cta-arrow {
+    width: 18px;
+    height: 18px;
+    fill: rgba(255, 255, 255, 0.7);
+    flex-shrink: 0;
   }
 
   // ── Form ──────────────────────────────────────────────────────────────────
