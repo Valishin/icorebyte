@@ -97,6 +97,7 @@
     &__inner {
       text-align: center;
       padding-bottom: 68px;
+      padding-inline: var(--container-padding);
 
       &.color-primary {
         color: var(--color-primary);
@@ -117,18 +118,21 @@
     &__wrapper-description,
     &__wrapper-button {
       opacity: 0;
-      transform: translateY(20px);
       transition:
-        opacity 0.55s ease,
-        transform 0.55s ease;
+        opacity   0.65s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
 
-      // Respeta la preferencia del usuario
       @media (prefers-reduced-motion: reduce) {
         opacity: 1;
         transform: none;
         transition: none;
       }
     }
+
+    &__wrapper-overline    { transform: translateY(16px); }
+    &__wrapper-title       { transform: translateY(28px) scale(0.97); }
+    &__wrapper-description { transform: translateY(18px); }
+    &__wrapper-button      { transform: translateY(14px); }
 
     // ── Estado visible: stagger por elemento ──────────────
     .is-visible & {
@@ -141,19 +145,19 @@
       &__wrapper-title {
         opacity: 1;
         transform: none;
-        transition-delay: 0.1s;
+        transition-delay: 0.08s;
       }
 
       &__wrapper-description {
         opacity: 1;
         transform: none;
-        transition-delay: 0.2s;
+        transition-delay: 0.18s;
       }
 
       &__wrapper-button {
         opacity: 1;
         transform: none;
-        transition-delay: 0.3s;
+        transition-delay: 0.28s;
         padding-top: 46px;
       }
     }
