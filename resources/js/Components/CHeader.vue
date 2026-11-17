@@ -246,18 +246,6 @@
             </Transition>
           </div>
 
-          <a
-            href="#contacto"
-            class="c-header__cta c-header__cta--mobile"
-            @click.prevent="
-              () => {
-                handleNav('#contacto')
-                menuOpen = false
-              }
-            "
-          >
-            Solicitar Presupuesto
-          </a>
         </div>
       </Transition>
     </div>
@@ -419,6 +407,7 @@
     &__mobile-section {
       display: flex;
       flex-direction: column;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     }
 
     &__mobile-link--section {
@@ -427,9 +416,10 @@
       justify-content: space-between;
       background: none;
       border: none;
-      padding: 0;
+      padding: 0.875rem 0;
       font-family: inherit;
-      font-size: 1rem;
+      font-size: 1.125rem;
+      font-weight: 500;
       color: var(--color-text-muted);
       cursor: pointer;
       width: 100%;
@@ -440,43 +430,20 @@
 
     &__mobile-sub {
       padding-left: 16px;
-      margin-top: 8px;
+      padding-bottom: 12px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
       border-left: 2px solid var(--color-primary);
     }
 
     &__mobile-sub-link {
-      font-size: 0.9rem;
+      font-size: 0.9375rem;
       color: var(--color-gray-dark);
       text-decoration: none;
       transition: color 0.2s;
 
       &:hover { color: var(--color-white); }
-    }
-
-    &__cta {
-      display: inline-flex;
-      align-items: center;
-      padding: 0.5rem 1.25rem;
-      border-radius: 6px;
-      font-size: 0.9375rem;
-      font-weight: 600;
-      color: #fff;
-      background: var(--color-primary);
-      text-decoration: none;
-      cursor: pointer;
-      transition: opacity 0.2s;
-
-      &:hover {
-        opacity: 0.85;
-      }
-
-      &--mobile {
-        margin-top: 0.5rem;
-        justify-content: center;
-      }
     }
 
     &__burger {
@@ -526,11 +493,12 @@
       right: 0;
       width: 100%;
       flex-direction: column;
-      padding: 1rem 1.5rem 1.5rem;
+      padding: 1.25rem 1.5rem 2rem;
       background: var(--color-black);
       border-top: 1px solid var(--color-border-subtle);
-      gap: 1rem;
+      gap: 0;
       transform-origin: top;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
     }
   }
 
@@ -659,10 +627,18 @@
 
   .c-header {
     &__mobile-link {
-      font-size: 1rem;
+      font-size: 1.125rem;
+      font-weight: 500;
       color: var(--color-text-muted);
       text-decoration: none;
       transition: color 0.2s;
+      padding: 0.875rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      display: block;
+
+      &:last-child {
+        border-bottom: none;
+      }
 
       &:hover {
         color: var(--color-white);
