@@ -5,6 +5,9 @@ namespace App\Providers\Filament;
 use App\Filament\Pages\ChatInbox;
 use App\Filament\Resources\QuickReplyResource;
 use App\Filament\Resources\SiteBannerResource;
+use Filament\View\PanelsRenderHook;
+use Illuminate\Support\Facades\Vite;
+use Illuminate\Support\HtmlString;
 use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -37,6 +40,12 @@ class AdminPanelProvider extends PanelProvider
                 QuickReplyResource::class,
                 SiteBannerResource::class,
             ])
+            ->renderHook(
+                PanelsRenderHook::STYLES_BEFORE,
+                fn (): HtmlString => new HtmlString(
+                    '<link rel="stylesheet" href="' . Vite::asset('resources/css/filament-admin.css') . '">'
+                ),
+            )
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
