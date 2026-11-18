@@ -6,35 +6,38 @@
   import CPageLoader from '@/Components/CPageLoader.vue'
   import CToast from '@/Components/CToast.vue'
   import { useTheme } from '@/composables/useTheme'
-  import { onMounted } from 'vue'
+  import { usePage } from '@inertiajs/vue3'
+  import { computed, onMounted } from 'vue'
 
   const { init } = useTheme()
   onMounted(() => init())
+
+  interface BannerProps {
+    title      : string
+    description?: string
+    image?     : string
+    cta_label? : string
+    cta_link?  : string
+    date_start?: string
+    date_end?  : string
+  }
+
+  const banner = computed(() => (usePage().props.banner as BannerProps | null) ?? null)
 </script>
 
 <template>
   <div class="l-public">
     <CPageLoader />
 
-    <!--
-      Banner promocional — edita las props para personalizar:
-        title      → texto principal
-        description→ subtexto (se oculta en móvil)
-        image      → ruta a imagen o thumbnail (opcional)
-        cta-label  → texto del botón
-        cta-link   → ancla (#contacto) o URL externa
-        date-start → 'YYYY-MM-DD'  (el banner no aparece antes de esta fecha)
-        date-end   → 'YYYY-MM-DD'  (el banner desaparece después de esta fecha)
-    -->
     <CBannerFix
-      icon="IconMobile"
-      title="20% dto. en cambio de pantalla para iPhone"
-      description="iPhone 11, 12, 13, 14, 15 · Solo este mes"
-      cta-label="Pedir cita"
-      cta-link="#contacto"
-      whatsapp-label="WhatsApp"
-      date-start="2026-06-01"
-      date-end="2026-06-30"
+      v-if="banner"
+      :title="banner.title"
+      :description="banner.description"
+      :image="banner.image"
+      :cta-label="banner.cta_label"
+      :cta-link="banner.cta_link"
+      :date-start="banner.date_start"
+      :date-end="banner.date_end"
     />
 
     <CHeader />

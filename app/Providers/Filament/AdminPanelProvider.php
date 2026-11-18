@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use App\Filament\Pages\ChatInbox;
 use App\Filament\Resources\QuickReplyResource;
+use App\Filament\Resources\SiteBannerResource;
 use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -34,6 +35,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->resources([
                 QuickReplyResource::class,
+                SiteBannerResource::class,
             ])
             ->middleware([
                 EncryptCookies::class,

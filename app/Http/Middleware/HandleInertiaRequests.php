@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\SiteBanner;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -35,6 +36,7 @@ class HandleInertiaRequests extends Middleware
                 'error' => fn () => $request->session()->get('error'),
             ],
             'chat_enabled' => (bool) config('chat.enabled', true),
+            'banner'       => fn () => SiteBanner::getActive(),
         ]);
     }
 }
